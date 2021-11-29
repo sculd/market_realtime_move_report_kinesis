@@ -17,8 +17,8 @@ public class Bar {
         this(bar.market, bar.symbol, new OHLC(bar.ohlc), bar.volume);
     }
 
-    public void Aggregate(Bar bar) {
-        this.ohlc.Aggregate(bar.ohlc);
+    public void aggregate(Bar bar) {
+        this.ohlc.aggregate(bar.ohlc);
         this.volume += bar.volume;
     }
 }

@@ -1,5 +1,10 @@
 package com.marketsignal;
 
+import com.marketsignal.stream.Stream;
+import com.marketsignal.timeseries.BarWithTime;
+import java.time.Duration;
+
+import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,6 +25,8 @@ public class RecordProcessor implements ShardRecordProcessor {
     private static final Logger log = LoggerFactory.getLogger(RecordProcessor.class);
 
     private String shardId;
+
+    Stream stream = new Stream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -59,6 +66,10 @@ public class RecordProcessor implements ShardRecordProcessor {
 
     void processRecord(KinesisClientRecord record) {
         log.info("Processing record pk: {} -- Seq: {}", record.partitionKey(), record.sequenceNumber());
+        byte[] arr = new byte[record.data().remaining()];
+        record.data().get(arr);
+        BarWithTime bwt = BarWithTime.fromBytes(arr);
+        stream.onBarWithTime(bwt);
     }
 
     /** Called when the lease tied to this record processor has been lost. Once the lease has been lost,

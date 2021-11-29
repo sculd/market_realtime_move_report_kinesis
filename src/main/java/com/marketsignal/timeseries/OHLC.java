@@ -19,7 +19,7 @@ public class OHLC {
         this(olhc.open, olhc.high, olhc.low, olhc.close);
     }
 
-    public void Aggregate(OHLC ohlc) {
+    public void aggregate(OHLC ohlc) {
         this.high = Math.max(this.high, ohlc.high);
         this.low = Math.min(this.low, ohlc.low);
         this.close = ohlc.close;

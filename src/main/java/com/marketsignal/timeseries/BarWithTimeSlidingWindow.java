@@ -28,7 +28,7 @@ public class BarWithTimeSlidingWindow {
         this.timeSeriesResolution = timeSeriesResolution;
     }
 
-    private void FillInZeroVolumeBwt(BarWithTime newBwt) {
+    private void fillInZeroVolumeBwt(BarWithTime newBwt) {
         long latestEpochSecondsInWindow = newBwt.epochSeconds - this.windowSize.toSeconds();
         OHLC latestOhlc = new OHLC(newBwt.bar.ohlc);
         if (!this.window.isEmpty()) {
@@ -45,19 +45,23 @@ public class BarWithTimeSlidingWindow {
         }
     }
 
-    public boolean IsEpochSecondsInWindow(long epochSeconds) {
+    public boolean isEpochSecondsInWindow(long epochSeconds, Duration windowSize) {
         long deltaSeconds = this.window.getLast().epochSeconds - epochSeconds;
-        boolean withinLeft = deltaSeconds < this.windowSize.toSeconds();
+        boolean withinLeft = deltaSeconds < windowSize.toSeconds();
         boolean withinRight = deltaSeconds >= 0;
         return withinLeft && withinRight;
     }
 
-    private void TruncateSlidingWindowHead() {
+    boolean isEpochSecondsInWindow(long epochSeconds) {
+        return isEpochSecondsInWindow(epochSeconds, this.windowSize);
+    }
+
+    private void truncateSlidingWindowHead() {
         while (true) {
             if (this.window.isEmpty()) {
                 break;
             }
-            if (IsEpochSecondsInWindow(this.window.getFirst().epochSeconds)) {
+            if (isEpochSecondsInWindow(this.window.getFirst().epochSeconds)) {
                 break;
             } else {
                 this.window.removeFirst();
@@ -65,11 +69,11 @@ public class BarWithTimeSlidingWindow {
         }
     }
 
-    private void AppendOrAggregate(BarWithTime newBwt) {
+    private void appendOrAggregate(BarWithTime newBwt) {
         boolean aggregated = false;
         if (!this.window.isEmpty()) {
             if (this.window.getLast().epochSeconds == newBwt.epochSeconds) {
-                this.window.getLast().bar.Aggregate(newBwt.bar);
+                this.window.getLast().bar.aggregate(newBwt.bar);
                 aggregated = true;
             }
         }
@@ -78,9 +82,9 @@ public class BarWithTimeSlidingWindow {
         }
     }
 
-    public void AddBarWithTime(BarWithTime newBwt) {
-        FillInZeroVolumeBwt(newBwt);
-        AppendOrAggregate(newBwt);
-        TruncateSlidingWindowHead();
+    public void addBarWithTime(BarWithTime newBwt) {
+        fillInZeroVolumeBwt(newBwt);
+        appendOrAggregate(newBwt);
+        truncateSlidingWindowHead();
     }
 }

@@ -4,6 +4,8 @@ import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import lombok.Builder;
 
+import java.time.Duration;
+
 public class Changes {
     @Builder
     static public class AnalyzeResult {
@@ -24,7 +26,6 @@ public class Changes {
                              double maxJump, double priceAtMaxJump, long maxJumpEpochSeconds,
                              double minPriceForMaxJump, long minPriceForMaxJumpEpochSeconds,
                              double change) {
-
             this.minDrop = minDrop;
             this.priceAtMinDrop = priceAtMinDrop;
             this.minDropEpochSeconds = minDropEpochSeconds;
@@ -39,7 +40,15 @@ public class Changes {
         }
     }
 
-    static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow) {
+    static public class AnalyzeParameter {
+        public Duration windowSize;
+
+        public AnalyzeParameter(Duration windowSize) {
+            this.windowSize = windowSize;
+        }
+    }
+
+    static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
         if (bwtSlidingWindow.window.isEmpty()) {
             return AnalyzeResult.builder().build();
         }
@@ -60,9 +69,8 @@ public class Changes {
         long maxPriceForMinDropEpochSeconds = 0;
         long minPriceForMaxJumpEpochSeconds = 0;
 
-        long recentEpochSeconds = bwtSlidingWindow.window.getLast().epochSeconds;
         for (BarWithTime bwt : bwtSlidingWindow.window) {
-            if (!bwtSlidingWindow.IsEpochSecondsInWindow(bwt.epochSeconds)) {
+            if (!bwtSlidingWindow.isEpochSecondsInWindow(bwt.epochSeconds, parameter.windowSize)) {
                 continue;
             }
 

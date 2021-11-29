@@ -16,16 +16,15 @@ public class Stream {
         this.timeSeriesResolution = timeSeriesResolution;
     }
 
-    static String BwtToKeyString(BarWithTime bwt) {
+    static String bwtToKeyString(BarWithTime bwt) {
         return String.format("%s.%s", bwt.bar.market, bwt.bar.symbol);
     }
 
-    public void OnBarWithTime(BarWithTime bwt) {
-        String key = BwtToKeyString(bwt);
-
+    public void onBarWithTime(BarWithTime bwt) {
+        String key = bwtToKeyString(bwt);
         if (!KeyedBarWithTimeSlidingWindows.containsKey(key)) {
             KeyedBarWithTimeSlidingWindows.put(key, new BarWithTimeSlidingWindow(bwt.bar.market, bwt.bar.symbol, this.windowSize, this.timeSeriesResolution));
         }
-        KeyedBarWithTimeSlidingWindows.get(key).AddBarWithTime(bwt);
+        KeyedBarWithTimeSlidingWindows.get(key).addBarWithTime(bwt);
     }
 }
