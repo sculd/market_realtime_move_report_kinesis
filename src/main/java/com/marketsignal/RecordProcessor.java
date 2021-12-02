@@ -1,6 +1,6 @@
 package com.marketsignal;
 
-import com.marketsignal.stream.Stream;
+import com.marketsignal.stream.MarketStream;
 import com.marketsignal.timeseries.BarWithTime;
 import java.time.Duration;
 
@@ -26,7 +26,7 @@ public class RecordProcessor implements ShardRecordProcessor {
 
     private String shardId;
 
-    Stream stream = new Stream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
+    MarketStream marketStream = new MarketStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -69,7 +69,7 @@ public class RecordProcessor implements ShardRecordProcessor {
         byte[] arr = new byte[record.data().remaining()];
         record.data().get(arr);
         BarWithTime bwt = BarWithTime.fromBytes(arr);
-        stream.onBarWithTime(bwt);
+        marketStream.onBarWithTime(bwt);
     }
 
     /** Called when the lease tied to this record processor has been lost. Once the lease has been lost,

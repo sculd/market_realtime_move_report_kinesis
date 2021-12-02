@@ -6,12 +6,12 @@ import java.util.Map;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 
-public class Stream {
+public class MarketStream {
     Duration windowSize;
     BarWithTimeSlidingWindow.TimeSeriesResolution timeSeriesResolution;
     Map<String, BarWithTimeSlidingWindow> KeyedBarWithTimeSlidingWindows = new HashMap<>();
 
-    public Stream(Duration windowSize, BarWithTimeSlidingWindow.TimeSeriesResolution timeSeriesResolution) {
+    public MarketStream(Duration windowSize, BarWithTimeSlidingWindow.TimeSeriesResolution timeSeriesResolution) {
         this.windowSize = windowSize;
         this.timeSeriesResolution = timeSeriesResolution;
     }

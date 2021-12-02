@@ -11,9 +11,15 @@ import java.util.Map;
 
 public class ChangesAnomaly {
     @Builder
+    static public class Anomaly {
+        double changeThreshold;
+        Changes.AnalyzeResult changeAnalysis;
+    }
+
+    @Builder
     static public class AnalyzeResult {
         @Builder.Default
-        Map<Double, Changes.AnalyzeResult> anomalyResults = new HashMap<>();
+        public List<Anomaly> anomalies = new ArrayList<>();
     }
 
     @Builder
@@ -27,7 +33,7 @@ public class ChangesAnomaly {
         }
     }
 
-    static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
+    public static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
         AnalyzeResult ret = AnalyzeResult.builder().build();
 
         for (Duration windowSize : parameter.windowSizes) {
@@ -36,7 +42,7 @@ public class ChangesAnomaly {
             Changes.AnalyzeResult analyzeResult = Changes.analyze(bwtSlidingWindow, changeParameter);
             for (Double changeThreshold : parameter.changeThresholds) {
                 if (Math.abs(analyzeResult.minDrop) >= changeThreshold || analyzeResult.maxJump >= changeThreshold) {
-                    ret.anomalyResults.put(changeThreshold, analyzeResult);
+                    ret.anomalies.add(Anomaly.builder().changeThreshold(changeThreshold).changeAnalysis(analyzeResult).build());
                 }
             }
         }

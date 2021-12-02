@@ -4,7 +4,6 @@ import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 
 import java.time.Duration;
@@ -43,12 +42,15 @@ public class ChangeAnomalyTest {
 
         ChangesAnomaly.AnalyzeResult analysis = ChangesAnomaly.analyze(bwtSlidingWindow, parameter);
 
-        assertEquals(1, analysis.anomalyResults.size());
-        Changes.AnalyzeResult w = Changes.AnalyzeResult.builder()
+        assertEquals(1, analysis.anomalies.size());
+        Changes.AnalyzeResult analysisWanted = Changes.AnalyzeResult.builder()
                 .minDrop(0.0).minDropEpochSeconds(660).maxPriceForMinDrop(50).maxPriceForMinDropEpochSeconds(660).priceAtMinDrop(50)
                 .maxJump(3.0).maxJumpEpochSeconds(1200).minPriceForMaxJump(50).minPriceForMaxJumpEpochSeconds(660).priceAtMaxJump(200)
                 .change(1.0)
                 .build();
-        assertThat(analysis.anomalyResults.get(0.1)).usingRecursiveComparison().isEqualTo(w);
+        assertThat(analysis).usingRecursiveComparison().isEqualTo(
+                ChangesAnomaly.AnalyzeResult.builder().anomalies(
+                        new ArrayList<>(List.of(ChangesAnomaly.Anomaly.builder().changeThreshold(0.1).changeAnalysis(analysisWanted).build()))
+                ).build());
     }
 }
