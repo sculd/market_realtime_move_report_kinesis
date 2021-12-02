@@ -40,6 +40,7 @@ public class Changes {
         }
     }
 
+    @Builder
     static public class AnalyzeParameter {
         public Duration windowSize;
 
