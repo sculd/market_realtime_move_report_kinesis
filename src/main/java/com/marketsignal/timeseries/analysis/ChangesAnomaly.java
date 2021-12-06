@@ -1,5 +1,6 @@
 package com.marketsignal.timeseries.analysis;
 
+import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import lombok.Builder;
 
@@ -10,8 +11,39 @@ import java.util.List;
 public class ChangesAnomaly {
     @Builder
     static public class Anomaly {
-        double changeThreshold;
-        Changes.AnalyzeResult changeAnalysis;
+        public double changeThreshold;
+        public String market;
+        public String symbol;
+        public Changes.AnalyzeResult changeAnalysis;
+
+        public String getChangeTypeStr() {
+            if (Math.abs(changeAnalysis.minDrop) < changeThreshold && changeAnalysis.maxJump < changeThreshold) {
+                return "";
+            } else if (Math.abs(changeAnalysis.minDrop) < changeThreshold) {
+                return "Jump";
+            } else if (changeAnalysis.maxJump < changeThreshold) {
+                return "Drop";
+            } else {
+                if (changeAnalysis.minDropEpochSeconds < changeAnalysis.maxJumpEpochSeconds) {
+                    return "Drop->Jump";
+                } else {
+                    return "Jump->Drop";
+                }
+            }
+        }
+
+        public String getChangeSummaryStr() {
+            return "";
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(Anomaly.class)
+                    .add("market", market)
+                    .add("symbol", symbol)
+                    .add("changeAnalysis", changeAnalysis.toString())
+                    .toString();
+        }
     }
 
     @Builder
@@ -40,7 +72,13 @@ public class ChangesAnomaly {
             Changes.AnalyzeResult analyzeResult = Changes.analyze(bwtSlidingWindow, changeParameter);
             for (Double changeThreshold : parameter.changeThresholds) {
                 if (Math.abs(analyzeResult.minDrop) >= changeThreshold || analyzeResult.maxJump >= changeThreshold) {
-                    ret.anomalies.add(Anomaly.builder().changeThreshold(changeThreshold).changeAnalysis(analyzeResult).build());
+                    ret.anomalies.add(
+                            Anomaly.builder()
+                                    .changeThreshold(changeThreshold)
+                                    .changeAnalysis(analyzeResult)
+                                    .market(bwtSlidingWindow.market)
+                                    .symbol(bwtSlidingWindow.symbol)
+                                    .build());
                 }
             }
         }

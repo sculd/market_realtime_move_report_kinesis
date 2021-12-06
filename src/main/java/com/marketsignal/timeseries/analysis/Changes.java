@@ -1,5 +1,6 @@
 package com.marketsignal.timeseries.analysis;
 
+import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import lombok.Builder;
@@ -9,6 +10,8 @@ import java.time.Duration;
 public class Changes {
     @Builder
     static public class AnalyzeResult {
+        public double priceAtAnalysis;
+        public long epochSecondsAtAnalysis;
         public double minDrop;
         public double priceAtMinDrop;
         public long minDropEpochSeconds;
@@ -20,12 +23,18 @@ public class Changes {
         public double minPriceForMaxJump;
         public long minPriceForMaxJumpEpochSeconds;
         public double change;
+        public AnalyzeParameter analyzeParameter;
 
-        public AnalyzeResult(double minDrop, double priceAtMinDrop, long minDropEpochSeconds,
-                             double maxPriceForMinDrop, long maxPriceForMinDropEpochSeconds,
-                             double maxJump, double priceAtMaxJump, long maxJumpEpochSeconds,
-                             double minPriceForMaxJump, long minPriceForMaxJumpEpochSeconds,
-                             double change) {
+        public AnalyzeResult(
+                 double priceAtAnalysis, long epochSecondsAtAnalysis,
+                 double minDrop, double priceAtMinDrop, long minDropEpochSeconds,
+                 double maxPriceForMinDrop, long maxPriceForMinDropEpochSeconds,
+                 double maxJump, double priceAtMaxJump, long maxJumpEpochSeconds,
+                 double minPriceForMaxJump, long minPriceForMaxJumpEpochSeconds,
+                 double change,
+         AnalyzeParameter analyzeParameter) {
+            this.priceAtAnalysis = priceAtAnalysis;
+            this.epochSecondsAtAnalysis = epochSecondsAtAnalysis;
             this.minDrop = minDrop;
             this.priceAtMinDrop = priceAtMinDrop;
             this.minDropEpochSeconds = minDropEpochSeconds;
@@ -37,6 +46,27 @@ public class Changes {
             this.minPriceForMaxJump = minPriceForMaxJump;
             this.minPriceForMaxJumpEpochSeconds = minPriceForMaxJumpEpochSeconds;
             this.change = change;
+            this.analyzeParameter = analyzeParameter;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(AnalyzeResult.class)
+                    .add("priceAtAnalysis", priceAtAnalysis)
+                    .add("epochSecondsAtAnalysis", epochSecondsAtAnalysis)
+                    .add("minDrop", minDrop)
+                    .add("priceAtMinDrop", priceAtMinDrop)
+                    .add("minDropEpochSeconds", minDropEpochSeconds)
+                    .add("maxPriceForMinDrop", maxPriceForMinDrop)
+                    .add("maxPriceForMinDropEpochSeconds", maxPriceForMinDropEpochSeconds)
+                    .add("maxJump", maxJump)
+                    .add("priceAtMaxJump", priceAtMaxJump)
+                    .add("maxJumpEpochSeconds", maxJumpEpochSeconds)
+                    .add("minPriceForMaxJump", minPriceForMaxJump)
+                    .add("minPriceForMaxJumpEpochSeconds", minPriceForMaxJumpEpochSeconds)
+                    .add("change", change)
+                    .add("analyzeParameter", analyzeParameter)
+                    .toString();
         }
     }
 
@@ -108,9 +138,12 @@ public class Changes {
         change = (recentClose - firstClose) / firstClose;
 
         return AnalyzeResult.builder()
+                .priceAtAnalysis(recentClose)
+                .epochSecondsAtAnalysis(bwtSlidingWindow.window.getLast().epochSeconds)
                 .minDrop(minDrop).priceAtMinDrop(priceAtMinDrop).minDropEpochSeconds(minDropEpochSeconds).maxPriceForMinDrop(maxPriceForMinDrop).maxPriceForMinDropEpochSeconds(maxPriceForMinDropEpochSeconds)
                 .maxJump(maxJump).priceAtMaxJump(priceAtMaxJump).maxJumpEpochSeconds(maxJumpEpochSeconds).minPriceForMaxJump(minPriceForMaxJump).minPriceForMaxJumpEpochSeconds(minPriceForMaxJumpEpochSeconds)
                 .change(change)
+                .analyzeParameter(parameter)
                 .build();
     }
 }

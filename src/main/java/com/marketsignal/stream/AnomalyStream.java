@@ -1,5 +1,6 @@
 package com.marketsignal.stream;
 
+import com.marketsignal.publish.Publisher;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 public class AnomalyStream {
     MarketStream marketStream;
+    Publisher publisher = new Publisher();
 
     private static final Logger log = LoggerFactory.getLogger(AnomalyStream.class);
 
@@ -28,7 +30,7 @@ public class AnomalyStream {
         String key = MarketStream.bwtToKeyString(bwt);
         ChangesAnomaly.AnalyzeResult analysis = ChangesAnomaly.analyze(marketStream.KeyedBarWithTimeSlidingWindows.get(key), parameter);
         for (ChangesAnomaly.Anomaly anomaly : analysis.anomalies) {
-            log.info("{}", anomaly);
+            publisher.publish(anomaly);
         }
     }
 }
