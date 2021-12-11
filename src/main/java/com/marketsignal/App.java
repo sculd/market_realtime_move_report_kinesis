@@ -3,6 +3,10 @@ package com.marketsignal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -11,7 +15,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,23 +47,45 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
+    private static final String STREAM_ID = "market_stream";
+    private static final String REGION = "us-east-2";
+
+    static void setEnv(String key, String value) {
+        try {
+            Map<String, String> env = System.getenv();
+            Class<?> cl = env.getClass();
+            Field field = cl.getDeclaredField("m");
+            field.setAccessible(true);
+            Map<String, String> writableEnv = (Map<String, String>) field.get(env);
+            writableEnv.put(key, value);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to set environment variable", e);
+        }
+    }
     /**
      * Invoke the main method with 2 args: the stream name and (optionally) the region.
      * Verifies valid inputs and then starts running the app.
      */
     public static void main(String... args) {
-        if (args.length < 1) {
-            log.error("At a minimum, the stream name is required as the first argument. The Region may be specified as the second argument.");
-            System.exit(1);
-        }
+        final CommandLineParser parser = new OptionParser(true);
+        Options options = AppOption.create();
+        try {
+            CommandLine commandLine = parser.parse(options, args);
+            String shardId = commandLine.getOptionValue(AppOption.KEY_SHARD_ID);
+            log.info("shardId: {}", shardId);
+            String envVarJsonFile = commandLine.getOptionValue(AppOption.KEY_ENV_VARS);
+            JsonObject envVarJson = new Gson().fromJson(new FileReader(envVarJsonFile), JsonObject.class);
+            for (Map.Entry<String, JsonElement> entry : envVarJson.entrySet()) {
+                log.info("Setting up env var {}", entry.getKey());
+                setEnv(entry.getKey(), entry.getValue().getAsString());
+            }
 
-        String streamName = args[0];
-        String region = null;
-        if (args.length > 1) {
-            region = args[1];
+            new App().run();
+        } catch (ParseException ex) {
+            log.error(ex.getMessage());
+        } catch (FileNotFoundException ex) {
+            log.error(ex.getMessage());
         }
-
-        new App(streamName, region).run();
     }
 
     private final String streamName;
@@ -63,9 +97,9 @@ public class App {
      * This KinesisClient is used to send dummy data so that the consumer has something to read; it is also used
      * indirectly by the KCL to handle the consumption of the data.
      */
-    private App(String streamName, String region) {
-        this.streamName = streamName;
-        this.region = Region.of(ObjectUtils.firstNonNull(region, "us-east-2"));
+    private App() {
+        this.streamName = STREAM_ID;
+        this.region = Region.of(REGION);
         this.kinesisClient = KinesisClientUtil.createKinesisAsyncClient(KinesisAsyncClient.builder().region(this.region));
     }
 

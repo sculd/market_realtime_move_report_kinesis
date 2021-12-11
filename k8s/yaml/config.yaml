@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: actual-state
+  name: market-realtime-move-report-kinesis
+spec:
+  serviceName: "market-realtime-move-report-kinesis"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: market-realtime-move-report-kinesis
+  template:
+    metadata:
+      name: market-realtime-move-report-kinesis
+      labels:
+        name: market-realtime-move-report-kinesis
+        app: market-realtime-move-report-kinesis
+    spec:
+      containers:
+        - name: market-realtime-move-report-kinesis
+          image: "gcr.io/trading-290017/market_realtime_move_report_kinesis"
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          args: [
+              "
+          export AGENT_SHARD_ID=$(expr $(hostname | grep -o \"[[:digit:]]*$\"));
+          export AGENT_NUM_REPLICAS=4;
+          java -jar /build/libs/market_realtime_move_report_kinesis-1.0-SNAPSHOT-all.jar
+          --envvars /etc/envvar-config/envvar.json
+          --shardid $AGENT_SHARD_ID
+          --numreplicas $AGENT_NUM_REPLICAS
+          "
+          ]
+          resources:
+            requests:
+              memory: "2.5Gi"
+              cpu: "100m"
+            limits:
+              memory: "3Gi"
+              cpu: "1"
+          ports:
+            - containerPort: 8443
+          volumeMounts:
+            - name: secret-volume-envvar-json
+              readOnly: true
+              mountPath: /etc/envvar-config
+      volumes:
+        - name: secret-volume-envvar-json
+          secret:
+            secretName: realtime-move-report-kinesis-envvar-json
+      restartPolicy: Always

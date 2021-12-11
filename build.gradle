@@ -24,11 +24,12 @@ dependencies {
     implementation 'com.slack.api:bolt-jetty:1.15.0'
     implementation 'com.google.guava:guava:31.0-jre'
     implementation 'com.konghq:unirest-java:3.13.4'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-cli:commons-cli:1.5.0'
     testImplementation 'junit:junit:4.4'
     testImplementation 'org.assertj:assertj-core:3.21.0'
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
-}
 
 group = 'org.example'
 version = '1.0-SNAPSHOT'
