@@ -5,6 +5,18 @@ def start_task():
   envvars = json.load(open('k8s/secrets/envvar.json'))
 
   client = boto3.client('ecs')
+
+  tasks = client.list_tasks(
+    cluster='market-signal',
+    launchType='FARGATE'
+  )
+
+  for task_arn in tasks['taskArns']:
+    response = client.stop_task(
+      cluster='market-signal',
+      task=task_arn
+    )
+
   response = client.run_task(
     cluster = 'market-signal',
     launchType = 'FARGATE',

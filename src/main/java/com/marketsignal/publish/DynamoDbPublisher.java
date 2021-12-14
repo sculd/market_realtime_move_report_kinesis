@@ -11,6 +11,8 @@ import com.amazonaws.regions.Regions;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import com.marketsignal.util.Time;
 import java.time.format.DateTimeFormatter;
+
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +33,11 @@ public class DynamoDbPublisher {
         try {
             final String dateEtStr = Time.fromEpochSecondsToDateStr(anomaly.changeAnalysis.epochSecondsAtAnalysis);
             final String dateTimeEtStr = Time.fromEpochSecondsToDateTimeStr(anomaly.changeAnalysis.epochSecondsAtAnalysis);
-
             PutItemOutcome outcome = table
                     .putItem(new Item().withPrimaryKey("date_et", dateEtStr, "timestamp", anomaly.changeAnalysis.epochSecondsAtAnalysis)
                             .withString("datetime_et", dateTimeEtStr)
+                            .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
+                            .with("recordDelaySeconds", java.time.Instant.now().getEpochSecond() - anomaly.changeAnalysis.epochSecondsAtAnalysis)
                             .withString("market", anomaly.market)
                             .withString("symbol", anomaly.symbol)
                             .withLong("window_size_minutes", anomaly.changeAnalysis.analyzeParameter.windowSize.toMinutes())

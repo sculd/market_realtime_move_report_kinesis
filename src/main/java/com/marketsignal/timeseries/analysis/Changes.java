@@ -3,6 +3,7 @@ package com.marketsignal.timeseries.analysis;
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
+import com.marketsignal.util.Format;
 import com.marketsignal.util.Time;
 import lombok.Builder;
 
@@ -53,20 +54,20 @@ public class Changes {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(AnalyzeResult.class)
-                    .add("priceAtAnalysis", priceAtAnalysis)
-                    .add("epochSecondsAtAnalysis", epochSecondsAtAnalysis)
-                    .add("datetime_str", Time.fromEpochSecondsToDateStr(epochSecondsAtAnalysis))
-                    .add("minDrop", minDrop)
-                    .add("priceAtMinDrop", priceAtMinDrop)
-                    .add("minDropEpochSeconds", minDropEpochSeconds)
-                    .add("maxPriceForMinDrop", maxPriceForMinDrop)
-                    .add("maxPriceForMinDropEpochSeconds", maxPriceForMinDropEpochSeconds)
-                    .add("maxJump", maxJump)
-                    .add("priceAtMaxJump", priceAtMaxJump)
-                    .add("maxJumpEpochSeconds", maxJumpEpochSeconds)
-                    .add("minPriceForMaxJump", minPriceForMaxJump)
-                    .add("minPriceForMaxJumpEpochSeconds", minPriceForMaxJumpEpochSeconds)
-                    .add("change", change)
+                    .add("priceAtAnalysis", Format.truncatePrice(priceAtAnalysis))
+                    .add("epochSecondsAtAnalysis", Time.fromEpochSecondsToDateTimeStr(epochSecondsAtAnalysis))
+                    .add("datetime_str", Time.fromEpochSecondsToDateTimeStr(epochSecondsAtAnalysis))
+                    .add("minDrop", Format.ratioToPercent(minDrop))
+                    .add("priceAtMinDrop", Format.truncatePrice(priceAtMinDrop))
+                    .add("minDropEpochSeconds", Time.fromEpochSecondsToDateTimeStr(minDropEpochSeconds))
+                    .add("maxPriceForMinDrop", Format.truncatePrice(maxPriceForMinDrop))
+                    .add("maxPriceForMinDropEpochSeconds", Time.fromEpochSecondsToDateTimeStr(maxPriceForMinDropEpochSeconds))
+                    .add("maxJump", Format.ratioToPercent(maxJump))
+                    .add("priceAtMaxJump", Format.truncatePrice(priceAtMaxJump))
+                    .add("maxJumpEpochSeconds", Time.fromEpochSecondsToDateTimeStr(maxJumpEpochSeconds))
+                    .add("minPriceForMaxJump", Format.truncatePrice(minPriceForMaxJump))
+                    .add("minPriceForMaxJumpEpochSeconds", Time.fromEpochSecondsToDateTimeStr(minPriceForMaxJumpEpochSeconds))
+                    .add("change", Format.ratioToPercent(change))
                     .add("analyzeParameter", analyzeParameter.toString())
                     .toString();
         }

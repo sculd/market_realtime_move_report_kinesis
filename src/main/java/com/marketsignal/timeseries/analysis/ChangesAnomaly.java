@@ -56,6 +56,7 @@ public class ChangesAnomaly {
             return MoreObjects.toStringHelper(Anomaly.class)
                     .add("market", market)
                     .add("symbol", symbol)
+                    .add("changeThreshold", changeThreshold)
                     .add("changeType", getChangeTypeStr())
                     .toString();
         }
