@@ -12,10 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnomalyStream {
+    private static final Logger log = LoggerFactory.getLogger(AnomalyStream.class);
+
     MarketStream marketStream;
     Publisher publisher = new Publisher();
-
-    private static final Logger log = LoggerFactory.getLogger(AnomalyStream.class);
+    ChangesAnomaly changesAnomaly = new ChangesAnomaly();
 
     public AnomalyStream(MarketStream marketStream) {
         this.marketStream = marketStream;
@@ -28,7 +29,7 @@ public class AnomalyStream {
                 .build();
 
         String key = MarketStream.bwtToKeyString(bwt);
-        ChangesAnomaly.AnalyzeResult analysis = ChangesAnomaly.analyze(marketStream.KeyedBarWithTimeSlidingWindows.get(key), parameter);
+        ChangesAnomaly.AnalyzeResult analysis = changesAnomaly.analyze(marketStream.KeyedBarWithTimeSlidingWindows.get(key), parameter);
         for (ChangesAnomaly.Anomaly anomaly : analysis.anomalies) {
             publisher.publish(anomaly);
         }

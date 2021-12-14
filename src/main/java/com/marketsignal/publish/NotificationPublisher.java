@@ -35,6 +35,7 @@ public class NotificationPublisher {
     public void publish(ChangesAnomaly.Anomaly anomaly) {
         String api_key = System.getenv("NOTIFICATION_ENDPOINT_API_KEY");
 
+        log.info("[NotificationPublisher] publishing a new anomaly: {}", anomaly.toString());
         try {
             NotificationParameter notificationParameter = NotificationParameter.builder()
                     .market(anomaly.market)

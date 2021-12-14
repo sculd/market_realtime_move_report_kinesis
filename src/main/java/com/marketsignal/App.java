@@ -8,22 +8,14 @@ import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +39,7 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
-    private static final String STREAM_ID = "market_stream";
+    private static final String STREAM_ID = "realtime_market_stream";
     private static final String REGION = "us-east-2";
 
     static void setEnv(String key, String value) {
@@ -73,17 +65,25 @@ public class App {
             CommandLine commandLine = parser.parse(options, args);
             String shardId = commandLine.getOptionValue(AppOption.KEY_SHARD_ID);
             log.info("shardId: {}", shardId);
-            String envVarJsonFile = commandLine.getOptionValue(AppOption.KEY_ENV_VARS);
-            JsonObject envVarJson = new Gson().fromJson(new FileReader(envVarJsonFile), JsonObject.class);
-            for (Map.Entry<String, JsonElement> entry : envVarJson.entrySet()) {
-                log.info("Setting up env var {}", entry.getKey());
-                setEnv(entry.getKey(), entry.getValue().getAsString());
+            /*
+            String envVarJsonFile = commandLine.getOptionValue(AppOption.KEY_ENV_JSON);
+            if (envVarJsonFile == null || envVarJsonFile.isEmpty()) {
+                log.warn("the option envjson is null (or empty string)");
+            } else {
+                try {
+                    JsonObject envVarJson = new Gson().fromJson(new FileReader(envVarJsonFile), JsonObject.class);
+                    for (Map.Entry<String, JsonElement> entry : envVarJson.entrySet()) {
+                        log.info("Setting up env var {}", entry.getKey());
+                        setEnv(entry.getKey(), entry.getValue().getAsString());
+                    }
+                } catch (FileNotFoundException ex) {
+                    log.warn("the option envjson config file is not present: {}", ex.getMessage());
+                }
             }
+            //*/
 
             new App().run();
         } catch (ParseException ex) {
-            log.error(ex.getMessage());
-        } catch (FileNotFoundException ex) {
             log.error(ex.getMessage());
         }
     }
@@ -104,11 +104,6 @@ public class App {
     }
 
     private void run() {
-        /**
-         * Sends dummy data to Kinesis. Not relevant to consuming the data with the KCL
-         */
-        ScheduledExecutorService producerExecutor = Executors.newSingleThreadScheduledExecutor();
-
         /**
          * Sets up configuration for the KCL, including DynamoDB and CloudWatch dependencies. The final argument, a
          * ShardRecordProcessorFactory, is where the logic for record processing lives, and is located in a private
@@ -150,29 +145,6 @@ public class App {
         } catch (IOException ioex) {
             log.error("Caught exception while waiting for confirm. Shutting down.", ioex);
         }
-
-        /**
-         * Stops sending dummy data.
-         */
-        log.info("Cancelling producer and shutting down executor.");
-        producerExecutor.shutdownNow();
-
-        /**
-         * Stops consuming data. Finishes processing the current batch of data already received from Kinesis
-         * before shutting down.
-         */
-        Future<Boolean> gracefulShutdownFuture = scheduler.startGracefulShutdown();
-        log.info("Waiting up to 20 seconds for shutdown to complete.");
-        try {
-            gracefulShutdownFuture.get(20, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            log.info("Interrupted while waiting for graceful shutdown. Continuing.");
-        } catch (ExecutionException e) {
-            log.error("Exception while executing graceful shutdown.", e);
-        } catch (TimeoutException e) {
-            log.error("Timeout while waiting for shutdown.  Scheduler may not have exited.");
-        }
-        log.info("Completed, shutting down now.");
     }
 
     private static class RecordProcessorFactory implements ShardRecordProcessorFactory {

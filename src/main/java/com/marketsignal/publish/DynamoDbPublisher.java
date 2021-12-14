@@ -9,6 +9,8 @@ import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.regions.Regions;
 
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.util.Time;
+import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,15 +22,19 @@ public class DynamoDbPublisher {
             .withRegion(Regions.US_EAST_2)
             .build();
     private final DynamoDB dynamoDB = new DynamoDB(client);
+    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void publish(ChangesAnomaly.Anomaly anomaly) {
         Table table = dynamoDB.getTable(tableName);
 
+        log.info("[DynamoDbPublisher] publishing a new anomaly: {}", anomaly.toString());
         try {
-            System.out.println("Adding a new item...");
+            final String dateEtStr = Time.fromEpochSecondsToDateStr(anomaly.changeAnalysis.epochSecondsAtAnalysis);
+            final String dateTimeEtStr = Time.fromEpochSecondsToDateTimeStr(anomaly.changeAnalysis.epochSecondsAtAnalysis);
+
             PutItemOutcome outcome = table
-                    .putItem(new Item().withPrimaryKey("date_et", "2021-12-04", "timestamp", anomaly.changeAnalysis.epochSecondsAtAnalysis)
-                            .withString("datetime_et", "")
+                    .putItem(new Item().withPrimaryKey("date_et", dateEtStr, "timestamp", anomaly.changeAnalysis.epochSecondsAtAnalysis)
+                            .withString("datetime_et", dateTimeEtStr)
                             .withString("market", anomaly.market)
                             .withString("symbol", anomaly.symbol)
                             .withLong("window_size_minutes", anomaly.changeAnalysis.analyzeParameter.windowSize.toMinutes())
@@ -47,8 +53,6 @@ public class DynamoDbPublisher {
                             .withString("type_str", anomaly.getChangeTypeStr())
                             .withString("summary", anomaly.getChangeSummaryStr())
                     );
-
-            System.out.println("PutItem succeeded:\n" + outcome.getPutItemResult());
         }
         catch (Exception e) {
             log.error(e.getMessage());

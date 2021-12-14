@@ -2,3 +2,4 @@ target/*
 build/*
 gradle/*
 .gradle/*
+k8s/secrets/*

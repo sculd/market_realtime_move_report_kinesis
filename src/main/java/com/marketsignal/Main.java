@@ -28,11 +28,10 @@ public class Main {
 
         SlackPublisher slackPublisher = new SlackPublisher();
         //dynamoDbPublisher.publish(anomaly);
-        //slackPublisher.publish(anomaly);
+        slackPublisher.publish(anomaly);
 
         NotificationPublisher notificationPublisher = new NotificationPublisher();
         notificationPublisher.publish(anomaly);
-
-        System.out.println("hello world!");
+        System.out.println("done");
     }
 }

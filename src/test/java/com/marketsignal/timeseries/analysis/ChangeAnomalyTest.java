@@ -40,7 +40,8 @@ public class ChangeAnomalyTest {
                 .changeThresholds(new ArrayList<>(List.of(0.1)))
                 .build();
 
-        ChangesAnomaly.AnalyzeResult analysis = ChangesAnomaly.analyze(bwtSlidingWindow, parameter);
+        ChangesAnomaly changesAnomaly = new ChangesAnomaly();
+        ChangesAnomaly.AnalyzeResult analysis = changesAnomaly.analyze(bwtSlidingWindow, parameter);
 
         assertEquals(1, analysis.anomalies.size());
         Changes.AnalyzeResult analysisWanted = Changes.AnalyzeResult.builder()

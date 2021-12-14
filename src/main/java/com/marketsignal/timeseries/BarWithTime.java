@@ -1,8 +1,9 @@
 package com.marketsignal.timeseries;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import com.marketsignal.util.Time;
+import com.google.common.base.MoreObjects;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -35,5 +36,14 @@ public class BarWithTime {
         } catch (JsonSyntaxException ex) {
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(BarWithTime.class)
+                .add("bar", bar.toString())
+                .add("epochSeconds", epochSeconds)
+                .add("datetime", Time.fromEpochSecondsToDateTimeStr(epochSeconds))
+                .toString();
     }
 }

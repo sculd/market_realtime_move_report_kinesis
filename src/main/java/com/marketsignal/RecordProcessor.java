@@ -1,5 +1,6 @@
 package com.marketsignal;
 
+import com.marketsignal.stream.AnomalyStream;
 import com.marketsignal.stream.MarketStream;
 import com.marketsignal.timeseries.BarWithTime;
 import java.time.Duration;
@@ -10,7 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import software.amazon.kinesis.exceptions.InvalidStateException;
 import software.amazon.kinesis.exceptions.ShutdownException;
+import software.amazon.kinesis.exceptions.ThrottlingException;
 import software.amazon.kinesis.lifecycle.events.*;
+import software.amazon.kinesis.processor.RecordProcessorCheckpointer;
 import software.amazon.kinesis.processor.ShardRecordProcessor;
 import software.amazon.kinesis.retrieval.KinesisClientRecord;
 
@@ -26,7 +29,14 @@ public class RecordProcessor implements ShardRecordProcessor {
 
     private String shardId;
 
+    // Checkpointing interval
+    private static final long CHECKPOINT_INTERVAL_MILLIS = 60000L; // 1 minute
+    private long nextCheckpointTimeInMillis;
+
+    private long messageCount = 0;
+
     MarketStream marketStream = new MarketStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
+    AnomalyStream anomalyStream = new AnomalyStream(marketStream);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -39,6 +49,7 @@ public class RecordProcessor implements ShardRecordProcessor {
         MDC.put(SHARD_ID_MDC_KEY, shardId);
         try {
             log.info("Initializing @ Sequence: {}", initializationInput.extendedSequenceNumber());
+            nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
         } finally {
             MDC.remove(SHARD_ID_MDC_KEY);
         }
@@ -54,6 +65,12 @@ public class RecordProcessor implements ShardRecordProcessor {
     public void processRecords(ProcessRecordsInput processRecordsInput) {
         MDC.put(SHARD_ID_MDC_KEY, shardId);
         try {
+            // Checkpoint once every checkpoint interval
+            if (System.currentTimeMillis() > nextCheckpointTimeInMillis) {
+                checkpoint(processRecordsInput.checkpointer());
+                nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
+            }
+
             log.info("Processing {} record(s)", processRecordsInput.records().size());
             processRecordsInput.records().forEach(this::processRecord);
         } catch (Throwable t) {
@@ -65,11 +82,31 @@ public class RecordProcessor implements ShardRecordProcessor {
     }
 
     void processRecord(KinesisClientRecord record) {
-        log.info("Processing record pk: {} -- Seq: {}", record.partitionKey(), record.sequenceNumber());
         byte[] arr = new byte[record.data().remaining()];
         record.data().get(arr);
         BarWithTime bwt = BarWithTime.fromBytes(arr);
+        messageCount += 1;
+        if (messageCount % 100 == 0) {
+            log.info("On 100ths message, processing bwt: {}", bwt.toString());
+        }
         marketStream.onBarWithTime(bwt);
+        anomalyStream.onBarWithTime(bwt);
+    }
+
+    private void checkpoint(RecordProcessorCheckpointer checkpointer) {
+        log.info("Checkpointing shard " + shardId);
+        try {
+            checkpointer.checkpoint();
+        } catch (ShutdownException se) {
+            // Ignore checkpoint if the processor instance has been shutdown (fail over).
+            log.info("Caught shutdown exception, skipping checkpoint.", se);
+        } catch (ThrottlingException e) {
+            // Skip checkpoint when throttled. In practice, consider a backoff and retry policy.
+            log.error("Caught throttling exception, skipping checkpoint.", e);
+        } catch (InvalidStateException e) {
+            // This indicates an issue with the DynamoDB table (check for table, provisioned IOPS).
+            log.error("Cannot save checkpoint to the DynamoDB table used by the Amazon Kinesis Client Library.", e);
+        }
     }
 
     /** Called when the lease tied to this record processor has been lost. Once the lease has been lost,

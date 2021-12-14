@@ -18,10 +18,15 @@ public class SlackPublisher {
         slack = Slack.getInstance();
     }
 
+    public boolean isNonTrivialAnomaly(ChangesAnomaly.Anomaly anomaly) {
+        return anomaly.changeThreshold > 0.05;
+    }
+
     public void publish(ChangesAnomaly.Anomaly anomaly) {
         String token = System.getenv("SLACK_TOKEN");
         String channel = System.getenv("SLACK_CHANNEL");
 
+        log.info("[SlackPublisher] publishing a new anomaly: {}", anomaly.toString());
         try {
             ChatPostMessageResponse response = slack.methods(token).chatPostMessage(req -> req
                     .channel(channel) // Channel ID

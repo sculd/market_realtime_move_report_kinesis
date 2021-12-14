@@ -10,3 +10,7 @@ RUN mkdir /app
 COPY . /app
 WORKDIR /app
 COPY build/libs/*.jar /app/
+
+CMD java -jar market_realtime_move_report_kinesis-1.0-SNAPSHOT.jar --shardid=0 --envvars=k8s/secrets/envvars.env
+
+

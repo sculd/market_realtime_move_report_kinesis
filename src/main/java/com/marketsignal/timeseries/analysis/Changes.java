@@ -3,6 +3,7 @@ package com.marketsignal.timeseries.analysis;
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
+import com.marketsignal.util.Time;
 import lombok.Builder;
 
 import java.time.Duration;
@@ -54,6 +55,7 @@ public class Changes {
             return MoreObjects.toStringHelper(AnalyzeResult.class)
                     .add("priceAtAnalysis", priceAtAnalysis)
                     .add("epochSecondsAtAnalysis", epochSecondsAtAnalysis)
+                    .add("datetime_str", Time.fromEpochSecondsToDateStr(epochSecondsAtAnalysis))
                     .add("minDrop", minDrop)
                     .add("priceAtMinDrop", priceAtMinDrop)
                     .add("minDropEpochSeconds", minDropEpochSeconds)
@@ -65,7 +67,7 @@ public class Changes {
                     .add("minPriceForMaxJump", minPriceForMaxJump)
                     .add("minPriceForMaxJumpEpochSeconds", minPriceForMaxJumpEpochSeconds)
                     .add("change", change)
-                    .add("analyzeParameter", analyzeParameter)
+                    .add("analyzeParameter", analyzeParameter.toString())
                     .toString();
         }
     }
@@ -76,6 +78,13 @@ public class Changes {
 
         public AnalyzeParameter(Duration windowSize) {
             this.windowSize = windowSize;
+        }
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(AnalyzeParameter.class)
+                    .add("windowSize", windowSize)
+                    .toString();
         }
     }
 
