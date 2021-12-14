@@ -8,7 +8,7 @@ def start_task():
 
   tasks = client.list_tasks(
     cluster='market-signal',
-    launchType='FARGATE'
+    family='market_realtime_move_report_kinesis'
   )
 
   for task_arn in tasks['taskArns']:
