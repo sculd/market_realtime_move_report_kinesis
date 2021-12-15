@@ -1,17 +1,19 @@
 import json
 import boto3
 
+def get_task_arns(ecs_client, group_name = 'market_realtime_move_report_kinesis'):
+  tasks = ecs_client.list_tasks(cluster='market-signal')
+  return [task_arn for task_arn in tasks['taskArns'] if group_name in ecs_client.describe_tasks(tasks = [task_arn], cluster='market-signal')['tasks'][0]['group']]
+
 def start_task():
   envvars = json.load(open('k8s/secrets/envvar.json'))
 
   client = boto3.client('ecs')
 
-  tasks = client.list_tasks(
-    cluster='market-signal',
-    family='market_realtime_move_report_kinesis'
-  )
+  task_arsns = get_task_arns(client)
 
-  for task_arn in tasks['taskArns']:
+  for task_arn in task_arsns:
+    print('deleting an ecs task {}'.format(task_arn))
     response = client.stop_task(
       cluster='market-signal',
       task=task_arn
@@ -22,6 +24,7 @@ def start_task():
     launchType = 'FARGATE',
     taskDefinition = 'market_realtime_move_report_kinesis:2',
     count = 1,
+    group = 'market_realtime_move_report_kinesis',
     platformVersion = 'LATEST',
     networkConfiguration = {
       'awsvpcConfiguration': {
