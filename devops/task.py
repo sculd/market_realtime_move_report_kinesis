@@ -5,8 +5,8 @@ def get_task_arns(ecs_client, group_name):
   tasks = ecs_client.list_tasks(cluster='market-signal')
   return [task_arn for task_arn in tasks['taskArns'] if group_name in ecs_client.describe_tasks(tasks = [task_arn], cluster='market-signal')['tasks'][0]['group']]
 
-def start_task(group_name, container_name, task_definition, command):
-  envvars = json.load(open('k8s/secrets/config.json'))
+def start_task(group_name, container_name, task_definition):
+  envvars = json.load(open('k8s/secrets/envvar.json'))
 
   client = boto3.client('ecs')
 
@@ -39,7 +39,6 @@ def start_task(group_name, container_name, task_definition, command):
       'containerOverrides': [
           {
               'name': container_name,
-              'command': command,
               'environment': [{'name': k, 'value': v} for k, v in envvars.items()]
           },
       ]
@@ -47,8 +46,6 @@ def start_task(group_name, container_name, task_definition, command):
   )
   return str(response)
 
-
-start_task()
-start_task('market_stream_publisher_polygon', 'market_stream_publisher_polygon', 'market_stream_publisher_polygon:1', ['python', 'run.py', 'polygon']))
+start_task('market_realtime_move_report_kinesis', 'market_realtime_move_report_kinesis', 'market_realtime_move_report_kinesis:2')
 # java -jar build/libs/sonar-alert-agent-1.0-SNAPSHOT-all.jar
 # java -jar build/libs/market_realtime_move_report_kinesis-1.0-SNAPSHOT.jar --shardid=0 --envvars=k8s/secrets/envvar.json
