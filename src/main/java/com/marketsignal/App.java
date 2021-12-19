@@ -6,7 +6,11 @@ import java.io.InputStreamReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.lang.reflect.Field;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.stream.Stream;
 import java.util.UUID;
 
 import com.google.gson.Gson;
@@ -54,6 +58,7 @@ public class App {
             throw new IllegalStateException("Failed to set environment variable", e);
         }
     }
+
     /**
      * Invoke the main method with 2 args: the stream name and (optionally) the region.
      * Verifies valid inputs and then starts running the app.
@@ -65,22 +70,18 @@ public class App {
             CommandLine commandLine = parser.parse(options, args);
             String shardId = commandLine.getOptionValue(AppOption.KEY_SHARD_ID);
             log.info("shardId: {}", shardId);
-            /*
-            String envVarJsonFile = commandLine.getOptionValue(AppOption.KEY_ENV_JSON);
-            if (envVarJsonFile == null || envVarJsonFile.isEmpty()) {
-                log.warn("the option envjson is null (or empty string)");
+
+
+            String envVarFile = commandLine.getOptionValue(AppOption.KEY_ENV_FILE);
+            if (envVarFile == null || envVarFile.isEmpty()) {
+                log.warn("the option envfile is null (or empty string)");
             } else {
-                try {
-                    JsonObject envVarJson = new Gson().fromJson(new FileReader(envVarJsonFile), JsonObject.class);
-                    for (Map.Entry<String, JsonElement> entry : envVarJson.entrySet()) {
-                        log.info("Setting up env var {}", entry.getKey());
-                        setEnv(entry.getKey(), entry.getValue().getAsString());
-                    }
-                } catch (FileNotFoundException ex) {
-                    log.warn("the option envjson config file is not present: {}", ex.getMessage());
+                try (Stream<String> lines = Files.lines(Paths.get(envVarFile), Charset.defaultCharset())) {
+                    lines.forEachOrdered(line -> setEnv(line.split("=")[0], line.split("=")[1]));
+                } catch (IOException ex) {
+                    System.err.println(ex.getMessage());
                 }
             }
-            //*/
 
             new App().run();
         } catch (ParseException ex) {

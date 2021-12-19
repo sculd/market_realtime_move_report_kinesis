@@ -26,7 +26,7 @@ spec:
           export AGENT_SHARD_ID=$(expr $(hostname | grep -o \"[[:digit:]]*$\"));
           export AGENT_NUM_REPLICAS=4;
           java -jar /build/libs/market_realtime_move_report_kinesis-1.0-SNAPSHOT-all.jar
-          --envvars /etc/envvar-config/envvar.json
+          --envfile /etc/envvar-config/envvar.env
           --shardid $AGENT_SHARD_ID
           --numreplicas $AGENT_NUM_REPLICAS
           "
