@@ -6,7 +6,7 @@ def get_task_arns(ecs_client, group_name):
   return [task_arn for task_arn in tasks['taskArns'] if group_name in ecs_client.describe_tasks(tasks = [task_arn], cluster='market-signal')['tasks'][0]['group']]
 
 def start_task(group_name, container_name, task_definition):
-  envvars = json.load(open('k8s/secrets/envvar.json'))
+  envfile = open('k8s/secrets/envvar.env')
 
   client = boto3.client('ecs')
 
@@ -39,7 +39,7 @@ def start_task(group_name, container_name, task_definition):
       'containerOverrides': [
           {
               'name': container_name,
-              'environment': [{'name': k, 'value': v} for k, v in envvars.items()]
+              'environment': [{'name': line.split('=')[0], 'value': line.split('=')[1]} for line in envfile]
           },
       ]
     }
