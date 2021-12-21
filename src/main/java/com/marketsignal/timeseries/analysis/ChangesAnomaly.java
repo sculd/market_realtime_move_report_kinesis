@@ -2,6 +2,7 @@ package com.marketsignal.timeseries.analysis;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
+import com.marketsignal.util.Format;
 import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public class ChangesAnomaly {
             return MoreObjects.toStringHelper(Anomaly.class)
                     .add("market", market)
                     .add("symbol", symbol)
-                    .add("changeThreshold", changeThreshold)
+                    .add("changeThreshold", Format.ratioToPercent(changeThreshold))
                     .add("changeTypeStr", getChangeTypeStr())
                     .add("changeAnalysis", changeAnalysis.toString())
                     .toString();
