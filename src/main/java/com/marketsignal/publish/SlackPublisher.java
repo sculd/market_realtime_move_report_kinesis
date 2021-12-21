@@ -44,6 +44,7 @@ public class SlackPublisher {
         String channel = System.getenv("SLACK_CHANNEL");
         String channel_polygon_stock = System.getenv("SLACK_CHANNEL_POLYGON_STOCK");
         String channel_binance = System.getenv("SLACK_CHANNEL_BINANCE");
+        String channel_okcoin = System.getenv("SLACK_CHANNEL_OKCOIN");
         publishToChannel(anomaly, channel);
         if (anomaly.market.equals("polygon")) {
             log.info("publishing to the polygon slack channel");
@@ -51,6 +52,9 @@ public class SlackPublisher {
         } else if (anomaly.market.equals("binance")) {
             log.info("publishing to the binance slack channel");
             publishToChannel(anomaly, channel_binance);
+        } else if (anomaly.market.equals("okcoin")) {
+            log.info("publishing to the okcoin slack channel");
+            publishToChannel(anomaly, channel_okcoin);
         }
     }
 }
