@@ -11,14 +11,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AnomalyStream {
-    private static final Logger log = LoggerFactory.getLogger(AnomalyStream.class);
+public class ChangesAnomalyStream {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStream.class);
 
     MarketStream marketStream;
     Publisher publisher = new Publisher();
     ChangesAnomaly changesAnomaly = new ChangesAnomaly();
 
-    public AnomalyStream(MarketStream marketStream) {
+    public ChangesAnomalyStream(MarketStream marketStream) {
         this.marketStream = marketStream;
     }
 

@@ -3,8 +3,6 @@ package com.marketsignal;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -13,9 +11,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.UUID;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -43,8 +38,8 @@ public class App {
 
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
-    private static final String STREAM_ID = "realtime_market_stream";
     private static final String REGION = "us-east-2";
+
 
     static void setEnv(String key, String value) {
         try {
@@ -59,8 +54,18 @@ public class App {
         }
     }
 
+    public enum AppType {
+        CHANGES_ANOMALY_STREAM ("realtime_market_stream"),
+        ORDERBOOK_ANOMALY_STREAM ("realtime_orderbook_stream");
+
+        private final String streamName;
+        AppType(String streamName) {
+            this.streamName = streamName;
+        }
+        private String streamName() { return streamName; }
+    }
+
     /**
-     * Invoke the main method with 2 args: the stream name and (optionally) the region.
      * Verifies valid inputs and then starts running the app.
      */
     public static void main(String... args) {
@@ -68,9 +73,9 @@ public class App {
         Options options = AppOption.create();
         try {
             CommandLine commandLine = parser.parse(options, args);
+
             String shardId = commandLine.getOptionValue(AppOption.KEY_SHARD_ID);
             log.info("shardId: {}", shardId);
-
 
             String envVarFile = commandLine.getOptionValue(AppOption.KEY_ENV_FILE);
             if (envVarFile == null || envVarFile.isEmpty()) {
@@ -83,13 +88,21 @@ public class App {
                 }
             }
 
-            new App().run();
+            AppType appType = AppType.CHANGES_ANOMALY_STREAM;
+            String appTypeStr = commandLine.getOptionValue(AppOption.APP_TYPE);
+            if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM)) {
+                appType = AppType.CHANGES_ANOMALY_STREAM;
+            } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM)) {
+                appType = AppType.ORDERBOOK_ANOMALY_STREAM;
+            }
+
+            new App(appType).run();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
         }
     }
 
-    private final String streamName;
+    private final AppType appType;
     private final Region region;
     private final KinesisAsyncClient kinesisClient;
 
@@ -98,8 +111,8 @@ public class App {
      * This KinesisClient is used to send dummy data so that the consumer has something to read; it is also used
      * indirectly by the KCL to handle the consumption of the data.
      */
-    private App() {
-        this.streamName = STREAM_ID;
+    private App(AppType appType) {
+        this.appType = appType;
         this.region = Region.of(REGION);
         this.kinesisClient = KinesisClientUtil.createKinesisAsyncClient(KinesisAsyncClient.builder().region(this.region));
     }
@@ -112,7 +125,14 @@ public class App {
          */
         DynamoDbAsyncClient dynamoClient = DynamoDbAsyncClient.builder().region(region).build();
         CloudWatchAsyncClient cloudWatchClient = CloudWatchAsyncClient.builder().region(region).build();
-        ConfigsBuilder configsBuilder = new ConfigsBuilder(streamName, streamName, kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID().toString(), new RecordProcessorFactory());
+        ConfigsBuilder configsBuilder;
+        if (appType == AppType.CHANGES_ANOMALY_STREAM) {
+            configsBuilder = new ConfigsBuilder(appType.streamName(), appType.streamName(), kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID().toString(), new BarWithTimestampRecordProcessorFactory());
+        } else if (appType == AppType.ORDERBOOK_ANOMALY_STREAM) {
+            configsBuilder = new ConfigsBuilder(appType.streamName(), appType.streamName(), kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID().toString(), new OrderbookRecordProcessorFactory());
+        } else {
+            configsBuilder = new ConfigsBuilder(appType.streamName(), appType.streamName(), kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID().toString(), new BarWithTimestampRecordProcessorFactory());
+        }
 
         /**
          * The Scheduler (also called Worker in earlier versions of the KCL) is the entry point to the KCL. This
@@ -125,7 +145,7 @@ public class App {
                 configsBuilder.lifecycleConfig(),
                 configsBuilder.metricsConfig(),
                 configsBuilder.processorConfig(),
-                configsBuilder.retrievalConfig().retrievalSpecificConfig(new PollingConfig(streamName, kinesisClient))
+                configsBuilder.retrievalConfig().retrievalSpecificConfig(new PollingConfig(appType.streamName(), kinesisClient))
         );
 
         /**
@@ -148,9 +168,15 @@ public class App {
         }
     }
 
-    private static class RecordProcessorFactory implements ShardRecordProcessorFactory {
+    private static class BarWithTimestampRecordProcessorFactory implements ShardRecordProcessorFactory {
         public ShardRecordProcessor shardRecordProcessor() {
-            return new RecordProcessor();
+            return new BarWithTimestampRecordProcessor();
+        }
+    }
+
+    private static class OrderbookRecordProcessorFactory implements ShardRecordProcessorFactory {
+        public ShardRecordProcessor shardRecordProcessor() {
+            return new OrderbookRecordProcessor();
         }
     }
 

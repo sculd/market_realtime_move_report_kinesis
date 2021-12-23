@@ -1,6 +1,6 @@
 package com.marketsignal;
 
-import com.marketsignal.stream.AnomalyStream;
+import com.marketsignal.stream.ChangesAnomalyStream;
 import com.marketsignal.stream.MarketStream;
 import com.marketsignal.timeseries.BarWithTime;
 import java.time.Duration;
@@ -21,11 +21,11 @@ import software.amazon.kinesis.retrieval.KinesisClientRecord;
  * The implementation of the ShardRecordProcessor interface is where the heart of the record processing logic lives.
  * In this example all we do to 'process' is log info about the records.
  */
-public class RecordProcessor implements ShardRecordProcessor {
+public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
 
     private static final String SHARD_ID_MDC_KEY = "ShardId";
 
-    private static final Logger log = LoggerFactory.getLogger(RecordProcessor.class);
+    private static final Logger log = LoggerFactory.getLogger(BarWithTimestampRecordProcessor.class);
 
     private String shardId;
 
@@ -36,7 +36,7 @@ public class RecordProcessor implements ShardRecordProcessor {
     private long messageCount = 0;
 
     MarketStream marketStream = new MarketStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    AnomalyStream anomalyStream = new AnomalyStream(marketStream);
+    ChangesAnomalyStream changesAnomalyStream = new ChangesAnomalyStream(marketStream);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -90,7 +90,7 @@ public class RecordProcessor implements ShardRecordProcessor {
             log.info("On 100ths message, processing bwt: {}", bwt.toString());
         }
         marketStream.onBarWithTime(bwt);
-        anomalyStream.onBarWithTime(bwt);
+        changesAnomalyStream.onBarWithTime(bwt);
     }
 
     private void checkpoint(RecordProcessorCheckpointer checkpointer) {
