@@ -90,10 +90,14 @@ public class App {
 
             AppType appType = AppType.CHANGES_ANOMALY_STREAM;
             String appTypeStr = commandLine.getOptionValue(AppOption.APP_TYPE);
-            if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM)) {
-                appType = AppType.CHANGES_ANOMALY_STREAM;
-            } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM)) {
-                appType = AppType.ORDERBOOK_ANOMALY_STREAM;
+            if (appTypeStr == null || appTypeStr.isEmpty()) {
+                log.warn("the option apptype is null (or empty string)");
+            } else {
+                if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM)) {
+                    appType = AppType.CHANGES_ANOMALY_STREAM;
+                } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM)) {
+                    appType = AppType.ORDERBOOK_ANOMALY_STREAM;
+                }
             }
 
             new App(appType).run();
