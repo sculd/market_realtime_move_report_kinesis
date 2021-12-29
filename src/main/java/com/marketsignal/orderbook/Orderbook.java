@@ -3,6 +3,7 @@ package com.marketsignal.orderbook;
 import com.google.common.base.MoreObjects;
 import com.google.gson.*;
 import com.marketsignal.util.Time;
+import lombok.Builder;
 
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -13,7 +14,8 @@ import java.nio.charset.StandardCharsets;
 public class Orderbook {
     private static final Gson GSON = new Gson();
 
-    static class Quote {
+    @Builder
+    public static class Quote {
         public double price;
         public double volume;
 
@@ -31,8 +33,8 @@ public class Orderbook {
         }
     }
 
-    class Quotes {
-        List<Quote> quotes = new ArrayList();
+    public class Quotes {
+        public List<Quote> quotes = new ArrayList();
 
         @Override
         public String toString() {
@@ -98,5 +100,61 @@ public class Orderbook {
                 .add("asks", asks.toString())
                 .add("datetime", Time.fromEpochSecondsToDateTimeStr(epochSeconds))
                 .toString();
+    }
+
+    public long anchorEpochSeconds(long intervalSeconds) {
+        return epochSeconds - (epochSeconds % intervalSeconds);
+    }
+
+    public Quote getBid(int depth) {
+        if (bids.quotes.size() < depth + 1) {
+            return null;
+        }
+        return bids.quotes.get(depth);
+    }
+
+    public Quote getAsk(int depth) {
+        if (asks.quotes.size() < depth + 1) {
+            return null;
+        }
+        return asks.quotes.get(depth);
+    }
+
+    public Quote getTopBid() {
+        return getBid(0);
+    }
+
+    public Quote getTopAsk() {
+        return getAsk(0);
+    }
+
+    public double getCummulativeBidVolume(int depth) {
+        return bids.quotes.subList(0, depth + 1).stream().mapToDouble(q -> q.volume).sum();
+    }
+
+    public double getCummulativeAskVolume(int depth) {
+        return asks.quotes.subList(0, depth + 1).stream().mapToDouble(q -> q.volume).sum();
+    }
+
+    public double getCummulativeBidVolumeAbovePrice(double price) {
+        List<Double> volumes = new ArrayList<>();
+        for (Quote q : bids.quotes) {
+            if (q.price < price) {
+                break;
+            }
+            volumes.add(q.volume);
+        }
+        return volumes.stream().mapToDouble(p -> p).sum();
+    }
+
+    public double getCummulativeAskVolumeBelowPrice(double price) {
+        List<Double> volumes = new ArrayList<>();
+        for (Quote q : asks.quotes) {
+            if (q.price > price) {
+                break;
+            }
+            volumes.add(q.volume);
+        }
+        return volumes.stream().mapToDouble(p -> p).sum();
     }
 }
