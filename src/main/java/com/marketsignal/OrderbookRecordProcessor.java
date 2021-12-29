@@ -1,6 +1,9 @@
 package com.marketsignal;
 
+import com.marketsignal.stream.OrderbookStream;
+
 import com.marketsignal.orderbook.Orderbook;
+import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -11,6 +14,8 @@ import software.amazon.kinesis.lifecycle.events.*;
 import software.amazon.kinesis.processor.RecordProcessorCheckpointer;
 import software.amazon.kinesis.processor.ShardRecordProcessor;
 import software.amazon.kinesis.retrieval.KinesisClientRecord;
+
+import java.time.Duration;
 
 /**
  * The implementation of the ShardRecordProcessor interface is where the heart of the record processing logic lives.
@@ -29,6 +34,8 @@ public class OrderbookRecordProcessor implements ShardRecordProcessor {
     private long nextCheckpointTimeInMillis;
 
     private long messageCount = 0;
+
+    OrderbookStream orderbookStream = new OrderbookStream(Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -81,6 +88,7 @@ public class OrderbookRecordProcessor implements ShardRecordProcessor {
         if (messageCount % 100 == 0) {
             log.info("On 100ths message, processing bwt: {}", orderbook.toString());
         }
+        orderbookStream.onOrderbook(orderbook);
     }
 
     private void checkpoint(RecordProcessorCheckpointer checkpointer) {

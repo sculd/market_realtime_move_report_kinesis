@@ -1,7 +1,7 @@
 package com.marketsignal;
 
 import com.marketsignal.stream.ChangesAnomalyStream;
-import com.marketsignal.stream.MarketStream;
+import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import java.time.Duration;
 
@@ -35,8 +35,8 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
 
     private long messageCount = 0;
 
-    MarketStream marketStream = new MarketStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    ChangesAnomalyStream changesAnomalyStream = new ChangesAnomalyStream(marketStream);
+    BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
+    ChangesAnomalyStream changesAnomalyStream = new ChangesAnomalyStream(barWithTimeStream);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -89,7 +89,7 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
         if (messageCount % 100 == 0) {
             log.info("On 100ths message, processing bwt: {}", bwt.toString());
         }
-        marketStream.onBarWithTime(bwt);
+        barWithTimeStream.onBarWithTime(bwt);
         changesAnomalyStream.onBarWithTime(bwt);
     }
 

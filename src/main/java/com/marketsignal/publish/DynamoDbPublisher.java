@@ -12,7 +12,6 @@ import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import com.marketsignal.util.Time;
 import java.time.format.DateTimeFormatter;
 
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

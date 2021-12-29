@@ -14,12 +14,12 @@ import java.util.List;
 public class ChangesAnomalyStream {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStream.class);
 
-    MarketStream marketStream;
+    BarWithTimeStream barWithTimeStream;
     Publisher publisher = new Publisher();
     ChangesAnomaly changesAnomaly = new ChangesAnomaly();
 
-    public ChangesAnomalyStream(MarketStream marketStream) {
-        this.marketStream = marketStream;
+    public ChangesAnomalyStream(BarWithTimeStream barWithTimeStream) {
+        this.barWithTimeStream = barWithTimeStream;
     }
 
     public void onBarWithTime(BarWithTime bwt) {
@@ -28,8 +28,8 @@ public class ChangesAnomalyStream {
                 .changeThresholds(new ArrayList<>(List.of(0.05, 0.1, 0.2)))
                 .build();
 
-        String key = MarketStream.bwtToKeyString(bwt);
-        ChangesAnomaly.AnalyzeResult analysis = changesAnomaly.analyze(marketStream.KeyedBarWithTimeSlidingWindows.get(key), parameter);
+        String key = BarWithTimeStream.bwtToKeyString(bwt);
+        ChangesAnomaly.AnalyzeResult analysis = changesAnomaly.analyze(barWithTimeStream.keyedBarWithTimeSlidingWindows.get(key), parameter);
         for (ChangesAnomaly.Anomaly anomaly : analysis.anomalies) {
             publisher.publish(anomaly);
         }
