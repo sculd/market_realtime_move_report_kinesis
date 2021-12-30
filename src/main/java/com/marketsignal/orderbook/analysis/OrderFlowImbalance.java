@@ -46,6 +46,8 @@ public class OrderFlowImbalance {
         public String market;
         public String symbol;
         public long epochSeconds;
+        public double bidPrice;
+        public double askPrice;
         public double recentOrderFlowImbalance;
         public double orderFlowImbalanceMedian;
         public double orderFlowImbalanceAverage;
@@ -60,6 +62,8 @@ public class OrderFlowImbalance {
                     .add("market", market)
                     .add("symbol", symbol)
                     .add("epochSeconds", epochSeconds)
+                    .add("bidPrice", bidPrice)
+                    .add("askPrice", askPrice)
                     .add("recentOrderFlowImbalance", recentOrderFlowImbalance)
                     .add("orderFlowImbalanceMedian", orderFlowImbalanceMedian)
                     .add("orderFlowImbalanceAverage", orderFlowImbalanceAverage)
@@ -113,30 +117,59 @@ public class OrderFlowImbalance {
             imbalances.add(imbalance);
         }
 
+        double bidPrice = 0;
+        double askPrice = 0;
+        if (!windowedOrderbooks.isEmpty()) {
+            Orderbook.Quote topBid = windowedOrderbooks.get(windowedOrderbooks.size()-1).getTopBid();
+            Orderbook.Quote topAsk = windowedOrderbooks.get(windowedOrderbooks.size()-1).getTopAsk();
+            if (topBid != null) {
+                bidPrice = topBid.price;
+            }
+            if (topAsk != null) {
+                askPrice = topAsk.price;
+            }
+        }
+
         StandardDeviation sd = new StandardDeviation();
         Mean mean = new Mean();
         Median median = new Median();
         double[] imbalancesArray = ArrayUtils.toPrimitive(imbalances.stream().toArray(Double[] ::new));
         double recentOrderFlowImbalance = 0;
+        double orderFlowImbalanceMedian = 0;
+        double orderFlowImbalanceAverage = 0;
+        double orderFlowImbalanceStandardDeviation = 0;
+        double recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers = 0;
+        double recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers = 0;
         if (!imbalances.isEmpty()) {
             recentOrderFlowImbalance = imbalances.get(imbalances.size()-1);
+            orderFlowImbalanceMedian = median.evaluate(imbalancesArray);
+            orderFlowImbalanceAverage = mean.evaluate(imbalancesArray);
+            orderFlowImbalanceStandardDeviation = sd.evaluate(imbalancesArray);
         }
-        double orderFlowImbalanceMedian = median.evaluate(imbalancesArray);
-        double orderFlowImbalanceAverage = mean.evaluate(imbalancesArray);
-        double orderFlowImbalanceStandardDeviation = sd.evaluate(imbalancesArray);
         double[] imbalancesWithoutOutliers = excludeOutliers(imbalancesArray, orderFlowImbalanceMedian, orderFlowImbalanceStandardDeviation);
-        double orderFlowImbalanceStandardDeviationWithoutOutliers = sd.evaluate(imbalancesWithoutOutliers);
+        double orderFlowImbalanceStandardDeviationWithoutOutliers = 0;
+        if (imbalancesWithoutOutliers.length > 0) {
+            orderFlowImbalanceMedian = median.evaluate(imbalancesWithoutOutliers);
+            orderFlowImbalanceAverage = mean.evaluate(imbalancesWithoutOutliers);
+            orderFlowImbalanceStandardDeviationWithoutOutliers = sd.evaluate(imbalancesWithoutOutliers);
+        }
+        if (orderFlowImbalanceStandardDeviationWithoutOutliers != 0) {
+            recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers = (recentOrderFlowImbalance - orderFlowImbalanceMedian) / orderFlowImbalanceStandardDeviationWithoutOutliers;
+            recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers = (recentOrderFlowImbalance - orderFlowImbalanceAverage) / orderFlowImbalanceStandardDeviationWithoutOutliers;
+        }
 
         Analysis ret = Analysis.builder()
                 .market(orderbooksSlidingWindow.market)
                 .symbol(orderbooksSlidingWindow.symbol)
                 .epochSeconds(orderbooksSlidingWindow.getLatestEpochSeconds())
+                .bidPrice(bidPrice)
+                .askPrice(askPrice)
                 .recentOrderFlowImbalance(recentOrderFlowImbalance)
                 .orderFlowImbalanceMedian(orderFlowImbalanceMedian)
                 .orderFlowImbalanceAverage(orderFlowImbalanceAverage)
                 .orderFlowImbalanceStandardDeviationWithoutOutliers(orderFlowImbalanceStandardDeviationWithoutOutliers)
-                .recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers((recentOrderFlowImbalance - orderFlowImbalanceMedian) / orderFlowImbalanceStandardDeviationWithoutOutliers)
-                .recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers((recentOrderFlowImbalance - orderFlowImbalanceAverage) / orderFlowImbalanceStandardDeviationWithoutOutliers)
+                .recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers(recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
+                .recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers(recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
                 .parameter(parameter)
                 .build();
         return ret;

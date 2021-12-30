@@ -25,29 +25,32 @@ public class DynamoDbPublisher {
             .withRegion(Regions.US_EAST_2)
             .build();
     private final DynamoDB dynamoDB = new DynamoDB(client);
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void publish(OrderFlowImbalanceAnomaly.AnalyzeResult anomalyAnalysis) {
         log.info("[DynamoDbPublisher] publishing {} orderFlowImbalanceAnalysises", anomalyAnalysis.anomalies.size());
         try {
-            TableWriteItems forumTableWriteItems = new TableWriteItems(tableName);
+            TableWriteItems tableWriteItems = new TableWriteItems(tableName);
             for (OrderFlowImbalanceAnomaly.Anomaly anomaly : anomalyAnalysis.anomalies) {
-                forumTableWriteItems.addItemToPut(
-                        new Item().withPrimaryKey("date_et", Time.fromEpochSecondsToDateStr(anomaly.orderFlowImbalanceAnalysis.epochSeconds), "timestamp", anomaly.orderFlowImbalanceAnalysis.epochSeconds)
-                        .withString("datetime_et", Time.fromEpochSecondsToDateTimeStr(anomaly.orderFlowImbalanceAnalysis.epochSeconds))
-                        .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
-                        .with("recordDelaySeconds", java.time.Instant.now().getEpochSecond() - anomaly.orderFlowImbalanceAnalysis.epochSeconds)
-                        .withString("market", anomaly.market)
-                        .withString("symbol", anomaly.symbol)
-                        .with("recentOrderFlowImbalance", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                        .with("orderFlowImbalanceAverage", anomaly.orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
-                        .with("orderFlowImbalanceStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
-                        .with("recentOrderFlowImbalance", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                        .with("flowDuration", anomaly.orderFlowImbalanceAnalysis.parameter.flowDuration)
-                        .with("sampleDuration", anomaly.orderFlowImbalanceAnalysis.parameter.sampleDuration));
+                tableWriteItems.addItemToPut(
+                        new Item().withPrimaryKey("market_symbol_threshold", String.format("%s.%s.%s", anomaly.market, anomaly.symbol, anomaly.threshold), "timestamp", anomaly.orderFlowImbalanceAnalysis.epochSeconds)
+                                .withString("date_et", Time.fromEpochSecondsToDateStr(anomaly.orderFlowImbalanceAnalysis.epochSeconds))
+                                .withString("datetime_et", Time.fromEpochSecondsToDateTimeStr(anomaly.orderFlowImbalanceAnalysis.epochSeconds))
+                                .withString("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
+                                .with("recordDelaySeconds", java.time.Instant.now().getEpochSecond() - anomaly.orderFlowImbalanceAnalysis.epochSeconds)
+                                .with("bidPrice", anomaly.orderFlowImbalanceAnalysis.bidPrice)
+                                .with("askPrice", anomaly.orderFlowImbalanceAnalysis.askPrice)
+                                .with("recentOrderFlowImbalance", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
+                                .with("orderFlowImbalanceAverage", anomaly.orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
+                                .with("orderFlowImbalanceMedian", anomaly.orderFlowImbalanceAnalysis.orderFlowImbalanceMedian)
+                                .with("orderFlowImbalanceStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalance", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
+                                .with("flowDurationSeconds", anomaly.orderFlowImbalanceAnalysis.parameter.flowDuration.toSeconds())
+                                .with("sampleDurationSeconds", anomaly.orderFlowImbalanceAnalysis.parameter.sampleDuration.toSeconds()));
             }
 
-            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(forumTableWriteItems);
+            BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(tableWriteItems);
             do {
                 Map<String, List<WriteRequest>> unprocessedItems = outcome.getUnprocessedItems();
                 if (outcome.getUnprocessedItems().size() == 0) {

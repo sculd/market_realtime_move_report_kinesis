@@ -29,22 +29,28 @@ public class DynamoDbPublisher {
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     List<OrderFlowImbalance.Analysis> orderFlowImbalanceAnalysisWriteBuffer = new ArrayList<>();
-    private final int WRITE_BUFFER_SIZE = 30;
+    private final int WRITE_BUFFER_SIZE = 20;
 
     public void publish(List<OrderFlowImbalance.Analysis> orderFlowImbalanceAnalysisList) {
         log.info("[DynamoDbPublisher] publishing {} orderFlowImbalanceAnalysises", orderFlowImbalanceAnalysisList.size());
         try {
             TableWriteItems forumTableWriteItems = new TableWriteItems(tableName);
             for (OrderFlowImbalance.Analysis orderFlowImbalanceAnalysis : orderFlowImbalanceAnalysisList) {
-                forumTableWriteItems.addItemToPut(new Item().withPrimaryKey("market_symbol", String.format("%s.%s", orderFlowImbalanceAnalysis.market, orderFlowImbalanceAnalysis.symbol), "timestamp", orderFlowImbalanceAnalysis.epochSeconds)
-                        .withString("datetime_et", Time.fromEpochSecondsToDateTimeStr(orderFlowImbalanceAnalysis.epochSeconds))
-                        .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
-                        .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                        .with("orderFlowImbalanceAverage", orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
-                        .with("orderFlowImbalanceStandardDeviation", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
-                        .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                        .with("flowDuration", orderFlowImbalanceAnalysis.parameter.flowDuration)
-                        .with("sampleDuration", orderFlowImbalanceAnalysis.parameter.sampleDuration));
+                forumTableWriteItems.addItemToPut(
+                        new Item().withPrimaryKey("market_symbol", String.format("%s.%s", orderFlowImbalanceAnalysis.market, orderFlowImbalanceAnalysis.symbol), "timestamp", orderFlowImbalanceAnalysis.epochSeconds)
+                                .withString("datetime_et", Time.fromEpochSecondsToDateTimeStr(orderFlowImbalanceAnalysis.epochSeconds))
+                                .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
+                                .with("bidPrice", orderFlowImbalanceAnalysis.bidPrice)
+                                .with("askPrice", orderFlowImbalanceAnalysis.askPrice)
+                                .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
+                                .with("orderFlowImbalanceAverage", orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
+                                .with("orderFlowImbalanceMedian", orderFlowImbalanceAnalysis.orderFlowImbalanceMedian)
+                                .with("orderFlowImbalanceStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
+                                .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
+                                .with("flowDurationSeconds", orderFlowImbalanceAnalysis.parameter.flowDuration.toSeconds())
+                                .with("sampleDurationSeconds", orderFlowImbalanceAnalysis.parameter.sampleDuration.toSeconds()));
             }
 
             BatchWriteItemOutcome outcome = dynamoDB.batchWriteItem(forumTableWriteItems);

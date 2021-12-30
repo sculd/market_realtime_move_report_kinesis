@@ -24,11 +24,13 @@ public class OrderbookAnomalyStream {
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(20), Duration.ofMinutes(60), Duration.ofMinutes(360)))
                 .sampleDurations(List.of(Duration.ofSeconds(10), Duration.ofMinutes(1)))
-                .thresholds(List.of(2.0, 5.0, 10.0))
+                .thresholds(List.of(10.0, 50.0))
                 .build();
 
         String key = OrderbookStream.orderbookToKeyString(orderbook);
         OrderFlowImbalanceAnomaly.AnalyzeResult analysis = orderFlowImbalanceAnomaly.analyze(orderbookStream.keyedOrderbookSlidingWindows.get(key), parameter);
-        dynamoDbPublisher.publish(analysis);
+        if (!analysis.anomalies.isEmpty()) {
+            dynamoDbPublisher.publish(analysis);
+        }
     }
 }
