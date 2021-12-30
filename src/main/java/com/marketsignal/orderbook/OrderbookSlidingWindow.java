@@ -1,7 +1,5 @@
 package com.marketsignal.orderbook;
 
-import com.marketsignal.timeseries.BarWithTime;
-
 import java.time.Duration;
 import java.util.ArrayDeque;
 
@@ -10,6 +8,7 @@ public class OrderbookSlidingWindow {
     public String symbol;
     public ArrayDeque<Orderbook> window;
     public Duration windowSize;
+    private long lastOrderbookEpochSeconds = -1;
 
     public enum TimeSeriesResolution {
         MINUTE (60),
@@ -57,7 +56,20 @@ public class OrderbookSlidingWindow {
         }
     }
 
+    private boolean sampleInOrderbook(Orderbook orderbook) {
+        long epochSecondsAnchored = orderbook.epochSeconds - (orderbook.epochSeconds % timeSeriesResolution.seconds());
+        long lastOrderbookEpochSecondsAnchored = lastOrderbookEpochSeconds - (lastOrderbookEpochSeconds % timeSeriesResolution.seconds());
+        boolean ret = lastOrderbookEpochSeconds < 0 || epochSecondsAnchored > lastOrderbookEpochSecondsAnchored;
+        if (ret) {
+            lastOrderbookEpochSeconds = orderbook.epochSeconds;
+        }
+        return ret;
+    }
+
     public void addOrderbook(Orderbook orderbook) {
+        if (!sampleInOrderbook(orderbook)) {
+            return;
+        }
         this.window.addLast(orderbook);
         truncateSlidingWindowHead();
     }
