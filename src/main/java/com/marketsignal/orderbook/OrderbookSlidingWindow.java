@@ -61,4 +61,11 @@ public class OrderbookSlidingWindow {
         this.window.addLast(orderbook);
         truncateSlidingWindowHead();
     }
+
+    public long getLatestEpochSeconds() {
+        if (window.isEmpty()) {
+            return 0;
+        }
+        return window.getLast().epochSeconds;
+    }
 }

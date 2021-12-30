@@ -40,6 +40,9 @@ public class OrderFlowImbalance {
 
     @Builder
     static public class Analysis {
+        public String market;
+        public String symbol;
+        public long epochSeconds;
         public double recentOrderFlowImbalance;
         public double orderFlowImbalanceAverage;
         public double orderFlowImbalanceStandardDeviation;
@@ -48,6 +51,9 @@ public class OrderFlowImbalance {
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(OrderFlowImbalance.Parameter.class)
+                    .add("market", market)
+                    .add("symbol", symbol)
+                    .add("epochSeconds", epochSeconds)
                     .add("recentOrderFlowImbalance", recentOrderFlowImbalance)
                     .add("orderFlowImbalanceAverage", orderFlowImbalanceAverage)
                     .add("orderFlowImbalanceStandardDeviation", orderFlowImbalanceStandardDeviation)
@@ -92,6 +98,9 @@ public class OrderFlowImbalance {
         Mean mean = new Mean();
         double[] imbalancesArray = ArrayUtils.toPrimitive(imbalances.stream().toArray(Double[] ::new));
         Analysis ret = Analysis.builder()
+                .market(orderbooksSlidingWindow.market)
+                .symbol(orderbooksSlidingWindow.symbol)
+                .epochSeconds(orderbooksSlidingWindow.getLatestEpochSeconds())
                 .recentOrderFlowImbalance(imbalances.get(imbalances.size()-1))
                 .orderFlowImbalanceAverage(mean.evaluate(imbalancesArray))
                 .orderFlowImbalanceStandardDeviation(sd.evaluate(imbalancesArray))

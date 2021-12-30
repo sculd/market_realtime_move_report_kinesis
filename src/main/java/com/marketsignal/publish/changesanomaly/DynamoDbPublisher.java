@@ -1,4 +1,4 @@
-package com.marketsignal.publish;
+package com.marketsignal.publish.changesanomaly;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;

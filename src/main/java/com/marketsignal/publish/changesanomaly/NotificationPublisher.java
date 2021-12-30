@@ -1,4 +1,4 @@
-package com.marketsignal.publish;
+package com.marketsignal.publish.changesanomaly;
 
 import kong.unirest.Unirest;
 

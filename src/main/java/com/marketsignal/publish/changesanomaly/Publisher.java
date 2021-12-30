@@ -1,5 +1,7 @@
-package com.marketsignal.publish;
+package com.marketsignal.publish.changesanomaly;
 
+import com.marketsignal.publish.changesanomaly.DynamoDbPublisher;
+import com.marketsignal.publish.changesanomaly.SlackPublisher;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
