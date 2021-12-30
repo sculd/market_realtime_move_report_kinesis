@@ -37,7 +37,7 @@ public class DynamoDbPublisher {
                         .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
                         .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
                         .with("orderFlowImbalanceAverage", orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
-                        .with("orderFlowImbalanceStandardDeviation", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviation)
+                        .with("orderFlowImbalanceStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
                         .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
                         .with("flowDuration", orderFlowImbalanceAnalysis.parameter.flowDuration)
                         .with("sampleDuration", orderFlowImbalanceAnalysis.parameter.sampleDuration));

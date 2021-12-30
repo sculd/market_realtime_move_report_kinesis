@@ -15,9 +15,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
+import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class OrderFlowImbalance {
+
+    static final double OUTLIER_THRESHOLD = 1.5;
 
     @Builder
     static public class Parameter {
@@ -44,8 +47,11 @@ public class OrderFlowImbalance {
         public String symbol;
         public long epochSeconds;
         public double recentOrderFlowImbalance;
+        public double orderFlowImbalanceMedian;
         public double orderFlowImbalanceAverage;
-        public double orderFlowImbalanceStandardDeviation;
+        public double orderFlowImbalanceStandardDeviationWithoutOutliers;
+        public double recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers;
+        public double recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers;
         public Parameter parameter;
 
         @Override
@@ -55,8 +61,10 @@ public class OrderFlowImbalance {
                     .add("symbol", symbol)
                     .add("epochSeconds", epochSeconds)
                     .add("recentOrderFlowImbalance", recentOrderFlowImbalance)
+                    .add("orderFlowImbalanceMedian", orderFlowImbalanceMedian)
                     .add("orderFlowImbalanceAverage", orderFlowImbalanceAverage)
-                    .add("orderFlowImbalanceStandardDeviation", orderFlowImbalanceStandardDeviation)
+                    .add("orderFlowImbalanceStandardDeviationWithoutOutliers", orderFlowImbalanceStandardDeviationWithoutOutliers)
+                    .add("recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers", recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
                     .add("parameter", parameter.toString())
                     .toString();
         }
@@ -79,6 +87,17 @@ public class OrderFlowImbalance {
                 .collect(Collectors.toList());
     }
 
+    static private double[] excludeOutliers(double[] imbalancesArray, double median, double standardDeviation) {
+        List<Double> excluded = new ArrayList<>();
+        for (double v : imbalancesArray) {
+            if (Math.abs(v - median) / standardDeviation > OUTLIER_THRESHOLD) {
+                continue;
+            }
+            excluded.add(v);
+        }
+        return ArrayUtils.toPrimitive(excluded.stream().toArray(Double[] ::new));
+    }
+
     static public Analysis analyze(OrderbookSlidingWindow orderbooksSlidingWindow, Parameter parameter) {
         List<Orderbook> orderbooks = sampleOrderbooks(orderbooksSlidingWindow.window, parameter.sampleDuration.toSeconds());
         List<Orderbook> windowedOrderbooks = filterOutdatedOrderbooks(orderbooks, parameter.flowDuration);
@@ -96,14 +115,29 @@ public class OrderFlowImbalance {
 
         StandardDeviation sd = new StandardDeviation();
         Mean mean = new Mean();
+        Median median = new Median();
         double[] imbalancesArray = ArrayUtils.toPrimitive(imbalances.stream().toArray(Double[] ::new));
+        double recentOrderFlowImbalance = 0;
+        if (!imbalances.isEmpty()) {
+            recentOrderFlowImbalance = imbalances.get(imbalances.size()-1);
+        }
+        double orderFlowImbalanceMedian = median.evaluate(imbalancesArray);
+        double orderFlowImbalanceAverage = mean.evaluate(imbalancesArray);
+        double orderFlowImbalanceStandardDeviation = sd.evaluate(imbalancesArray);
+        double[] imbalancesWithoutOutliers = excludeOutliers(imbalancesArray, orderFlowImbalanceMedian, orderFlowImbalanceStandardDeviation);
+        double orderFlowImbalanceStandardDeviationWithoutOutliers = sd.evaluate(imbalancesWithoutOutliers);
+
         Analysis ret = Analysis.builder()
                 .market(orderbooksSlidingWindow.market)
                 .symbol(orderbooksSlidingWindow.symbol)
                 .epochSeconds(orderbooksSlidingWindow.getLatestEpochSeconds())
-                .recentOrderFlowImbalance(imbalances.get(imbalances.size()-1))
-                .orderFlowImbalanceAverage(mean.evaluate(imbalancesArray))
-                .orderFlowImbalanceStandardDeviation(sd.evaluate(imbalancesArray))
+                .recentOrderFlowImbalance(recentOrderFlowImbalance)
+                .orderFlowImbalanceMedian(orderFlowImbalanceMedian)
+                .orderFlowImbalanceAverage(orderFlowImbalanceAverage)
+                .orderFlowImbalanceStandardDeviationWithoutOutliers(orderFlowImbalanceStandardDeviationWithoutOutliers)
+                .recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers((recentOrderFlowImbalance - orderFlowImbalanceMedian) / orderFlowImbalanceStandardDeviationWithoutOutliers)
+                .recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers((recentOrderFlowImbalance - orderFlowImbalanceAverage) / orderFlowImbalanceStandardDeviationWithoutOutliers)
+                .parameter(parameter)
                 .build();
         return ret;
     }
