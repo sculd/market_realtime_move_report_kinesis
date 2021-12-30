@@ -66,12 +66,13 @@ public class OrderbookSlidingWindow {
         return ret;
     }
 
-    public void addOrderbook(Orderbook orderbook) {
+    public boolean addOrderbook(Orderbook orderbook) {
         if (!sampleInOrderbook(orderbook)) {
-            return;
+            return false;
         }
         this.window.addLast(orderbook);
         truncateSlidingWindowHead();
+        return true;
     }
 
     public long getLatestEpochSeconds() {

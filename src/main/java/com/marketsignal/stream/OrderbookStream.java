@@ -29,9 +29,11 @@ public class OrderbookStream {
         if (!keyedOrderbookSlidingWindows.containsKey(key)) {
             keyedOrderbookSlidingWindows.put(key, new OrderbookSlidingWindow(orderbook.market, orderbook.symbol, this.windowSize, this.timeSeriesResolution));
         }
-        keyedOrderbookSlidingWindows.get(key).addOrderbook(orderbook);
+        boolean sampledIn = keyedOrderbookSlidingWindows.get(key).addOrderbook(orderbook);
 
-        publishOrderFlowImbalanceAnomaly(keyedOrderbookSlidingWindows.get(key), orderbook);
+        if (sampledIn) {
+            publishOrderFlowImbalanceAnomaly(keyedOrderbookSlidingWindows.get(key), orderbook);
+        }
     }
 
     private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
