@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +28,9 @@ public class DynamoDbPublisher {
     private final DynamoDB dynamoDB = new DynamoDB(client);
     private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+    List<OrderFlowImbalance.Analysis> orderFlowImbalanceAnalysisWriteBuffer = new ArrayList<>();
+    private final int WRITE_BUFFER_SIZE = 30;
+
     public void publish(List<OrderFlowImbalance.Analysis> orderFlowImbalanceAnalysisList) {
         log.info("[DynamoDbPublisher] publishing {} orderFlowImbalanceAnalysises", orderFlowImbalanceAnalysisList.size());
         try {
@@ -37,7 +41,7 @@ public class DynamoDbPublisher {
                         .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
                         .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
                         .with("orderFlowImbalanceAverage", orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
-                        .with("orderFlowImbalanceStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
+                        .with("orderFlowImbalanceStandardDeviation", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
                         .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
                         .with("flowDuration", orderFlowImbalanceAnalysis.parameter.flowDuration)
                         .with("sampleDuration", orderFlowImbalanceAnalysis.parameter.sampleDuration));
@@ -61,5 +65,11 @@ public class DynamoDbPublisher {
     }
 
     public void publish(OrderFlowImbalance.Analysis orderFlowImbalanceAnalysis) {
+        orderFlowImbalanceAnalysisWriteBuffer.add(orderFlowImbalanceAnalysis);
+        if (orderFlowImbalanceAnalysisWriteBuffer.size() >= WRITE_BUFFER_SIZE) {
+            List<OrderFlowImbalance.Analysis> writeItems = new ArrayList<>(orderFlowImbalanceAnalysisWriteBuffer);
+            orderFlowImbalanceAnalysisWriteBuffer.clear();
+            publish(writeItems);
+        }
     }
 }

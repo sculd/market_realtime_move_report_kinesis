@@ -23,7 +23,6 @@ public class DynamoDbPublisher {
             .withRegion(Regions.US_EAST_2)
             .build();
     private final DynamoDB dynamoDB = new DynamoDB(client);
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public void publish(ChangesAnomaly.Anomaly anomaly) {
         Table table = dynamoDB.getTable(tableName);

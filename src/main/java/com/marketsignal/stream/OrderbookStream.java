@@ -2,6 +2,8 @@ package com.marketsignal.stream;
 
 import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.orderbook.OrderbookSlidingWindow;
+import com.marketsignal.orderbook.analysis.OrderFlowImbalance;
+import com.marketsignal.publish.orderbookflowimbalance.DynamoDbPublisher;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -11,6 +13,7 @@ public class OrderbookStream {
     Duration windowSize;
     OrderbookSlidingWindow.TimeSeriesResolution timeSeriesResolution;
     Map<String, OrderbookSlidingWindow> keyedOrderbookSlidingWindows = new HashMap<>();
+    DynamoDbPublisher dynamoDbPublisher = new DynamoDbPublisher();
 
     public OrderbookStream(Duration windowSize, OrderbookSlidingWindow.TimeSeriesResolution timeSeriesResolution) {
         this.windowSize = windowSize;
@@ -27,5 +30,17 @@ public class OrderbookStream {
             keyedOrderbookSlidingWindows.put(key, new OrderbookSlidingWindow(orderbook.market, orderbook.symbol, this.windowSize, this.timeSeriesResolution));
         }
         keyedOrderbookSlidingWindows.get(key).addOrderbook(orderbook);
+
+        publishOrderFlowImbalanceAnomaly(keyedOrderbookSlidingWindows.get(key), orderbook);
+    }
+
+    private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
+        OrderFlowImbalance.Parameter parameter = OrderFlowImbalance.Parameter.builder()
+                .flowDuration(Duration.ofMinutes(10))
+                .sampleDuration(Duration.ofSeconds(10))
+                .build();
+
+        OrderFlowImbalance.Analysis analysis = OrderFlowImbalance.analyze(orderbooksSlidingWindow, parameter);
+        dynamoDbPublisher.publish(analysis);
     }
 }
