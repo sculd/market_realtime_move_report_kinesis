@@ -22,6 +22,7 @@ public class ChangesAnomaly {
         public double changeThreshold;
         public String market;
         public String symbol;
+        public Duration windowSize;
         public Changes.AnalyzeResult changeAnalysis;
 
         public String getChangeTypeStr() {
@@ -60,6 +61,7 @@ public class ChangesAnomaly {
                     .add("market", market)
                     .add("symbol", symbol)
                     .add("changeThreshold", changeThreshold)
+                    .add("windowSize", windowSize.toString())
                     .add("changeType", getChangeTypeStr())
                     .toString();
         }
@@ -100,6 +102,7 @@ public class ChangesAnomaly {
                         .changeAnalysis(analyzeResult)
                         .market(bwtSlidingWindow.market)
                         .symbol(bwtSlidingWindow.symbol)
+                        .windowSize(changeParameter.windowSize)
                         .build();
 
                 long secondsSincePrev = anomaly.changeAnalysis.epochSecondsAtAnalysis -
