@@ -39,7 +39,7 @@ public class OrderbookStream {
     private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
         OrderFlowImbalance.Parameter parameter = OrderFlowImbalance.Parameter.builder()
                 .flowDuration(Duration.ofMinutes(10))
-                .sampleDuration(Duration.ofSeconds(10))
+                .sampleDuration(Duration.ofSeconds(timeSeriesResolution.seconds()))
                 .build();
 
         OrderFlowImbalance.Analysis analysis = OrderFlowImbalance.analyze(orderbooksSlidingWindow, parameter);

@@ -12,6 +12,7 @@ public class OrderbookSlidingWindow {
 
     public enum TimeSeriesResolution {
         MINUTE (60),
+        THIRTY_SECONDS (30),
         TEN_SECONDS (10),
         SECOND (1)
         ;
@@ -20,7 +21,7 @@ public class OrderbookSlidingWindow {
         TimeSeriesResolution(long seconds) {
             this.seconds = seconds;
         }
-        private long seconds() { return seconds; }
+        public long seconds() { return seconds; }
     }
     public TimeSeriesResolution timeSeriesResolution;
 

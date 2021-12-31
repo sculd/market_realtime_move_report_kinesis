@@ -1,6 +1,7 @@
 package com.marketsignal.stream;
 
 import com.marketsignal.orderbook.Orderbook;
+import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import com.marketsignal.orderbook.analysis.OrderFlowImbalanceAnomaly;
 import com.marketsignal.publish.orderbookflowimbalanceanomaly.DynamoDbPublisher;
 import org.slf4j.Logger;
@@ -21,13 +22,15 @@ public class OrderbookAnomalyStream {
     }
 
     public void onOrderbook(Orderbook orderbook) {
+        String key = OrderbookStream.orderbookToKeyString(orderbook);
+        OrderbookSlidingWindow orderbookSlidingWindow = orderbookStream.keyedOrderbookSlidingWindows.get(key);
+
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(20), Duration.ofMinutes(60), Duration.ofMinutes(360)))
-                .sampleDurations(List.of(Duration.ofSeconds(10), Duration.ofMinutes(1)))
+                .sampleDurations(List.of(Duration.ofSeconds(orderbookSlidingWindow.timeSeriesResolution.seconds())))
                 .thresholds(List.of(10.0, 50.0))
                 .build();
 
-        String key = OrderbookStream.orderbookToKeyString(orderbook);
         OrderFlowImbalanceAnomaly.AnalyzeResult analysis = orderFlowImbalanceAnomaly.analyze(orderbookStream.keyedOrderbookSlidingWindows.get(key), parameter);
         if (!analysis.anomalies.isEmpty()) {
             dynamoDbPublisher.publish(analysis);
