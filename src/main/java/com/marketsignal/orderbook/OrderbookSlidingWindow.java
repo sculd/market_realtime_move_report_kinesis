@@ -9,23 +9,9 @@ public class OrderbookSlidingWindow {
     public ArrayDeque<Orderbook> window;
     public Duration windowSize;
     private long lastOrderbookEpochSeconds = -1;
+    public Duration timeSeriesResolution;
 
-    public enum TimeSeriesResolution {
-        MINUTE (60),
-        THIRTY_SECONDS (30),
-        TEN_SECONDS (10),
-        SECOND (1)
-        ;
-
-        private final long seconds;
-        TimeSeriesResolution(long seconds) {
-            this.seconds = seconds;
-        }
-        public long seconds() { return seconds; }
-    }
-    public TimeSeriesResolution timeSeriesResolution;
-
-    public OrderbookSlidingWindow(String market, String symbol, Duration windowSize, TimeSeriesResolution timeSeriesResolution) {
+    public OrderbookSlidingWindow(String market, String symbol, Duration windowSize, Duration timeSeriesResolution) {
         this.market = market;
         this.symbol = symbol;
         this.window = new ArrayDeque<Orderbook>();
@@ -58,8 +44,8 @@ public class OrderbookSlidingWindow {
     }
 
     private boolean sampleInOrderbook(Orderbook orderbook) {
-        long epochSecondsAnchored = orderbook.epochSeconds - (orderbook.epochSeconds % timeSeriesResolution.seconds());
-        long lastOrderbookEpochSecondsAnchored = lastOrderbookEpochSeconds - (lastOrderbookEpochSeconds % timeSeriesResolution.seconds());
+        long epochSecondsAnchored = orderbook.epochSeconds - (orderbook.epochSeconds % timeSeriesResolution.toSeconds());
+        long lastOrderbookEpochSecondsAnchored = lastOrderbookEpochSeconds - (lastOrderbookEpochSeconds % timeSeriesResolution.toSeconds());
         boolean ret = lastOrderbookEpochSeconds < 0 || epochSecondsAnchored > lastOrderbookEpochSecondsAnchored;
         if (ret) {
             lastOrderbookEpochSeconds = orderbook.epochSeconds;

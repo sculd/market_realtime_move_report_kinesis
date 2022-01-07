@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class OrderFlowImbalanceAnomalyTest {
     @Test
     public void testAnalyzeEmptyWindow() {
-        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
+        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), Duration.ofSeconds(10));
 
         OrderFlowImbalanceAnomaly orderFlowImbalanceAnomaly = new OrderFlowImbalanceAnomaly();
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
@@ -27,7 +27,7 @@ public class OrderFlowImbalanceAnomalyTest {
 
     @Test
     public void testAnalyzeNoAnomaly() {
-        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
+        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), Duration.ofSeconds(10));
 
         Orderbook orderbook = new Orderbook("dummy_market", "dummy_symbol", 0);
         orderbook.asks.quotes.add(Orderbook.Quote.builder().price(150).volume(20).build());
@@ -57,7 +57,7 @@ public class OrderFlowImbalanceAnomalyTest {
 
     @Test
     public void testAnalyzeWithAnomaly() {
-        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
+        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), Duration.ofSeconds(10));
 
         Orderbook orderbook = new Orderbook("dummy_market", "dummy_symbol", 0);
         orderbook.asks.quotes.add(Orderbook.Quote.builder().price(150).volume(20).build());

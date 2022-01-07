@@ -11,11 +11,11 @@ import java.util.Map;
 
 public class OrderbookStream {
     Duration windowSize;
-    OrderbookSlidingWindow.TimeSeriesResolution timeSeriesResolution;
+    Duration timeSeriesResolution;
     Map<String, OrderbookSlidingWindow> keyedOrderbookSlidingWindows = new HashMap<>();
     DynamoDbPublisher dynamoDbPublisher = new DynamoDbPublisher();
 
-    public OrderbookStream(Duration windowSize, OrderbookSlidingWindow.TimeSeriesResolution timeSeriesResolution) {
+    public OrderbookStream(Duration windowSize, Duration timeSeriesResolution) {
         this.windowSize = windowSize;
         this.timeSeriesResolution = timeSeriesResolution;
     }
@@ -39,7 +39,7 @@ public class OrderbookStream {
     private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
         OrderFlowImbalance.Parameter parameter = OrderFlowImbalance.Parameter.builder()
                 .flowDuration(Duration.ofMinutes(10))
-                .sampleDuration(Duration.ofSeconds(timeSeriesResolution.seconds()))
+                .sampleDuration(Duration.ofSeconds(timeSeriesResolution.toSeconds()))
                 .build();
 
         OrderFlowImbalance.Analysis analysis = OrderFlowImbalance.analyze(orderbooksSlidingWindow, parameter);

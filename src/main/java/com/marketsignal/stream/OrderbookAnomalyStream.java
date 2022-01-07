@@ -27,7 +27,7 @@ public class OrderbookAnomalyStream {
 
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(20), Duration.ofMinutes(60), Duration.ofMinutes(360)))
-                .sampleDurations(List.of(Duration.ofSeconds(orderbookSlidingWindow.timeSeriesResolution.seconds())))
+                .sampleDurations(List.of(Duration.ofSeconds(orderbookSlidingWindow.timeSeriesResolution.toSeconds())))
                 .thresholds(List.of(10.0, 50.0))
                 .build();
 

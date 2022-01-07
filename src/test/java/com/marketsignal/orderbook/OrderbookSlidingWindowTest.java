@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 public class OrderbookSlidingWindowTest {
     @Test
     public void testAddOrderbookSampled() {
-        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
+        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), Duration.ofSeconds(10));
         orderbookSlidingWindow.addOrderbook(new Orderbook("dummy_market", "dummy_symbol", 0));
         orderbookSlidingWindow.addOrderbook(new Orderbook("dummy_market", "dummy_symbol", 1));
         orderbookSlidingWindow.addOrderbook(new Orderbook("dummy_market", "dummy_symbol", 10));
@@ -19,7 +19,7 @@ public class OrderbookSlidingWindowTest {
 
     @Test
     public void testAddOrderbookTruncated() {
-        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), OrderbookSlidingWindow.TimeSeriesResolution.TEN_SECONDS);
+        OrderbookSlidingWindow orderbookSlidingWindow = new OrderbookSlidingWindow("dummy_market", "dummy_symbol", Duration.ofMinutes(10), Duration.ofSeconds(10));
         orderbookSlidingWindow.addOrderbook(new Orderbook("dummy_market", "dummy_symbol", 0));
         // the first one truncated after adding the second.
         orderbookSlidingWindow.addOrderbook(new Orderbook("dummy_market", "dummy_symbol", 601));
