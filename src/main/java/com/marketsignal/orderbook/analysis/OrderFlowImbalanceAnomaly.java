@@ -68,7 +68,7 @@ public class OrderFlowImbalanceAnomaly {
         for (Duration windowSize : parameter.windowSizes) {
             for (Duration sampleDuration : parameter.sampleDurations) {
                 OrderFlowImbalance.Parameter orderFlowImbalanceAnalysisParameter = OrderFlowImbalance.Parameter.builder()
-                        .flowDuration(windowSize)
+                        .windowDuration(windowSize)
                         .sampleDuration(sampleDuration)
                         .build();
 

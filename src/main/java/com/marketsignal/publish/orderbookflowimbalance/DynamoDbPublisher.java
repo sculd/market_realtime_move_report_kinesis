@@ -42,14 +42,12 @@ public class DynamoDbPublisher {
                                 .with("datetime_recorded", Time.fromEpochSecondsToDateTimeStr(java.time.Instant.now().getEpochSecond()))
                                 .with("bidPrice", orderFlowImbalanceAnalysis.bidPrice)
                                 .with("askPrice", orderFlowImbalanceAnalysis.askPrice)
-                                .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                                .with("orderFlowImbalanceAverage", orderFlowImbalanceAnalysis.orderFlowImbalanceAverage)
+                                .with("orderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
                                 .with("orderFlowImbalanceMedian", orderFlowImbalanceAnalysis.orderFlowImbalanceMedian)
-                                .with("orderFlowImbalanceStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
-                                .with("recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
-                                .with("recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers", orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
-                                .with("recentOrderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                                .with("flowDurationSeconds", orderFlowImbalanceAnalysis.parameter.flowDuration.toSeconds())
+                                .with("orderFlowImbalanceStdev", orderFlowImbalanceAnalysis.orderFlowImbalanceStandardDeviationWithoutOutliers)
+                                .with("orderFlowImbalanceDeltaToStdev", orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
+                                .with("orderFlowImbalance", orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
+                                .with("flowDurationSeconds", orderFlowImbalanceAnalysis.parameter.windowDuration.toSeconds())
                                 .with("sampleDurationSeconds", orderFlowImbalanceAnalysis.parameter.sampleDuration.toSeconds()));
             }
 

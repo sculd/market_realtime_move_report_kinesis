@@ -6,11 +6,7 @@ import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.math3.stat.descriptive.moment.Mean;
@@ -24,18 +20,24 @@ public class OrderFlowImbalance {
 
     @Builder
     static public class Parameter {
-        public Duration flowDuration;
+        // the whole sample duration
+        public Duration windowDuration;
+        // flow summation window for each point
+        public Duration aggregationDuration;
+        // how often each point is calculated
         public Duration sampleDuration;
 
-        public Parameter(Duration flowDuration, Duration sampleDuration) {
-            this.flowDuration = flowDuration;
+        public Parameter(Duration windowDuration, Duration aggregationDuration, Duration sampleDuration) {
+            this.windowDuration = windowDuration;
+            this.aggregationDuration = aggregationDuration;
             this.sampleDuration = sampleDuration;
         }
 
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(OrderFlowImbalance.Parameter.class)
-                    .add("flowDuration", flowDuration)
+                    .add("windowDuration", windowDuration)
+                    .add("aggregationDuration", aggregationDuration)
                     .add("sampleDuration", sampleDuration)
                     .toString();
         }
@@ -104,16 +106,33 @@ public class OrderFlowImbalance {
 
     static public Analysis analyze(OrderbookSlidingWindow orderbooksSlidingWindow, Parameter parameter) {
         List<Orderbook> orderbooks = sampleOrderbooks(orderbooksSlidingWindow.window, parameter.sampleDuration.toSeconds());
-        List<Orderbook> windowedOrderbooks = filterOutdatedOrderbooks(orderbooks, parameter.flowDuration);
+        List<Orderbook> windowedOrderbooks = filterOutdatedOrderbooks(orderbooks, parameter.windowDuration);
         if (windowedOrderbooks.isEmpty()) {
             return Analysis.builder().build();
         }
 
         List<Double> imbalances = new ArrayList<>();
-        for (int i = 1; i < windowedOrderbooks.size(); i++) {
+        ArrayDeque<Orderbook> aggregationWindow = new ArrayDeque<>();
+        for (int i = 0; i < windowedOrderbooks.size(); i++) {
+            aggregationWindow.add(windowedOrderbooks.get(i));
+            while (!aggregationWindow.isEmpty() && aggregationWindow.getLast().epochSeconds - aggregationWindow.getFirst().epochSeconds > parameter.aggregationDuration.toSeconds()) {
+                aggregationWindow.removeFirst();
+            }
+            if (aggregationWindow.size() < 2) {
+                continue;
+            }
+            Iterator<Orderbook> oit = aggregationWindow.iterator();
+            Orderbook bookFormer = null;
+            Orderbook bookLatter = null;
             double imbalance = 0;
-            imbalance -= OrderFlow.getAskOrderFlow(windowedOrderbooks.get(i-1), windowedOrderbooks.get(i));
-            imbalance += OrderFlow.getBidOrderFlow(windowedOrderbooks.get(i-1), windowedOrderbooks.get(i));
+            while (oit.hasNext()) {
+                bookFormer = bookLatter;
+                bookLatter = oit.next();
+                if (bookFormer != null) {
+                    imbalance -= OrderFlow.getAskOrderFlow(bookFormer, bookLatter);
+                    imbalance += OrderFlow.getBidOrderFlow(bookFormer, bookLatter);
+                }
+            }
             imbalances.add(imbalance);
         }
 

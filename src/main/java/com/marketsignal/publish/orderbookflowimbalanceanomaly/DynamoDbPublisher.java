@@ -46,7 +46,7 @@ public class DynamoDbPublisher {
                                 .with("recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers)
                                 .with("recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalanceDeviationFromAverageToStandardDeviationWithoutOutliers)
                                 .with("recentOrderFlowImbalance", anomaly.orderFlowImbalanceAnalysis.recentOrderFlowImbalance)
-                                .with("flowDurationSeconds", anomaly.orderFlowImbalanceAnalysis.parameter.flowDuration.toSeconds())
+                                .with("flowDurationSeconds", anomaly.orderFlowImbalanceAnalysis.parameter.windowDuration.toSeconds())
                                 .with("sampleDurationSeconds", anomaly.orderFlowImbalanceAnalysis.parameter.sampleDuration.toSeconds()));
             }
 

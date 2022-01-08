@@ -12,12 +12,15 @@ import java.util.Map;
 public class OrderbookStream {
     Duration windowSize;
     Duration timeSeriesResolution;
+    Duration exportInterval;
     Map<String, OrderbookSlidingWindow> keyedOrderbookSlidingWindows = new HashMap<>();
+    Map<String, Long> keyedExportAnchoredEpochSeconds = new HashMap<>();
     DynamoDbPublisher dynamoDbPublisher = new DynamoDbPublisher();
 
-    public OrderbookStream(Duration windowSize, Duration timeSeriesResolution) {
+    public OrderbookStream(Duration windowSize, Duration timeSeriesResolution, Duration exportInterval) {
         this.windowSize = windowSize;
         this.timeSeriesResolution = timeSeriesResolution;
+        this.exportInterval = exportInterval;
     }
 
     static String orderbookToKeyString(Orderbook orderbook) {
@@ -29,16 +32,25 @@ public class OrderbookStream {
         if (!keyedOrderbookSlidingWindows.containsKey(key)) {
             keyedOrderbookSlidingWindows.put(key, new OrderbookSlidingWindow(orderbook.market, orderbook.symbol, this.windowSize, this.timeSeriesResolution));
         }
-        boolean sampledIn = keyedOrderbookSlidingWindows.get(key).addOrderbook(orderbook);
+        keyedOrderbookSlidingWindows.get(key).addOrderbook(orderbook);
 
-        if (sampledIn) {
+        if (!keyedExportAnchoredEpochSeconds.containsKey(key)) {
+            keyedExportAnchoredEpochSeconds.put(key, Long.valueOf(0));
+        }
+        long prevAnochoredEpochSeconds = keyedExportAnchoredEpochSeconds.get(key);
+        long anochoredEpochSeconds = orderbook.epochSeconds - (orderbook.epochSeconds % exportInterval.toSeconds());
+
+
+        if (anochoredEpochSeconds > prevAnochoredEpochSeconds) {
             publishOrderFlowImbalanceAnomaly(keyedOrderbookSlidingWindows.get(key), orderbook);
+            keyedExportAnchoredEpochSeconds.put(key, anochoredEpochSeconds);
         }
     }
 
     private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
         OrderFlowImbalance.Parameter parameter = OrderFlowImbalance.Parameter.builder()
-                .flowDuration(Duration.ofMinutes(10))
+                .windowDuration(Duration.ofMinutes(10))
+                .aggregationDuration(Duration.ofSeconds(10))
                 .sampleDuration(Duration.ofSeconds(timeSeriesResolution.toSeconds()))
                 .build();
 

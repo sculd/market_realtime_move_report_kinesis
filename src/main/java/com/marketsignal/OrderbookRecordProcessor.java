@@ -35,7 +35,7 @@ public class OrderbookRecordProcessor implements ShardRecordProcessor {
 
     private long messageCount = 0;
 
-    OrderbookStream orderbookStream = new OrderbookStream(Duration.ofMinutes(10), Duration.ofSeconds(1));
+    OrderbookStream orderbookStream = new OrderbookStream(Duration.ofMinutes(10), Duration.ofSeconds(1), Duration.ofSeconds(30));
     OrderbookAnomalyStream orderbookAnomalyStream = new OrderbookAnomalyStream(orderbookStream);
 
     /**
