@@ -128,6 +128,22 @@ public class Orderbook {
         return getAsk(0);
     }
 
+    public double getTopBidPrice() {
+        Quote top = getTopBid();
+        if (top == null) {
+            return 0;
+        }
+        return top.price;
+    }
+
+    public double getTopAskPrice() {
+        Quote top = getTopAsk();
+        if (top == null) {
+            return 0;
+        }
+        return top.price;
+    }
+
     public double getCummulativeBidVolume(int depth) {
         return bids.quotes.subList(0, depth + 1).stream().mapToDouble(q -> q.volume).sum();
     }

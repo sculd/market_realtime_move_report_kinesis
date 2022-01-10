@@ -50,11 +50,13 @@ public class OrderFlowImbalanceAnomaly {
     @Builder
     static public class AnalyzeParameter {
         public List<Duration> windowSizes;
+        public List<Duration> aggregationDurations;
         public List<Duration> sampleDurations;
         public List<Double>  thresholds;
 
-        public AnalyzeParameter(List<Duration> windowSizes, List<Duration> sampleDurations, List<Double> thresholds) {
+        public AnalyzeParameter(List<Duration> windowSizes, List<Duration> aggregationDurations, List<Duration> sampleDurations, List<Double> thresholds) {
             this.windowSizes = windowSizes;
+            this.aggregationDurations = aggregationDurations;
             this.sampleDurations = sampleDurations;
             this.thresholds = thresholds;
         }
@@ -67,34 +69,37 @@ public class OrderFlowImbalanceAnomaly {
 
         for (Duration windowSize : parameter.windowSizes) {
             for (Duration sampleDuration : parameter.sampleDurations) {
-                OrderFlowImbalance.Parameter orderFlowImbalanceAnalysisParameter = OrderFlowImbalance.Parameter.builder()
-                        .windowDuration(windowSize)
-                        .sampleDuration(sampleDuration)
-                        .build();
-
-                OrderFlowImbalance.Analysis imbalanceAnalyzeResult = OrderFlowImbalance.analyze(slidingWindow, orderFlowImbalanceAnalysisParameter);
-                for (Double threshold : parameter.thresholds) {
-                    if (Math.abs(imbalanceAnalyzeResult.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers) < threshold) {
-                        continue;
-                    }
-                    Anomaly anomaly = Anomaly.builder()
-                            .threshold(threshold)
-                            .orderFlowImbalanceAnalysis(imbalanceAnalyzeResult)
-                            .market(slidingWindow.market)
-                            .symbol(slidingWindow.symbol)
-                            .orderFlowImbalanceAnalysis(imbalanceAnalyzeResult)
+                for (Duration aggregationDuration : parameter.aggregationDurations) {
+                    OrderFlowImbalance.Parameter orderFlowImbalanceAnalysisParameter = OrderFlowImbalance.Parameter.builder()
+                            .windowDuration(windowSize)
+                            .aggregationDuration(aggregationDuration)
+                            .sampleDuration(sampleDuration)
                             .build();
 
-                    long prevAnomalyEpochSecond = prevAnomalyEpochSeconds.getOrDefault(anomaly.getThrottleKey(), Long.valueOf(-1));
-                    long secondsSincePrev = anomaly.orderFlowImbalanceAnalysis.epochSeconds - prevAnomalyEpochSecond;
+                    OrderFlowImbalance.Analysis imbalanceAnalyzeResult = OrderFlowImbalance.analyze(slidingWindow, orderFlowImbalanceAnalysisParameter);
+                    for (Double threshold : parameter.thresholds) {
+                        if (Math.abs(imbalanceAnalyzeResult.recentOrderFlowImbalanceDeviationFromMedianToStandardDeviationWithoutOutliers) < threshold) {
+                            continue;
+                        }
+                        Anomaly anomaly = Anomaly.builder()
+                                .threshold(threshold)
+                                .orderFlowImbalanceAnalysis(imbalanceAnalyzeResult)
+                                .market(slidingWindow.market)
+                                .symbol(slidingWindow.symbol)
+                                .orderFlowImbalanceAnalysis(imbalanceAnalyzeResult)
+                                .build();
 
-                    if (prevAnomalyEpochSecond >= 0 && secondsSincePrev < windowSize.toSeconds()) {
-                        continue;
+                        long prevAnomalyEpochSecond = prevAnomalyEpochSeconds.getOrDefault(anomaly.getThrottleKey(), Long.valueOf(-1));
+                        long secondsSincePrev = anomaly.orderFlowImbalanceAnalysis.epochSeconds - prevAnomalyEpochSecond;
+
+                        if (prevAnomalyEpochSecond >= 0 && secondsSincePrev < windowSize.toSeconds()) {
+                            continue;
+                        }
+                        prevAnomalyEpochSeconds.put(anomaly.getThrottleKey(), anomaly.orderFlowImbalanceAnalysis.epochSeconds);
+                        log.info("an anomaly found market: {}, symbol: {}, window: {}, threshold: {}",
+                                slidingWindow.market, slidingWindow.symbol, windowSize, threshold);
+                        ret.anomalies.add(anomaly);
                     }
-                    prevAnomalyEpochSeconds.put(anomaly.getThrottleKey(), anomaly.orderFlowImbalanceAnalysis.epochSeconds);
-                    log.info("an anomaly found market: {}, symbol: {}, window: {}, threshold: {}",
-                            slidingWindow.market, slidingWindow.symbol, windowSize, threshold);
-                    ret.anomalies.add(anomaly);
                 }
             }
         }

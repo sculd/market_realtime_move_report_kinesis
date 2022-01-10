@@ -13,12 +13,11 @@ import com.marketsignal.util.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-public class DynamoDbPublisher {
-    private static final Logger log = LoggerFactory.getLogger(DynamoDbPublisher.class);
+public class FlowImbalanceAnomalyDynamoDbPublisher {
+    private static final Logger log = LoggerFactory.getLogger(FlowImbalanceAnomalyDynamoDbPublisher.class);
 
     private final String tableName = "order_flow_imbalance_anomaly";
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()

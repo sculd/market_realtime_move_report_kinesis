@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DynamoDbPublisher {
-    private static final Logger log = LoggerFactory.getLogger(DynamoDbPublisher.class);
+public class FlowImbalanceDynamoDbPublisher {
+    private static final Logger log = LoggerFactory.getLogger(FlowImbalanceDynamoDbPublisher.class);
 
     private final String tableName = "order_flow_imbalance";
     private final AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()

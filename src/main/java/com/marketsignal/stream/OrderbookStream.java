@@ -3,7 +3,9 @@ package com.marketsignal.stream;
 import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import com.marketsignal.orderbook.analysis.OrderFlowImbalance;
-import com.marketsignal.publish.orderbookflowimbalance.DynamoDbPublisher;
+import com.marketsignal.orderbook.analysis.LiquidityImbalance;
+import com.marketsignal.publish.orderbookflowimbalance.FlowImbalanceDynamoDbPublisher;
+import com.marketsignal.publish.orderbookliquidityimbalance.LiquidityDynamoDbPublisher;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -15,7 +17,8 @@ public class OrderbookStream {
     Duration exportInterval;
     Map<String, OrderbookSlidingWindow> keyedOrderbookSlidingWindows = new HashMap<>();
     Map<String, Long> keyedExportAnchoredEpochSeconds = new HashMap<>();
-    DynamoDbPublisher dynamoDbPublisher = new DynamoDbPublisher();
+    FlowImbalanceDynamoDbPublisher flowImbalanceDynamoDbPublisher = new FlowImbalanceDynamoDbPublisher();
+    LiquidityDynamoDbPublisher liquidityDynamoDbPublisher = new LiquidityDynamoDbPublisher();
 
     public OrderbookStream(Duration windowSize, Duration timeSeriesResolution, Duration exportInterval) {
         this.windowSize = windowSize;
@@ -40,14 +43,14 @@ public class OrderbookStream {
         long prevAnochoredEpochSeconds = keyedExportAnchoredEpochSeconds.get(key);
         long anochoredEpochSeconds = orderbook.epochSeconds - (orderbook.epochSeconds % exportInterval.toSeconds());
 
-
         if (anochoredEpochSeconds > prevAnochoredEpochSeconds) {
-            publishOrderFlowImbalanceAnomaly(keyedOrderbookSlidingWindows.get(key), orderbook);
+            publishOrderFlowImbalance(keyedOrderbookSlidingWindows.get(key));
+            publishLiquidityImbalanceAnomaly(orderbook);
             keyedExportAnchoredEpochSeconds.put(key, anochoredEpochSeconds);
         }
     }
 
-    private void publishOrderFlowImbalanceAnomaly(OrderbookSlidingWindow orderbooksSlidingWindow, Orderbook orderbook) {
+    private void publishOrderFlowImbalance(OrderbookSlidingWindow orderbooksSlidingWindow) {
         OrderFlowImbalance.Parameter parameter = OrderFlowImbalance.Parameter.builder()
                 .windowDuration(Duration.ofMinutes(10))
                 .aggregationDuration(Duration.ofSeconds(10))
@@ -55,6 +58,12 @@ public class OrderbookStream {
                 .build();
 
         OrderFlowImbalance.Analysis analysis = OrderFlowImbalance.analyze(orderbooksSlidingWindow, parameter);
-        dynamoDbPublisher.publish(analysis);
+        flowImbalanceDynamoDbPublisher.publish(analysis);
+    }
+
+    private void publishLiquidityImbalanceAnomaly(Orderbook orderbook) {
+        LiquidityImbalance.Parameter parameter = LiquidityImbalance.Parameter.builder().build();
+        LiquidityImbalance.Analysis analysis = LiquidityImbalance.analyze(orderbook, parameter);
+        liquidityDynamoDbPublisher.publish(analysis);
     }
 }
