@@ -34,7 +34,7 @@ public class OrderbookAnomalyStream {
 
         OrderFlowImbalanceAnomaly.AnalyzeResult analysis = orderFlowImbalanceAnomaly.analyze(orderbookStream.keyedOrderbookSlidingWindows.get(key), parameter);
         if (!analysis.anomalies.isEmpty()) {
-            flowImbalanceAnomalyDynamoDbPublisher.publish(analysis);
+            //flowImbalanceAnomalyDynamoDbPublisher.publish(analysis);
         }
     }
 }
