@@ -44,8 +44,8 @@ public class OrderbookStream {
         long anochoredEpochSeconds = orderbook.epochSeconds - (orderbook.epochSeconds % exportInterval.toSeconds());
 
         if (anochoredEpochSeconds > prevAnochoredEpochSeconds) {
-            publishOrderFlowImbalance(keyedOrderbookSlidingWindows.get(key));
-            publishLiquidityImbalanceAnomaly(orderbook);
+            //publishOrderFlowImbalance(keyedOrderbookSlidingWindows.get(key));
+            //publishLiquidityImbalanceAnomaly(orderbook);
             keyedExportAnchoredEpochSeconds.put(key, anochoredEpochSeconds);
         }
     }
