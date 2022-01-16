@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.stream.Stream;
 import java.util.UUID;
 
+import com.marketsignal.recordprocessor.BarWithTimestampRecordProcessor;
+import com.marketsignal.recordprocessor.OrderbookRecordProcessor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;

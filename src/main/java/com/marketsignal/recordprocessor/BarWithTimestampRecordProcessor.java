@@ -1,4 +1,4 @@
-package com.marketsignal;
+package com.marketsignal.recordprocessor;
 
 import com.marketsignal.stream.ChangesAnomalyStream;
 import com.marketsignal.stream.BarWithTimeStream;

@@ -1,7 +1,6 @@
-package com.marketsignal;
+package com.marketsignal.recordprocessor;
 
 import com.marketsignal.orderbook.Orderbook;
-import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import com.marketsignal.stream.OrderbookStream;
 import com.marketsignal.stream.OrderbookAnomalyStream;
 import org.slf4j.Logger;
