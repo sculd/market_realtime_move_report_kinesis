@@ -4,8 +4,8 @@ import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import com.marketsignal.orderbook.analysis.OrderFlowImbalance;
 import com.marketsignal.orderbook.analysis.LiquidityImbalance;
-import com.marketsignal.publish.orderbookflowimbalance.FlowImbalanceDynamoDbPublisher;
-import com.marketsignal.publish.orderbookliquidityimbalance.LiquidityDynamoDbPublisher;
+import com.marketsignal.orderbook.analysis.publish.orderbookflowimbalance.FlowImbalanceDynamoDbPublisher;
+import com.marketsignal.orderbook.analysis.publish.orderbookliquidityimbalance.LiquidityDynamoDbPublisher;
 
 import java.time.Duration;
 import java.util.HashMap;

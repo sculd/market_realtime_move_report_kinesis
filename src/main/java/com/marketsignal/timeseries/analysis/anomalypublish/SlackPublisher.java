@@ -1,4 +1,4 @@
-package com.marketsignal.publish.changesanomaly;
+package com.marketsignal.timeseries.analysis.anomalypublish;
 
 import com.slack.api.Slack;
 import com.slack.api.methods.SlackApiException;

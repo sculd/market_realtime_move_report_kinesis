@@ -1,8 +1,8 @@
 package com.marketsignal;
 
-import com.marketsignal.publish.changesanomaly.DynamoDbPublisher;
-import com.marketsignal.publish.changesanomaly.NotificationPublisher;
-import com.marketsignal.publish.changesanomaly.SlackPublisher;
+import com.marketsignal.timeseries.analysis.anomalypublish.DynamoDbPublisher;
+import com.marketsignal.timeseries.analysis.anomalypublish.NotificationPublisher;
+import com.marketsignal.timeseries.analysis.anomalypublish.SlackPublisher;
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 

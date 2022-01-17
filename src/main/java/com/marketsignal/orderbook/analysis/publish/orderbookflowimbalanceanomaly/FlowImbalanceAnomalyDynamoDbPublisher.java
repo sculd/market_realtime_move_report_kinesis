@@ -1,4 +1,4 @@
-package com.marketsignal.publish.orderbookflowimbalanceanomaly;
+package com.marketsignal.orderbook.analysis.publish.orderbookflowimbalanceanomaly;
 
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;

@@ -3,7 +3,7 @@ package com.marketsignal.stream;
 import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.orderbook.OrderbookSlidingWindow;
 import com.marketsignal.orderbook.analysis.OrderFlowImbalanceAnomaly;
-import com.marketsignal.publish.orderbookflowimbalanceanomaly.FlowImbalanceAnomalyDynamoDbPublisher;
+import com.marketsignal.orderbook.analysis.publish.orderbookflowimbalanceanomaly.FlowImbalanceAnomalyDynamoDbPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

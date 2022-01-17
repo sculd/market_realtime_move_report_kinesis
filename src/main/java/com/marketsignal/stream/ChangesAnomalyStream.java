@@ -1,6 +1,6 @@
 package com.marketsignal.stream;
 
-import com.marketsignal.publish.changesanomaly.Publisher;
+import com.marketsignal.timeseries.analysis.anomalypublish.Publisher;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 

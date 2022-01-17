@@ -89,7 +89,7 @@ public class Changes {
         }
     }
 
-    static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
+    public static AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
         if (bwtSlidingWindow.window.isEmpty()) {
             return AnalyzeResult.builder().build();
         }
