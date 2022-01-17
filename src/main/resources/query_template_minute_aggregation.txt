@@ -1,0 +1,94 @@
+WITH RAW AS (
+SELECT
+  *
+FROM
+  `${table_name}`
+WHERE
+  TRUE
+  ${timestamp_clause}
+  ${symbol_clause}
+),
+
+BASETABLE AS (
+SELECT
+  TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - (mod(UNIX_SECONDS(timestamp), ${timewindow_seconds}))) AS timestamp, symbol,  MAX(high) AS high, MIN(low) AS low, SUM(volume) AS volume
+FROM
+  RAW
+WHERE
+  TRUE
+GROUP BY timestamp, symbol
+ORDER BY
+  timestamp ASC
+),
+
+FIRST_SECONDS AS (
+SELECT
+  TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - (mod(UNIX_SECONDS(timestamp), ${timewindow_seconds}))) AS timestamp, symbol, MIN(timestamp) AS min_t
+FROM
+  RAW
+WHERE
+  TRUE
+  ${symbol_clause}
+GROUP BY timestamp, symbol
+ORDER BY
+  timestamp ASC
+),
+
+LAST_SECONDS AS (
+SELECT
+  TIMESTAMP_SECONDS(UNIX_SECONDS(timestamp) - (mod(UNIX_SECONDS(timestamp), ${timewindow_seconds}))) AS timestamp, symbol, MAX(timestamp) AS max_t
+FROM
+  RAW
+WHERE
+  TRUE
+  ${symbol_clause}
+GROUP BY timestamp, symbol
+ORDER BY
+  timestamp ASC
+),
+
+CLOSES AS (
+SELECT
+  TIMESTAMP_SECONDS(UNIX_SECONDS(RAW.timestamp) - (mod(UNIX_SECONDS(RAW.timestamp), ${timewindow_seconds}))) AS timestamp, RAW.symbol, AVG(RAW.close) AS close
+FROM
+  RAW JOIN LAST_SECONDS ON
+  TIMESTAMP_SECONDS(UNIX_SECONDS(RAW.timestamp) - (mod(UNIX_SECONDS(RAW.timestamp), ${timewindow_seconds}))) = LAST_SECONDS.timestamp AND RAW.timestamp = LAST_SECONDS.max_t AND RAW.symbol = LAST_SECONDS.symbol
+WHERE
+  TRUE
+GROUP BY timestamp, RAW.symbol
+),
+
+OPEN AS (
+SELECT
+  TIMESTAMP_SECONDS(UNIX_SECONDS(RAW.timestamp) - (mod(UNIX_SECONDS(RAW.timestamp), ${timewindow_seconds}))) AS timestamp, RAW.symbol, AVG(RAW.open) AS open
+FROM
+  RAW JOIN FIRST_SECONDS ON
+  TIMESTAMP_SECONDS(UNIX_SECONDS(RAW.timestamp) - (mod(UNIX_SECONDS(RAW.timestamp), ${timewindow_seconds}))) = FIRST_SECONDS.timestamp AND RAW.timestamp = FIRST_SECONDS.min_t AND RAW.symbol = FIRST_SECONDS.symbol
+WHERE
+  TRUE
+GROUP BY timestamp, RAW.symbol
+),
+
+OHLV AS (
+SELECT
+  BASETABLE.timestamp AS timestamp, BASETABLE.symbol, OPEN.open, high, low, volume
+FROM
+  BASETABLE JOIN OPEN ON
+  BASETABLE.timestamp = OPEN.timestamp AND BASETABLE.symbol = OPEN.symbol
+WHERE
+  TRUE
+),
+
+OHLCV AS (
+SELECT
+  OHLV.timestamp AS timestamp, OHLV.symbol, open, high, low, CLOSES.close, volume
+FROM
+  OHLV JOIN CLOSES ON
+  OHLV.timestamp = CLOSES.timestamp AND OHLV.symbol = CLOSES.symbol
+WHERE
+  TRUE
+)
+
+SELECT *
+FROM OHLCV
+ORDER BY timestamp ASC
