@@ -1,8 +1,11 @@
 package com.trading;
 
+import com.marketdata.imports.BigQueryImport;
+import com.marketdata.imports.QueryTemplates;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
+import com.trading.recordprocessor.BarWithTimestampCSVProcessor;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -14,6 +17,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class BackTest {
@@ -65,6 +69,8 @@ public class BackTest {
     }
 
     private void run() {
-
+        BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
+        String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList("ETHUSDT", "BTCUSDT"), 1642382284, 1642382384);
+        barWithTimestampCSVProcessor.run(filename);
     }
 }

@@ -3,3 +3,5 @@ build/*
 gradle/*
 .gradle/*
 k8s/secrets/*
+credential.json
+marketdata/*
