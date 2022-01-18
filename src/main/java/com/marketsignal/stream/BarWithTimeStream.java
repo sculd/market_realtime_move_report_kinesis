@@ -9,14 +9,14 @@ import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 public class BarWithTimeStream {
     Duration windowSize;
     BarWithTimeSlidingWindow.TimeSeriesResolution timeSeriesResolution;
-    Map<String, BarWithTimeSlidingWindow> keyedBarWithTimeSlidingWindows = new HashMap<>();
+    public Map<String, BarWithTimeSlidingWindow> keyedBarWithTimeSlidingWindows = new HashMap<>();
 
     public BarWithTimeStream(Duration windowSize, BarWithTimeSlidingWindow.TimeSeriesResolution timeSeriesResolution) {
         this.windowSize = windowSize;
         this.timeSeriesResolution = timeSeriesResolution;
     }
 
-    static String bwtToKeyString(BarWithTime bwt) {
+    public static String bwtToKeyString(BarWithTime bwt) {
         return String.format("%s.%s", bwt.bar.market, bwt.bar.symbol);
     }
 

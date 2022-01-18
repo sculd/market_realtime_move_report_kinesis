@@ -43,7 +43,7 @@ public class App {
     private static final String REGION = "us-east-2";
 
 
-    static void setEnv(String key, String value) {
+    public static void setEnv(String key, String value) {
         try {
             Map<String, String> env = System.getenv();
             Class<?> cl = env.getClass();

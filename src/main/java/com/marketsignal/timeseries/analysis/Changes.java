@@ -12,6 +12,8 @@ import java.time.Duration;
 public class Changes {
     @Builder
     static public class AnalyzeResult {
+        public String market;
+        public String symbol;
         public double priceAtAnalysis;
         public long epochSecondsAtAnalysis;
         public double minDrop;
@@ -28,6 +30,7 @@ public class Changes {
         public AnalyzeParameter analyzeParameter;
 
         public AnalyzeResult(
+                 String market, String symbol,
                  double priceAtAnalysis, long epochSecondsAtAnalysis,
                  double minDrop, double priceAtMinDrop, long minDropEpochSeconds,
                  double maxPriceForMinDrop, long maxPriceForMinDropEpochSeconds,
@@ -35,6 +38,8 @@ public class Changes {
                  double minPriceForMaxJump, long minPriceForMaxJumpEpochSeconds,
                  double change,
          AnalyzeParameter analyzeParameter) {
+            this.market = market;
+            this.symbol = symbol;
             this.priceAtAnalysis = priceAtAnalysis;
             this.epochSecondsAtAnalysis = epochSecondsAtAnalysis;
             this.minDrop = minDrop;
@@ -148,6 +153,8 @@ public class Changes {
         change = (recentClose - firstClose) / firstClose;
 
         return AnalyzeResult.builder()
+                .market(bwtSlidingWindow.market)
+                .symbol(bwtSlidingWindow.symbol)
                 .priceAtAnalysis(recentClose)
                 .epochSecondsAtAnalysis(bwtSlidingWindow.window.getLast().epochSeconds)
                 .minDrop(minDrop).priceAtMinDrop(priceAtMinDrop).minDropEpochSeconds(minDropEpochSeconds).maxPriceForMinDrop(maxPriceForMinDrop).maxPriceForMinDropEpochSeconds(maxPriceForMinDropEpochSeconds)
