@@ -46,10 +46,14 @@ public class QueryTemplates {
     }
 
     public String getMinuteAggregationQuery(String gcpProjectId, Table table, List<String> symbols, long startEpochSeconds, long endEpochSeconds) {
+        String symbolClause = "AND TRUE";
+        if (!symbols.isEmpty()) {
+            symbolClause = String.format("AND (%s)", symbols.stream().map(s -> "symbol = \"" + s + "\"").collect(Collectors.joining(" OR ")));
+        }
         Map<String, String> values = new HashMap<>();
         values.put("table_name", table.getFullTableId(gcpProjectId));
         values.put("timestamp_clause", String.format("AND timestamp >= TIMESTAMP_SECONDS(%d) AND timestamp < TIMESTAMP_SECONDS(%d)", startEpochSeconds, endEpochSeconds));
-        values.put("symbol_clause", String.format("AND (%s)", symbols.stream().map(s -> "symbol = \"" + s + "\"").collect(Collectors.joining(" OR "))));
+        values.put("symbol_clause", symbolClause);
         values.put("timewindow_seconds", "60");
         StringSubstitutor sub = new StringSubstitutor(values);
         return sub.replace(query_template_minute_aggregation);

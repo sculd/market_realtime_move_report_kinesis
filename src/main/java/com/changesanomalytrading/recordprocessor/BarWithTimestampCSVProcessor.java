@@ -1,35 +1,18 @@
-package com.trading.recordprocessor;
+package com.changesanomalytrading.recordprocessor;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.time.Duration;
 
+import com.trading.recordprocessor.CSVProcessor;
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
+import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
 
-public class BarWithTimestampCSVProcessor {
+public class BarWithTimestampCSVProcessor extends CSVProcessor {
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-
-    public void run(String csvFileName) {
-        try (CSVReader reader = new CSVReader(new FileReader(csvFileName))) {
-            String[] csvLine;
-            while ((csvLine = reader.readNext()) != null) {
-                processCsvLine(csvLine);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CsvValidationException e) {
-            e.printStackTrace();
-        }
-    }
+    ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
 
     void processCsvLine(String[] csvLine) {
         if (csvLine[1].equals("symbol")) {
@@ -43,7 +26,7 @@ public class BarWithTimestampCSVProcessor {
                         /*volume=*/Double.valueOf(csvLine[6])),
                 /*epochSeconds=*/Long.valueOf(csvLine[0])
                 );
-        System.out.println(String.format("%s,%s,...: %s", csvLine[0], csvLine[1], bwt.toString()));
         barWithTimeStream.onBarWithTime(bwt);
+        changesAnomalyTradingStream.onBarWithTime(bwt);
     }
 }

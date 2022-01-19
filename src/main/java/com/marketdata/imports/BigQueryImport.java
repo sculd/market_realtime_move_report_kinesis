@@ -10,6 +10,8 @@ import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.io.File;
@@ -22,6 +24,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class BigQueryImport {
+    private static final Logger log = LoggerFactory.getLogger(BigQueryImport.class);
+
     String projectId = System.getenv("GCP_PROJECT_ID");
 
     BigQuery bigquery;
@@ -54,6 +58,12 @@ public class BigQueryImport {
     }
 
     public void importAsCSV(String baseDirPath, QueryTemplates.Table table, List<String> symbols, long startEpochSeconds, long endEpochSeconds) {
+        String filename = getImportedFileName(baseDirPath, table, symbols, startEpochSeconds, endEpochSeconds);
+        if (new File(filename).exists()) {
+            log.info(String.format("The import file %s is already present.", filename));
+            return;
+        }
+
         QueryTemplates templates = new QueryTemplates();
         QueryJobConfiguration queryConfig =
                 QueryJobConfiguration
@@ -76,7 +86,6 @@ public class BigQueryImport {
 
             TableResult result = queryJob.getQueryResults();
             try {
-                String filename = getImportedFileName(baseDirPath, table, symbols, startEpochSeconds, endEpochSeconds);
                 FileWriter csvWriter = new FileWriter(filename);
                 csvWriter.write("timestamp,symbol,open,high,low,close,volume\n");
                 for (FieldValueList row : result.iterateAll()) {

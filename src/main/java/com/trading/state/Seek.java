@@ -1,6 +1,8 @@
 package com.trading.state;
 
+import lombok.Builder;
 
+@Builder
 public class Seek {
     public Common.SeekToggleType seekToggleType;
 

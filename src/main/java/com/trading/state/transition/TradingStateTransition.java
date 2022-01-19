@@ -5,21 +5,9 @@ import com.trading.position.Position;
 import com.trading.state.Common;
 import com.trading.state.States;
 import com.trading.performance.ClosedTrade;
-import com.marketsignal.timeseries.analysis.Changes;
 import lombok.Builder;
 
 public class TradingStateTransition {
-    Parameter parameter;
-
-    @Builder
-    static public class Parameter {
-        public Parameter() {
-        }
-    }
-
-    public TradingStateTransition(Parameter parameter) {
-        this.parameter = parameter;
-    }
 
     /*
      * update `seek` of state.
