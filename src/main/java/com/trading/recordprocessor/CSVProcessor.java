@@ -24,6 +24,6 @@ public class CSVProcessor {
         }
     }
 
-    void processCsvLine(String[] csvLine) {
+    protected void processCsvLine(String[] csvLine) {
     }
 }

@@ -1,35 +1,22 @@
 package com.trading.state;
 
-public class Common {
+import lombok.Builder;
 
-    public enum ActionType {
-        ENTER,
-        EXIT,
-        IDLE;
-    }
+public class Common {
 
     public enum ChangeType {
         JUMP,
         DROP;
     }
 
-    public enum PositionType {
+    public enum PositionSideType {
         LONG,
         SHORT;
     }
 
-    public enum SeekToggleType {
-        SEEK,
-        IDLE;
-    }
-
-    public enum PositionToggleType {
-        IN_POSITION,
-        IDLE;
-    }
-
-    public enum ExitToggleType {
-        EXITED,
-        IDLE;
+    @Builder
+    public static class PriceSnapshot {
+        public double price;
+        public long epochSeconds;
     }
 }

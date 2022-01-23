@@ -14,13 +14,13 @@ public class ClosedTrade {
         public long epochSeconds;
     }
 
-    public Common.PositionType positionType;
+    public Common.PositionSideType positionSideType;
     public PriceSnapshot entryPriceSnapshot;
     public double volume;
     public PriceSnapshot exitPriceSnapshot;
 
     public double getPnL() {
-        switch (positionType) {
+        switch (positionSideType) {
             case SHORT:
                 return (entryPriceSnapshot.price - exitPriceSnapshot.price) / entryPriceSnapshot.price;
             case LONG:

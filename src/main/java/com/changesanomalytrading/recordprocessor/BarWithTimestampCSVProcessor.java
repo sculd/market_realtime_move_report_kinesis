@@ -14,9 +14,9 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
     ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
 
-    void processCsvLine(String[] csvLine) {
+    protected void processCsvLine(String[] csvLine) {
         if (csvLine[1].equals("symbol")) {
-            // header
+            // skip the header row.
             return;
         }
         BarWithTime bwt = new BarWithTime(
