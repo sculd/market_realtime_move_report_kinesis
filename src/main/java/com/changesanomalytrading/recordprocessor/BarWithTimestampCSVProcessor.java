@@ -9,10 +9,18 @@ import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
 import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BarWithTimestampCSVProcessor extends CSVProcessor {
+    private static final Logger log = LoggerFactory.getLogger(BarWithTimestampCSVProcessor.class);
+
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
     ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
+
+    protected void onFinish() {
+        changesAnomalyTradingStream.closedTrades.print();
+    }
 
     protected void processCsvLine(String[] csvLine) {
         if (csvLine[1].equals("symbol")) {

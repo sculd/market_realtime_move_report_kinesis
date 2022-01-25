@@ -22,6 +22,10 @@ public class CSVProcessor {
         } catch (CsvValidationException e) {
             e.printStackTrace();
         }
+        onFinish();
+    }
+
+    protected void onFinish() {
     }
 
     protected void processCsvLine(String[] csvLine) {

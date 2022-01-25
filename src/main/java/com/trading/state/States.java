@@ -1,8 +1,8 @@
 package com.trading.state;
 
 import com.google.common.base.MoreObjects;
-import com.marketsignal.timeseries.analysis.Changes;
 import com.trading.performance.ClosedTrade;
+import lombok.Builder;
 
 public class States {
     public String market;
@@ -13,7 +13,8 @@ public class States {
         ENTER_PLAN,
         ENTER,
         IN_POSITION,
-        EXIT;
+        EXIT,
+        TRADE_CLOSED;
     }
     public StateType stateType;
 
@@ -24,22 +25,29 @@ public class States {
     public Exit exit;
     public ClosedTrade closedTrade;
 
-    public States(String market, String symbol) {
+    @Builder
+    public static class StatesInitParameter {
+        public EnterPlan.EnterPlanInitParameter enterPlanInitParameter;
+        public ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
+    }
+    StatesInitParameter statesInitParameter;
+
+    public States(String market, String symbol, StatesInitParameter statesInitParameter) {
         this.market = market;
         this.symbol = symbol;
+        this.statesInitParameter = statesInitParameter;
 
         stateType = StateType.IDLE;
 
-        enterPlan = new EnterPlan();
-        enter = Enter.builder().market(market).symbol(symbol).build();
-        position = Position.builder().market(market).symbol(symbol).build();
-        exitPlan = ExitPlan.builder().market(market).symbol(symbol).build();
+        enterPlan = EnterPlan.builder().enterPlanInitParameter(statesInitParameter.enterPlanInitParameter).build();
+        enter = Enter.builder().market(market).symbol(symbol).exitPlanInitParameter(statesInitParameter.exitPlanInitParameter).build();
+        // position, exitPlan are returned from enter.execute
         exit = new Exit();
     }
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(Changes.AnalyzeResult.class)
+        return MoreObjects.toStringHelper(States.class)
                 .add("market", market)
                 .add("symbol", symbol)
                 .add("stateType", stateType)

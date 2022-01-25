@@ -1,6 +1,8 @@
 package com.changesanomalytrading.transition;
 
 import com.marketsignal.timeseries.analysis.Changes;
+import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
 import com.trading.state.States;
 import com.trading.state.transition.StateTransition;
@@ -8,20 +10,20 @@ import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 public class ChangesAnomalyStateTransition extends StateTransition {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
 
     @Builder
-    static public class Parameter {
-        public Parameter() {
-        }
+    static public class TransitionInitParameter {
+        public double maxJumpThreshold;
     }
+    TransitionInitParameter initParameter;
 
-    Parameter parameter;
-
-    public ChangesAnomalyStateTransition(String market, String symbol, Parameter parameter) {
+    public ChangesAnomalyStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
         super(market, symbol);
-        this.parameter = parameter;
+        this.initParameter = initParameter;
     }
 
     public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis) {
@@ -29,30 +31,30 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         if (state.stateType != States.StateType.IDLE) {
             return ret;
         }
-        if (analysis.maxJump > 0.05 && analysis.analyzeParameter.windowSize.toMinutes() <= 20) {
-            log.info(String.format("anomaly found: %s", state.toString()));
-            state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis, 1000);
+        if (ChangesAnomaly.isMaxJumpAnomaly(analysis, initParameter.maxJumpThreshold) && analysis.analyzeParameter.windowSize.toMinutes() <= 20) {
+            log.info(String.format("anomaly found: %s, analysis: %s", state.toString(), analysis));
+            state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
             state.stateType = States.StateType.ENTER_PLAN;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
         }
         return ret;
     }
 
-    public StateTransitionFollowUp handlePositionState(States state, double price) {
+    public StateTransitionFollowUp handlePositionState(States state, Common.PriceSnapshot priceSnapshot) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.IN_POSITION) {
             return ret;
         }
 
-        boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(price);
-        boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(price);
+        boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
         if (takeProfitTriggered) {
-            log.info(String.format("takeProfitTriggered: %s", state.toString()));
+            log.info(String.format("takeProfitTriggered: %s at %s", state.toString(), priceSnapshot));
             state.stateType = States.StateType.EXIT;
             state.exit.init(state.position, state.exitPlan.takeProfitPlan.seek.seekPrice);
         }
         else if (stopLossTriggered) {
-            log.info(String.format("stopLossTriggered: %s", state.toString()));
+            log.info(String.format("stopLossTriggered: %s at %s", state.toString(), priceSnapshot));
             state.stateType = States.StateType.EXIT;
             state.exit.init(state.position, state.exitPlan.stopLossPlan.seek.seekPrice);
         }
@@ -60,7 +62,12 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         return ret;
     }
 
-    public void handleState(States state, Changes.AnalyzeResult analysis) {
+    static public class HandleStateResult {
+        public ClosedTrade closedTrade;
+    }
+
+    public HandleStateResult handleState(States state, Changes.AnalyzeResult analysis) {
+        HandleStateResult handleStateResult = new HandleStateResult();
         StateTransitionFollowUp stateTransitionFollowUp = StateTransitionFollowUp.CONTINUE_TRANSITION;
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
             switch (state.stateType) {
@@ -68,18 +75,24 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     stateTransitionFollowUp = planEnter(state, analysis);
                     break;
                 case ENTER_PLAN:
-                    stateTransitionFollowUp = handleEnterPlanState(state, analysis.priceAtAnalysis);
+                    stateTransitionFollowUp = handleEnterPlanState(state, Common.PriceSnapshot.builder().price(analysis.priceAtAnalysis).epochSeconds(analysis.epochSecondsAtAnalysis).build());
                     break;
                 case ENTER:
-                    stateTransitionFollowUp = handleEnterState(state);
+                    stateTransitionFollowUp = handleEnterState(state, Common.PriceSnapshot.builder().price(analysis.priceAtAnalysis).epochSeconds(analysis.epochSecondsAtAnalysis).build());
                     break;
                 case IN_POSITION:
-                    stateTransitionFollowUp = handlePositionState(state, analysis.priceAtAnalysis);
+                    state.exitPlan.stopLossPlan.onPriceUpdate(analysis.priceAtAnalysis);
+                    stateTransitionFollowUp = handlePositionState(state, Common.PriceSnapshot.builder().price(analysis.priceAtAnalysis).epochSeconds(analysis.epochSecondsAtAnalysis).build());
                     break;
                 case EXIT:
-                    stateTransitionFollowUp = handleExitState(state);
+                    stateTransitionFollowUp = handleExitState(state, Common.PriceSnapshot.builder().price(analysis.priceAtAnalysis).epochSeconds(analysis.epochSecondsAtAnalysis).build());
+                    break;
+                case TRADE_CLOSED:
+                    stateTransitionFollowUp = handleTradeClosed(state);
+                    handleStateResult.closedTrade = state.closedTrade;
                     break;
             }
         }
+        return handleStateResult;
     }
 }

@@ -86,6 +86,26 @@ public class ChangesAnomaly {
 
     Map<String, Long> prevAnomalyEpochSeconds = new HashMap<>();
 
+    static public boolean isMinDropAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
+        if (Math.abs(analyzeResult.minDrop) < changeThreshold) {
+            return false;
+        }
+        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.minDropEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
+            return false;
+        }
+        return true;
+    }
+
+    static public boolean isMaxJumpAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
+        if (Math.abs(analyzeResult.maxJump) < changeThreshold) {
+            return false;
+        }
+        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.maxJumpEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
+            return false;
+        }
+        return true;
+    }
+
     public AnalyzeResult analyze(BarWithTimeSlidingWindow bwtSlidingWindow, AnalyzeParameter parameter) {
         AnalyzeResult ret = AnalyzeResult.builder().build();
 
@@ -94,7 +114,7 @@ public class ChangesAnomaly {
 
             Changes.AnalyzeResult analyzeResult = Changes.analyze(bwtSlidingWindow, changeParameter);
             for (Double changeThreshold : parameter.changeThresholds) {
-                if (Math.abs(analyzeResult.minDrop) < changeThreshold && analyzeResult.maxJump < changeThreshold) {
+                if (!isMinDropAnomaly(analyzeResult, changeThreshold) && !isMaxJumpAnomaly(analyzeResult, changeThreshold)) {
                     continue;
                 }
                 Anomaly anomaly = Anomaly.builder()
@@ -107,7 +127,6 @@ public class ChangesAnomaly {
 
                 long secondsSincePrev = anomaly.changeAnalysis.epochSecondsAtAnalysis -
                         prevAnomalyEpochSeconds.getOrDefault(anomaly.getThrottleKey(), Long.valueOf(0));
-
                 if (secondsSincePrev < windowSize.toSeconds()) {
                     continue;
                 }

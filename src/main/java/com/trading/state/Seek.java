@@ -9,22 +9,20 @@ public class Seek {
 
     public double seekPrice;
 
+    public double seekChange;
+
     public void init(Common.ChangeType changeType, double referencePrice, double seekChange) {
         this.changeType = changeType;
         this.referencePrice = referencePrice;
         this.setSeekChange(seekChange);
     }
 
-    public double getSeekChange() {
-        return (seekPrice - referencePrice) / referencePrice - 1.0;
-    }
-
     public void setSeekChange(double seekChange) {
+        this.seekChange = seekChange;
         seekPrice = referencePrice * (1.0 + seekChange);
     }
 
     public void updateReferencePrice(double referencePrice) {
-        double seekChange = getSeekChange();
         this.referencePrice = referencePrice;
         setSeekChange(seekChange);
     }
@@ -32,12 +30,12 @@ public class Seek {
     public boolean getIfTriggered(double price) {
         switch (changeType) {
             case JUMP:
-                if (seekPrice >= price) {
+                if (price >= seekPrice) {
                     return true;
                 }
                 break;
             case DROP:
-                if (seekPrice <= price) {
+                if (price <= seekPrice) {
                     return true;
                 }
                 break;

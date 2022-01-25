@@ -3,6 +3,7 @@ package com.changesanomalytrading;
 import com.changesanomalytrading.recordprocessor.BarWithTimestampCSVProcessor;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
+import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
@@ -69,7 +70,13 @@ public class BackTest {
 
     private void run() {
         BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
-        String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(), 1642514400, 1642521600);
+        int year = 2022;
+        int month = 1;
+        int day = 23;
+        String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 9, 0),
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 16, 0)
+        );
         barWithTimestampCSVProcessor.run(filename);
     }
 }

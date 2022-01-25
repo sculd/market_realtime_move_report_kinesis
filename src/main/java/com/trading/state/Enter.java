@@ -1,5 +1,7 @@
 package com.trading.state;
 
+import com.trading.state.ExitPlan.ExitPlanInitParameter;
+
 import lombok.Builder;
 
 @Builder
@@ -10,6 +12,8 @@ public class Enter {
     public Common.PositionSideType positionSideType;
     public double targetPrice;
     public double targetVolume;
+
+    ExitPlanInitParameter exitPlanInitParameter;
 
     @Builder
     public static class ExecuteResult {
@@ -37,19 +41,10 @@ public class Enter {
         ExitPlan exitPlan = ExitPlan.builder()
                 .market(market)
                 .symbol(symbol)
+                .exitPlanInitParameter(exitPlanInitParameter)
                 .position(position)
                 .build();
-        ExitPlan.ExitPlanInitParameter exitPlanInitParameter = ExitPlan.ExitPlanInitParameter.builder()
-                .takeProfitPlanInitParameter(ExitPlan.TakeProfitPlan.TakeProfitPlanInitParameter.builder()
-                        .takeProfitType(ExitPlan.TakeProfitPlan.TakeProfitType.TAKE_PROFIT_FROM_ENTRY)
-                        .targetReturnFromEntry(0.03)
-                        .build())
-                .stopLossPlanInitParameter(ExitPlan.StopLossPlan.StopLossPlanInitParameter.builder()
-                        .stopLossType(ExitPlan.StopLossPlan.StopLossType.STOP_LOSS_FROM_TOP_PROFIT)
-                        .targetStopLoss(-0.02)
-                        .build())
-                .build();
-        exitPlan.init(position, exitPlanInitParameter);
+        exitPlan.init(position);
         return ExecuteResult.builder().result(ExecuteResult.Result.SUCCESS)
                 .position(position)
                 .exitPlan(exitPlan)

@@ -1,5 +1,6 @@
 package com.trading.state.transition;
 
+import com.trading.state.Common;
 import com.trading.state.Enter;
 import com.trading.state.Exit;
 import com.trading.state.States;
@@ -27,17 +28,18 @@ public class StateTransition {
     /*
      * tba
      */
-    public StateTransitionFollowUp handleEnterPlanState(States state, double price) {
+    public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.ENTER_PLAN) {
             return ret;
         }
 
-        boolean enterPlanTriggered = state.enterPlan.seek.getIfTriggered(price);
+        boolean enterPlanTriggered = state.enterPlan.seek.getIfTriggered(priceSnapshot.price);
         if (enterPlanTriggered) {
-            log.info(String.format("enterPlanTriggered: %s", state.toString()));
-            state.enter.targetPrice = price;
+            log.info(String.format("enterPlanTriggered: %s at %s", state.toString(), priceSnapshot));
+            state.enter.targetPrice = priceSnapshot.price;
             state.enter.positionSideType = state.enterPlan.positionSideType;
+            state.enter.targetVolume = state.enterPlan.targetVolume;
             state.stateType = States.StateType.ENTER;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
         }
@@ -55,7 +57,7 @@ public class StateTransition {
     /*
      * tba
      */
-    public StateTransitionFollowUp handleEnterState(States state) {
+    public StateTransitionFollowUp handleEnterState(States state, Common.PriceSnapshot priceSnapshot) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.ENTER) {
             return ret;
@@ -64,12 +66,12 @@ public class StateTransition {
         Enter.ExecuteResult executeResult = enterPosition(state.enter);
         switch (executeResult.result) {
             case SUCCESS:
-                log.info(String.format("entering into a position succeeded: %s", state.toString()));
+                log.info(String.format("entering into a position succeeded: %s at %s", state.toString(), priceSnapshot));
                 state.stateType = States.StateType.IN_POSITION;
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
-                log.info(String.format("entering into a position failed: %s", state.toString()));
+                log.info(String.format("entering into a position failed: %s at %s", state.toString(), priceSnapshot));
                 state.stateType = States.StateType.IDLE;
                 ret = StateTransitionFollowUp.HALT_TRANSITION;
                 break;
@@ -83,7 +85,7 @@ public class StateTransition {
     /*
      * tba
      */
-    public StateTransitionFollowUp handleExitState(States state) {
+    public StateTransitionFollowUp handleExitState(States state, Common.PriceSnapshot priceSnapshot) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.EXIT) {
             return ret;
@@ -93,11 +95,12 @@ public class StateTransition {
 
         switch (executeResult) {
             case SUCCESS:
-                log.info(String.format("exiting from a position succeeded: %s", state.toString()));
-                state.stateType = States.StateType.IDLE;
+                log.info(String.format("exiting from a position succeeded: %s at %s", state.toString(), priceSnapshot));
+                state.stateType = States.StateType.TRADE_CLOSED;
+                ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
-                log.info(String.format("exiting from a position failed: %s", state.toString()));
+                log.info(String.format("exiting from a position failed: %s at %s", state.toString(), priceSnapshot));
                 state.stateType = States.StateType.EXIT;
                 break;
         }
@@ -107,21 +110,23 @@ public class StateTransition {
     /*
      * tba
      */
-    public void recapClosedTrade(States state) {
-        log.info(String.format("recaping a closed trade: %s", state.toString()));
+    public StateTransitionFollowUp handleTradeClosed(States state) {
+        log.info(String.format("recapping a closed trade: %s", state.toString()));
         state.closedTrade = ClosedTrade.builder()
                 .market(market)
                 .symbol(symbol)
                 .positionSideType(state.position.positionSideType)
-                .entryPriceSnapshot(ClosedTrade.PriceSnapshot.builder()
+                .entryPriceSnapshot(Common.PriceSnapshot.builder()
                         .price(state.position.entryPriceSnapshot.price)
                         .epochSeconds(state.position.entryPriceSnapshot.epochSeconds)
                         .build())
                 .volume(state.position.volume)
-                .exitPriceSnapshot(ClosedTrade.PriceSnapshot.builder()
+                .exitPriceSnapshot(Common.PriceSnapshot.builder()
                         .price(state.exit.exitPriceSnapshot.price)
                         .epochSeconds(state.exit.exitPriceSnapshot.epochSeconds)
                         .build())
                 .build();
+        state.stateType = States.StateType.IDLE;
+        return StateTransitionFollowUp.HALT_TRANSITION;
     }
 }
