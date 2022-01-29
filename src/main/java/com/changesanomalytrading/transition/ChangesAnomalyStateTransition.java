@@ -2,6 +2,7 @@ package com.changesanomalytrading.transition;
 
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.util.Time;
 import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
@@ -19,6 +20,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
     @Builder
     static public class TransitionInitParameter {
         public double maxJumpThreshold;
+        public Duration changeAnalysisWindow;
     }
     TransitionInitParameter initParameter;
 
@@ -49,6 +51,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
 
         boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(priceSnapshot.price);
         boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean timeoutTriggered = state.exitPlan.timeoutPlan.getIfTriggered(priceSnapshot.epochSeconds);
         if (takeProfitTriggered) {
             log.info(String.format("%s takeProfitTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
@@ -58,6 +61,10 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             log.info(String.format("%s stopLossTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
             state.exit.init(state.position, state.exitPlan.stopLossPlan.seek.seekPrice);
+        } else if (timeoutTriggered) {
+            log.info(String.format("%s timeoutTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
+            state.stateType = States.StateType.EXIT;
+            state.exit.init(state.position, priceSnapshot.price);
         }
 
         return ret;
@@ -67,7 +74,10 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         public ClosedTrade closedTrade;
     }
 
-    public HandleStateResult handleState(States state, Changes.AnalyzeResult analysis) {
+    public HandleStateResult handleState(States state, BarWithTimeSlidingWindow barWithTimeSlidingWindow) {
+        Changes.AnalyzeResult analysis = Changes.analyze(barWithTimeSlidingWindow, Changes.AnalyzeParameter.builder()
+                .windowSize(initParameter.changeAnalysisWindow)
+                .build());
         HandleStateResult handleStateResult = new HandleStateResult();
         StateTransitionFollowUp stateTransitionFollowUp = StateTransitionFollowUp.CONTINUE_TRANSITION;
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {

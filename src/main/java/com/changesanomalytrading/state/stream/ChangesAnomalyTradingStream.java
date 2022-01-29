@@ -2,6 +2,7 @@ package com.changesanomalytrading.state.stream;
 
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
+import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.analysis.Changes;
 import com.trading.performance.ClosedTrade;
 import com.trading.performance.ClosedTrades;
@@ -42,11 +43,15 @@ public class ChangesAnomalyTradingStream {
                                 .stopLossType(StopLossPlan.StopLossType.STOP_LOSS_FROM_TOP_PROFIT)
                                 .targetStopLoss(-0.02)
                                 .build())
+                        .timeoutPlanInitParameter(TimeoutPlan.TimeoutPlanInitParameter.builder()
+                                .expirationDuration(Duration.ofMinutes(60))
+                                .build())
                         .build())
                 .build();
 
         transitionInitParameter = ChangesAnomalyStateTransition.TransitionInitParameter.builder()
                 .maxJumpThreshold(0.10)
+                .changeAnalysisWindow(Duration.ofMinutes(20))
                 .build();
     }
 
@@ -76,11 +81,8 @@ public class ChangesAnomalyTradingStream {
         States state = getState(bwt);
         ChangesAnomalyStateTransition stateTransition = getStateTransition(bwt);
 
-        Changes.AnalyzeParameter parameter = Changes.AnalyzeParameter.builder()
-                .windowSize(Duration.ofMinutes(20))
-                .build();
-        Changes.AnalyzeResult analysis = Changes.analyze(barWithTimeStream.keyedBarWithTimeSlidingWindows.get(BarWithTimeStream.bwtToKeyString(bwt)), parameter);
-        ChangesAnomalyStateTransition.HandleStateResult result = stateTransition.handleState(state, analysis);
+        BarWithTimeSlidingWindow barWithTimeSlidingWindow = barWithTimeStream.keyedBarWithTimeSlidingWindows.get(BarWithTimeStream.bwtToKeyString(bwt));
+        ChangesAnomalyStateTransition.HandleStateResult result = stateTransition.handleState(state, barWithTimeSlidingWindow);
         if (result.closedTrade != null) {
             onClosedTrade(result.closedTrade);
         }
