@@ -1,5 +1,7 @@
 package com.trading.state;
 
+import com.google.common.base.MoreObjects;
+import com.marketsignal.util.Time;
 import lombok.Builder;
 
 @Builder
@@ -23,5 +25,16 @@ public class Position {
 
     public double getGainLossFiat(Common.PriceSnapshot currentPriceSnapshot) {
         return getPnL(currentPriceSnapshot) * volume;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(Position.class)
+                .add("market", market)
+                .add("symbol", symbol)
+                .add("positionSideType", positionSideType)
+                .add("entryPriceSnapshot", entryPriceSnapshot)
+                .add("volume", volume)
+                .toString();
     }
 }

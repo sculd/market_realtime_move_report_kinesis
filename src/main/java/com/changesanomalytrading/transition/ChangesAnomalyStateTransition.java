@@ -2,6 +2,7 @@ package com.changesanomalytrading.transition;
 
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.util.Time;
 import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
 import com.trading.state.States;
@@ -32,7 +33,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             return ret;
         }
         if (ChangesAnomaly.isMaxJumpAnomaly(analysis, initParameter.maxJumpThreshold) && analysis.analyzeParameter.windowSize.toMinutes() <= 20) {
-            log.info(String.format("anomaly found: %s, analysis: %s", state.toString(), analysis));
+            log.info(String.format("%s anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
             state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
             state.stateType = States.StateType.ENTER_PLAN;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
@@ -49,12 +50,12 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(priceSnapshot.price);
         boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
         if (takeProfitTriggered) {
-            log.info(String.format("takeProfitTriggered: %s at %s", state.toString(), priceSnapshot));
+            log.info(String.format("%s takeProfitTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
             state.exit.init(state.position, state.exitPlan.takeProfitPlan.seek.seekPrice);
         }
         else if (stopLossTriggered) {
-            log.info(String.format("stopLossTriggered: %s at %s", state.toString(), priceSnapshot));
+            log.info(String.format("%s stopLossTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
             state.exit.init(state.position, state.exitPlan.stopLossPlan.seek.seekPrice);
         }

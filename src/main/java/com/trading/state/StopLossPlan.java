@@ -27,15 +27,17 @@ public class StopLossPlan {
         double referencePrice = topPrice;
 
         Common.ChangeType changeType = Common.ChangeType.JUMP;
+        double sign = 1.0;
         switch (position.positionSideType) {
             case LONG:
                 changeType = Common.ChangeType.DROP;
                 break;
             case SHORT:
                 changeType = Common.ChangeType.JUMP;
+                sign = -1.0;
                 break;
         }
-        seek.init(changeType, referencePrice, stopLossPlanInitParameter.targetStopLoss);
+        seek.init(changeType, referencePrice, sign * stopLossPlanInitParameter.targetStopLoss);
     }
 
     public void onPriceUpdate(double price) {

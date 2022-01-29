@@ -27,14 +27,14 @@ public class Enter {
         public Result result;
     }
 
-    public ExecuteResult execute() {
+    public ExecuteResult execute(Common.PriceSnapshot priceSnapshot) {
         Position position = Position.builder()
                 .market(market)
                 .symbol(symbol)
                 .positionSideType(positionSideType)
                 .entryPriceSnapshot(Common.PriceSnapshot.builder()
                         .price(targetPrice)
-                        .epochSeconds(java.time.Instant.now().getEpochSecond())
+                        .epochSeconds(priceSnapshot.epochSeconds)
                         .build())
                 .volume(targetVolume)
                 .build();

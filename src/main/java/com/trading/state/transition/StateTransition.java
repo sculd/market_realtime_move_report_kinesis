@@ -1,5 +1,6 @@
 package com.trading.state.transition;
 
+import com.marketsignal.util.Time;
 import com.trading.state.Common;
 import com.trading.state.Enter;
 import com.trading.state.Exit;
@@ -36,7 +37,7 @@ public class StateTransition {
 
         boolean enterPlanTriggered = state.enterPlan.seek.getIfTriggered(priceSnapshot.price);
         if (enterPlanTriggered) {
-            log.info(String.format("enterPlanTriggered: %s at %s", state.toString(), priceSnapshot));
+            log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
             state.enter.targetPrice = priceSnapshot.price;
             state.enter.positionSideType = state.enterPlan.positionSideType;
             state.enter.targetVolume = state.enterPlan.targetVolume;
@@ -46,8 +47,8 @@ public class StateTransition {
         return ret;
     }
 
-    Enter.ExecuteResult enterPosition(Enter enter) {
-        return enter.execute();
+    Enter.ExecuteResult enterPosition(Enter enter, Common.PriceSnapshot priceSnapshot) {
+        return enter.execute(priceSnapshot);
     }
 
     Exit.ExecuteResult exitPosition(Exit exit) {
@@ -63,15 +64,15 @@ public class StateTransition {
             return ret;
         }
 
-        Enter.ExecuteResult executeResult = enterPosition(state.enter);
+        Enter.ExecuteResult executeResult = enterPosition(state.enter, priceSnapshot);
         switch (executeResult.result) {
             case SUCCESS:
-                log.info(String.format("entering into a position succeeded: %s at %s", state.toString(), priceSnapshot));
+                log.info(String.format("%s entering into a position succeeded: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
                 state.stateType = States.StateType.IN_POSITION;
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
-                log.info(String.format("entering into a position failed: %s at %s", state.toString(), priceSnapshot));
+                log.info(String.format("%s entering into a position failed: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
                 state.stateType = States.StateType.IDLE;
                 ret = StateTransitionFollowUp.HALT_TRANSITION;
                 break;

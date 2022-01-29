@@ -36,7 +36,7 @@ public class ChangesAnomalyTradingStream {
                 .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
                         .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder()
                                 .takeProfitType(TakeProfitPlan.TakeProfitType.TAKE_PROFIT_FROM_ENTRY)
-                                .targetReturnFromEntry(0.03)
+                                .targetReturnFromEntry(0.05)
                                 .build())
                         .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.builder()
                                 .stopLossType(StopLossPlan.StopLossType.STOP_LOSS_FROM_TOP_PROFIT)
