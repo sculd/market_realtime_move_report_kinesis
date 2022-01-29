@@ -76,6 +76,7 @@ public class BigQueryImport {
         Job queryJob = bigquery.create(JobInfo.newBuilder(queryConfig).setJobId(jobId).build());
 
         try {
+            log.info(String.format("running a query: \n%s", queryJob));
             queryJob = queryJob.waitFor();
 
             if (queryJob == null) {

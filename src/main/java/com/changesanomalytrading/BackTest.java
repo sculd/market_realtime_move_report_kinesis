@@ -74,8 +74,8 @@ public class BackTest {
         int month = 1;
         int day = 23;
         String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 9, 0),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 16, 0)
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 1, 0),
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 0)
         );
         barWithTimestampCSVProcessor.run(filename);
     }
