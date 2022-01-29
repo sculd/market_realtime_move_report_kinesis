@@ -3,7 +3,6 @@ package com.changesanomalytrading.state.stream;
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
-import com.marketsignal.timeseries.analysis.Changes;
 import com.trading.performance.ClosedTrade;
 import com.trading.performance.ClosedTrades;
 
@@ -51,7 +50,9 @@ public class ChangesAnomalyTradingStream {
 
         transitionInitParameter = ChangesAnomalyStateTransition.TransitionInitParameter.builder()
                 .maxJumpThreshold(0.10)
+                .minDropThreshold(-0.10)
                 .changeAnalysisWindow(Duration.ofMinutes(20))
+                .triggerAnomalyType(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP)
                 .build();
     }
 
