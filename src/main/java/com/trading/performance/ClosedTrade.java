@@ -41,7 +41,7 @@ public class ClosedTrade {
     }
 
     public double getGainLossFiat() {
-        return getPnL() * volume;
+        return getPnL() * volume * entryPriceSnapshot.price;
     }
 
     public void print() {

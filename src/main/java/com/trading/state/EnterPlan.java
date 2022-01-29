@@ -4,6 +4,7 @@ import lombok.Builder;
 
 @Builder
 public class EnterPlan {
+    static int precisionDecimals = 3;
     public double targetVolume;
     public Common.PositionSideType positionSideType;
     @Builder.Default
@@ -11,14 +12,15 @@ public class EnterPlan {
 
     @Builder
     public static class EnterPlanInitParameter {
-        public double targetVolume;
+        public double targetFiatVolume;
         public double seekReverseChangeAmplitude;
     }
     EnterPlanInitParameter enterPlanInitParameter;
 
     public void init(Common.PositionSideType positionSideType, double price) {
         this.positionSideType = positionSideType;
-        this.targetVolume = enterPlanInitParameter.targetVolume;
+        long scale = (long)Math.pow(10, precisionDecimals);
+        this.targetVolume = Math.round(enterPlanInitParameter.targetFiatVolume / price * scale) / scale;
         Common.ChangeType changeType = Common.ChangeType.JUMP;
         double sign = 1.0;
         switch (positionSideType) {

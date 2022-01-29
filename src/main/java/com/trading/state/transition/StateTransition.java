@@ -67,12 +67,12 @@ public class StateTransition {
         Enter.ExecuteResult executeResult = enterPosition(state.enter, priceSnapshot);
         switch (executeResult.result) {
             case SUCCESS:
-                log.info(String.format("%s entering into a position succeeded: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
+                log.info(String.format("%s entering into a position succeeded: %s at %s, resulting position: %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, executeResult.position));
                 state.stateType = States.StateType.IN_POSITION;
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
-                log.info(String.format("%s entering into a position failed: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
+                log.info(String.format("%s entering into a position failed: %s at %s, resulting position: %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, executeResult.position));
                 state.stateType = States.StateType.IDLE;
                 ret = StateTransitionFollowUp.HALT_TRANSITION;
                 break;

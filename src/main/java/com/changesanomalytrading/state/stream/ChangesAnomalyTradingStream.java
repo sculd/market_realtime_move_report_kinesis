@@ -30,7 +30,7 @@ public class ChangesAnomalyTradingStream {
         this.barWithTimeStream = barWithTimeStream;
         statesInitParameter = States.StatesInitParameter.builder()
                 .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
-                        .targetVolume(1000)
+                        .targetFiatVolume(1000)
                         .seekReverseChangeAmplitude(0.02)
                         .build())
                 .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
