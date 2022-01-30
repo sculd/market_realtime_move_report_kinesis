@@ -26,7 +26,8 @@ public class ClosedTrades {
 
     public void printForList(List<ClosedTrade> closedTrades, boolean printEntries) {
         log.info(String.format("Closed trades: %d", closedTrades.size()));
-        log.info(String.format("PnL: %f", getPnL(closedTrades)));
+        double pnl = getPnL(closedTrades);
+        log.info(String.format("PnL: %f (per trade: %f)", pnl, pnl / closedTrades.size()));
         log.info(String.format("GainLossFiat: %f", getGainLossFiat(closedTrades)));
         if (printEntries) {
             for (ClosedTrade ct : closedTrades) {

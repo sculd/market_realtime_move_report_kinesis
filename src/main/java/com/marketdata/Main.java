@@ -15,8 +15,8 @@ public class Main {
         int day = 23;
         System.out.println("ingesting");
         bqImport.importAsCSV("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 1, 0),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 0));
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0),
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59));
         System.out.println("done");
     }
 }

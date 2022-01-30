@@ -1,12 +1,15 @@
 package com.changesanomalytrading;
 
 import com.changesanomalytrading.recordprocessor.BarWithTimestampCSVProcessor;
+import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
+import com.changesanomalytrading.transition.ChangesAnomalyStateTransition;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
+import com.trading.state.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -74,9 +78,40 @@ public class BackTest {
         int month = 1;
         int day = 23;
         String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 1, 0),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 0)
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0),
+                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59)
         );
-        barWithTimestampCSVProcessor.run(filename);
+        log.info(String.format("Back testing from %s file", filename));
+
+        ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter =
+                ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter.builder()
+                        .statesInitParameter(States.StatesInitParameter.builder()
+                                .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
+                                        .targetFiatVolume(1000)
+                                        .seekReverseChangeAmplitude(0.01)
+                                        .build())
+                                .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
+                                        .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder()
+                                                .takeProfitType(TakeProfitPlan.TakeProfitType.TAKE_PROFIT_FROM_ENTRY)
+                                                .targetReturnFromEntry(0.05)
+                                                .build())
+                                        .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.builder()
+                                                .stopLossType(StopLossPlan.StopLossType.STOP_LOSS_FROM_TOP_PROFIT)
+                                                .targetStopLoss(-0.02)
+                                                .build())
+                                        .timeoutPlanInitParameter(TimeoutPlan.TimeoutPlanInitParameter.builder()
+                                                .expirationDuration(Duration.ofMinutes(60))
+                                                .build())
+                                        .build())
+                                .build())
+                        .transitionInitParameter(ChangesAnomalyStateTransition.TransitionInitParameter.builder()
+                                .maxJumpThreshold(0.10)
+                                .minDropThreshold(-0.10)
+                                .changeAnalysisWindow(Duration.ofMinutes(20))
+                                .triggerAnomalyType(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP)
+                                .build())
+                        .build();
+
+        barWithTimestampCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
     }
 }

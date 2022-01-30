@@ -18,8 +18,38 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
     ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
 
+    BarWithTime csvLineToBarWithTime(String[] csvLine) {
+        BarWithTime bwt = new BarWithTime(
+                new Bar(/*market=*/"binance",
+                        /*symbol=*/csvLine[1],
+                        /*ohlc=*/new OHLC(Double.valueOf(csvLine[2]), Double.valueOf(csvLine[3]), Double.valueOf(csvLine[4]), Double.valueOf(csvLine[5])),
+                        /*volume=*/Double.valueOf(csvLine[6])),
+                /*epochSeconds=*/Long.valueOf(csvLine[0])
+        );
+        return bwt;
+    }
+
+    protected boolean ifProcessLine(String[] csvLine, int shardId, int shardSize) {
+        if (csvLine[1].equals("symbol")) {
+            // skip the header row.
+            return false;
+        }
+        BarWithTime bwt = csvLineToBarWithTime(csvLine);
+        int hashCode = String.format("%s.%s", bwt.bar.market, bwt.bar.symbol).hashCode();
+        if (hashCode < 0) {
+            hashCode *= -1;
+        }
+        return hashCode % shardSize == shardId;
+    }
+
+    public void run(String csvFileName, ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+        changesAnomalyTradingStream.init(changesAnomalyTradingStreamInitParameter);
+        super.run(csvFileName);
+    }
+
     protected void onFinish() {
         changesAnomalyTradingStream.closedTrades.print();
+        super.onFinish();
     }
 
     protected void processCsvLine(String[] csvLine) {
@@ -27,13 +57,7 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
             // skip the header row.
             return;
         }
-        BarWithTime bwt = new BarWithTime(
-                new Bar(/*market=*/"binance",
-                        /*symbol=*/csvLine[1],
-                        /*ohlc=*/new OHLC(Double.valueOf(csvLine[2]), Double.valueOf(csvLine[3]), Double.valueOf(csvLine[4]), Double.valueOf(csvLine[5])),
-                        /*volume=*/Double.valueOf(csvLine[6])),
-                /*epochSeconds=*/Long.valueOf(csvLine[0])
-                );
+        BarWithTime bwt = csvLineToBarWithTime(csvLine);
         barWithTimeStream.onBarWithTime(bwt);
         changesAnomalyTradingStream.onBarWithTime(bwt);
     }
