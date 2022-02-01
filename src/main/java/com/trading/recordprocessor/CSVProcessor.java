@@ -67,20 +67,6 @@ public class CSVProcessor {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        /*
-        try (CSVReader reader = new CSVReader(new FileReader(csvFileName))) {
-            String[] csvLine;
-            while ((csvLine = reader.readNext()) != null) {
-                processCsvLine(csvLine);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CsvValidationException e) {
-            e.printStackTrace();
-        }
-        //*/
         onFinish();
     }
 

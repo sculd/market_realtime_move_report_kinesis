@@ -16,7 +16,7 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
     private static final Logger log = LoggerFactory.getLogger(BarWithTimestampCSVProcessor.class);
 
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
+    public ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
 
     BarWithTime csvLineToBarWithTime(String[] csvLine) {
         BarWithTime bwt = new BarWithTime(

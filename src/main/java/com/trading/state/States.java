@@ -29,6 +29,14 @@ public class States {
     public static class StatesInitParameter {
         public EnterPlan.EnterPlanInitParameter enterPlanInitParameter;
         public ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(StatesInitParameter.class)
+                    .add("enterPlanInitParameter", enterPlanInitParameter)
+                    .add("exitPlanInitParameter", exitPlanInitParameter)
+                    .toString();
+        }
     }
     StatesInitParameter statesInitParameter;
 

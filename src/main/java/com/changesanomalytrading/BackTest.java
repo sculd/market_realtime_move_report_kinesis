@@ -2,14 +2,13 @@ package com.changesanomalytrading;
 
 import com.changesanomalytrading.recordprocessor.BarWithTimestampCSVProcessor;
 import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
-import com.changesanomalytrading.transition.ChangesAnomalyStateTransition;
+import com.changesanomalytrading.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
-import com.trading.state.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -21,8 +20,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class BackTest {
@@ -73,7 +72,6 @@ public class BackTest {
     }
 
     private void run() {
-        BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
         int year = 2022;
         int month = 1;
         int day = 23;
@@ -83,35 +81,35 @@ public class BackTest {
         );
         log.info(String.format("Back testing from %s file", filename));
 
-        ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter =
-                ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter.builder()
-                        .statesInitParameter(States.StatesInitParameter.builder()
-                                .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
-                                        .targetFiatVolume(1000)
-                                        .seekReverseChangeAmplitude(0.01)
-                                        .build())
-                                .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
-                                        .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder()
-                                                .takeProfitType(TakeProfitPlan.TakeProfitType.TAKE_PROFIT_FROM_ENTRY)
-                                                .targetReturnFromEntry(0.05)
-                                                .build())
-                                        .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.builder()
-                                                .stopLossType(StopLossPlan.StopLossType.STOP_LOSS_FROM_TOP_PROFIT)
-                                                .targetStopLoss(-0.02)
-                                                .build())
-                                        .timeoutPlanInitParameter(TimeoutPlan.TimeoutPlanInitParameter.builder()
-                                                .expirationDuration(Duration.ofMinutes(60))
-                                                .build())
-                                        .build())
-                                .build())
-                        .transitionInitParameter(ChangesAnomalyStateTransition.TransitionInitParameter.builder()
-                                .maxJumpThreshold(0.10)
-                                .minDropThreshold(-0.10)
-                                .changeAnalysisWindow(Duration.ofMinutes(20))
-                                .triggerAnomalyType(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP)
-                                .build())
-                        .build();
+        ParameterScan parameterScan = new ParameterScan("backtestdata/backtest.csv");
 
-        barWithTimestampCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
+        ParameterScan.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam =
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.03).stepDouble(0.01).build();
+        ParameterScan.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.06).stepDouble(0.01).build();
+        ParameterScan.ScanGridDoubleParam targetStopLossScanGridParam =
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.04).endDouble(-0.03).stepDouble(0.01).build();
+        ParameterScan.ScanGridDoubleParam maxJumpThresholdScanGridParam =
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
+        ParameterScan.ScanGridDoubleParam minDropThresholdScanGridParam =
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.10).endDouble(-0.06).stepDouble(0.02).build();
+        ParameterScan.ScanGridIntParam changeAnalysisWindowScanGridParam =
+                ParameterScan.ScanGridIntParam.builder().startInt(20).endInt(30).stepInt(10).build();
+        List<ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+                seekReverseChangeAmplitudeScanGridParam,
+                targetReturnFromEntryScanGridParam,
+                targetStopLossScanGridParam,
+                maxJumpThresholdScanGridParam,
+                minDropThresholdScanGridParam,
+                changeAnalysisWindowScanGridParam);
+
+        for (ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
+            log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
+            BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
+            barWithTimestampCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
+            parameterScan.addParameterRuns(
+                    barWithTimestampCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter,
+                    barWithTimestampCSVProcessor.changesAnomalyTradingStream.closedTrades);
+        }
     }
 }

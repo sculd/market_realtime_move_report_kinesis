@@ -1,5 +1,7 @@
 package com.changesanomalytrading.transition;
 
+import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
+import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
@@ -29,6 +31,16 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             JUMP_OR_DROP;
         }
         public TriggerAnomalyType triggerAnomalyType;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(TransitionInitParameter.class)
+                    .add("maxJumpThreshold", maxJumpThreshold)
+                    .add("minDropThreshold", minDropThreshold)
+                    .add("changeAnalysisWindow", changeAnalysisWindow)
+                    .add("triggerAnomalyType", triggerAnomalyType)
+                    .toString();
+        }
     }
     TransitionInitParameter initParameter;
 

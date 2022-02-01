@@ -1,5 +1,6 @@
 package com.trading.state;
 
+import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 public class TakeProfitPlan {
@@ -16,6 +17,14 @@ public class TakeProfitPlan {
     public static class TakeProfitPlanInitParameter {
         public TakeProfitType takeProfitType;
         public double targetReturnFromEntry;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(TakeProfitPlanInitParameter.class)
+                    .add("takeProfitType", takeProfitType)
+                    .add("targetReturnFromEntry", targetReturnFromEntry)
+                    .toString();
+        }
     }
 
     public void init(Position position, TakeProfitPlanInitParameter takeProfitPlanInitParameter) {

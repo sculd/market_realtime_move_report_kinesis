@@ -5,3 +5,4 @@ gradle/*
 k8s/secrets/*
 credential.json
 marketdata/*
+backtestdata/*

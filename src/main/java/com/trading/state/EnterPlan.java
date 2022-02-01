@@ -1,5 +1,7 @@
 package com.trading.state;
 
+import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
+import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 @Builder
@@ -14,6 +16,14 @@ public class EnterPlan {
     public static class EnterPlanInitParameter {
         public double targetFiatVolume;
         public double seekReverseChangeAmplitude;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(EnterPlanInitParameter.class)
+                    .add("targetFiatVolume", targetFiatVolume)
+                    .add("seekReverseChangeAmplitude", seekReverseChangeAmplitude)
+                    .toString();
+        }
     }
     EnterPlanInitParameter enterPlanInitParameter;
 

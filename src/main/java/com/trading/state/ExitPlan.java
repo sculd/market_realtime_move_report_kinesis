@@ -1,6 +1,6 @@
 package com.trading.state;
 
-import com.marketdata.util.Time;
+import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 @Builder
@@ -21,6 +21,15 @@ public class ExitPlan {
         public TakeProfitPlan.TakeProfitPlanInitParameter takeProfitPlanInitParameter;
         public StopLossPlan.StopLossPlanInitParameter stopLossPlanInitParameter;
         public TimeoutPlan.TimeoutPlanInitParameter timeoutPlanInitParameter;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ExitPlanInitParameter.class)
+                    .add("takeProfitPlanInitParameter", takeProfitPlanInitParameter)
+                    .add("stopLossPlanInitParameter", stopLossPlanInitParameter)
+                    .add("timeoutPlanInitParameter", timeoutPlanInitParameter)
+                    .toString();
+        }
     }
     ExitPlanInitParameter exitPlanInitParameter;
 

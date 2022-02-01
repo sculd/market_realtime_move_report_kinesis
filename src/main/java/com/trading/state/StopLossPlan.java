@@ -1,5 +1,6 @@
 package com.trading.state;
 
+import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 public class StopLossPlan {
@@ -18,6 +19,14 @@ public class StopLossPlan {
     public static class StopLossPlanInitParameter {
         public StopLossPlan.StopLossType stopLossType;
         public double targetStopLoss;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(StopLossPlanInitParameter.class)
+                    .add("stopLossType", stopLossType)
+                    .add("targetStopLoss", targetStopLoss)
+                    .toString();
+        }
     }
 
     public void init(Position position, StopLossPlan.StopLossPlanInitParameter stopLossPlanInitParameter) {
@@ -49,5 +58,15 @@ public class StopLossPlan {
             case STOP_LOSS_FROM_ENTRY:
                 break;
         }
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(StopLossPlan.class)
+                .add("entryPriceSnapShot", entryPriceSnapShot)
+                .add("topPrice", topPrice)
+                .add("stopLossType", stopLossType)
+                .add("seek", seek)
+                .toString();
     }
 }
