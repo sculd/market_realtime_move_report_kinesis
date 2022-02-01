@@ -144,7 +144,7 @@ public class ParameterScan {
                 parameterRun.closedTrades.toCsvLine());
         try {
             Files.write(Paths.get(exportFileName), line.getBytes(), StandardOpenOption.APPEND);
-        }catch (IOException e) {
+        } catch (IOException e) {
             //exception handling left as an exercise for the reader
         }
     }

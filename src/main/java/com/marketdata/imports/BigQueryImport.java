@@ -10,6 +10,7 @@ import com.google.cloud.bigquery.QueryJobConfiguration;
 import com.google.cloud.bigquery.TableResult;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -49,16 +51,31 @@ public class BigQueryImport {
         }
     }
 
-    static public String getImportedFileName(String baseDirPath, QueryTemplates.Table table, List<String> symbols, long startEpochSeconds, long endEpochSeconds) {
-        String symbolsStr = "ALL";
-        if (!symbols.isEmpty()) {
-            symbolsStr = symbols.stream().collect(Collectors.joining(","));
-        }
-        return String.format("%s%s_%s_%s_%s.csv", baseDirPath, table.dataSetTableId(), symbolsStr, Instant.ofEpochSecond(startEpochSeconds).toString(), Instant.ofEpochSecond(endEpochSeconds).toString());
+    @Builder
+    public static class ImportParam {
+        String baseDirPath;
+        QueryTemplates.Table table;
+        @Builder.Default
+        List<String> symbols = new ArrayList<>();
+        long startEpochSeconds;
+        long endEpochSeconds;
     }
 
-    public void importAsCSV(String baseDirPath, QueryTemplates.Table table, List<String> symbols, long startEpochSeconds, long endEpochSeconds) {
-        String filename = getImportedFileName(baseDirPath, table, symbols, startEpochSeconds, endEpochSeconds);
+    static public String getImportedFileName(ImportParam importParam) {
+        String symbolsStr = "ALL";
+        if (!importParam.symbols.isEmpty()) {
+            symbolsStr = importParam.symbols.stream().collect(Collectors.joining(","));
+        }
+        return String.format("%s%s_%s_%s_%s.csv", importParam.baseDirPath, importParam.table.dataSetTableId(), symbolsStr, Instant.ofEpochSecond(importParam.startEpochSeconds).toString(), Instant.ofEpochSecond(importParam.endEpochSeconds).toString());
+    }
+
+    static public boolean getIfFileExist(ImportParam importParam) {
+        String filename = getImportedFileName(importParam);
+        return new File(filename).exists();
+    }
+
+    public void importAsCSV(ImportParam importParam) {
+        String filename = getImportedFileName(importParam);
         if (new File(filename).exists()) {
             log.info(String.format("The import file %s is already present.", filename));
             return;
@@ -67,7 +84,7 @@ public class BigQueryImport {
         QueryTemplates templates = new QueryTemplates();
         QueryJobConfiguration queryConfig =
                 QueryJobConfiguration
-                        .newBuilder(templates.getMinuteAggregationQuery(projectId, table, symbols, startEpochSeconds, endEpochSeconds))
+                        .newBuilder(templates.getMinuteAggregationQuery(projectId, importParam.table, importParam.symbols, importParam.startEpochSeconds, importParam.endEpochSeconds))
                         .setUseLegacySql(false)
                         .build();
 

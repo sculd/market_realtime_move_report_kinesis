@@ -14,9 +14,14 @@ public class Main {
         int month = 1;
         int day = 23;
         System.out.println("ingesting");
-        bqImport.importAsCSV("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59));
+        BigQueryImport.ImportParam param = BigQueryImport.ImportParam.builder()
+                .baseDirPath("marketdata/")
+                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .symbols(Arrays.asList())
+                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0))
+                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59))
+                .build();
+        bqImport.importAsCSV(param);
         System.out.println("done");
     }
 }

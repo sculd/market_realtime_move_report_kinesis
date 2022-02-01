@@ -74,11 +74,21 @@ public class BackTest {
     private void run() {
         int year = 2022;
         int month = 1;
-        int day = 23;
-        String filename = BigQueryImport.getImportedFileName("marketdata/", QueryTemplates.Table.BINANCE_BAR_WITH_TIME, Arrays.asList(),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0),
-                Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59)
-        );
+        int day = 21;
+        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
+                .baseDirPath("marketdata/")
+                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .symbols(Arrays.asList())
+                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0))
+                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59))
+                .build();
+
+        String filename = BigQueryImport.getImportedFileName(importParam);
+        if (!BigQueryImport.getIfFileExist(importParam)) {
+            log.info(String.format("Ingesting a file %s before a run", filename));
+            BigQueryImport bqImport = new BigQueryImport();
+            bqImport.importAsCSV(importParam);
+        }
         log.info(String.format("Back testing from %s file", filename));
 
         ParameterScan parameterScan = new ParameterScan("backtestdata/backtest.csv");
