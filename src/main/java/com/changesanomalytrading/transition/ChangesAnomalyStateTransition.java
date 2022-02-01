@@ -1,6 +1,5 @@
 package com.changesanomalytrading.transition;
 
-import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
@@ -9,7 +8,6 @@ import com.marketsignal.util.Time;
 import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
 import com.trading.state.States;
-import com.trading.state.StopLossPlan;
 import com.trading.state.transition.StateTransition;
 import lombok.Builder;
 import org.slf4j.Logger;

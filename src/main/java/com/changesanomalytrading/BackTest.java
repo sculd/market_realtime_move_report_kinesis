@@ -74,7 +74,7 @@ public class BackTest {
     private void run() {
         int year = 2022;
         int month = 1;
-        int day = 21;
+        int day = 19;
         BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
                 .baseDirPath("marketdata/")
                 .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
@@ -91,12 +91,12 @@ public class BackTest {
         }
         log.info(String.format("Back testing from %s file", filename));
 
-        ParameterScan parameterScan = new ParameterScan("backtestdata/backtest.csv");
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", year, month, day));
 
         ParameterScan.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam =
                 ParameterScan.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
         ParameterScan.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.06).stepDouble(0.01).build();
+                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
         ParameterScan.ScanGridDoubleParam targetStopLossScanGridParam =
                 ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
         ParameterScan.ScanGridDoubleParam maxJumpThresholdScanGridParam =
@@ -104,7 +104,7 @@ public class BackTest {
         ParameterScan.ScanGridDoubleParam minDropThresholdScanGridParam =
                 ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
         ParameterScan.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScan.ScanGridIntParam.builder().startInt(20).endInt(20).stepInt(10).build();
+                ParameterScan.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
         List<ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekReverseChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,

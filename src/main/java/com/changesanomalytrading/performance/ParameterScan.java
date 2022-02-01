@@ -148,24 +148,4 @@ public class ParameterScan {
             //exception handling left as an exercise for the reader
         }
     }
-
-    public void exportToCsv(String filename) {
-        try {
-            FileWriter fileWriter = new FileWriter(filename);
-            fileWriter.write(String.format("%s,%s\n",
-                    ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
-                    ClosedTrades.toCsvHeader()));
-            for (ParameterRun parameterRun : parameterRuns) {
-                String line = String.format("%s,%s\n",
-                        parameterRun.changesAnomalyTradingStreamInitParameter.toCsvLine(),
-                        parameterRun.closedTrades.toCsvLine());
-                fileWriter.write(line);
-            }
-            fileWriter.close();
-            System.out.println(String.format("Successfully wrote to the file: %s", filename));
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
 }
