@@ -87,7 +87,7 @@ public class ChangesAnomaly {
     Map<String, Long> prevAnomalyEpochSeconds = new HashMap<>();
 
     static public boolean isMinDropAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
-        if (Math.abs(analyzeResult.minDrop) > changeThreshold) {
+        if (analyzeResult.minDrop > changeThreshold) {
             return false;
         }
         if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.minDropEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
@@ -97,7 +97,7 @@ public class ChangesAnomaly {
     }
 
     static public boolean isMaxJumpAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
-        if (Math.abs(analyzeResult.maxJump) < changeThreshold) {
+        if (analyzeResult.maxJump < changeThreshold) {
             return false;
         }
         if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.maxJumpEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
