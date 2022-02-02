@@ -42,8 +42,8 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
         return hashCode % shardSize == shardId;
     }
 
-    public void run(String csvFileName, ChangesAnomalyReversalTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
-        changesAnomalyReversalTradingStream.init(changesAnomalyTradingStreamInitParameter);
+    public void run(String csvFileName, ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter) {
+        changesAnomalyReversalTradingStream.init(changesAnomalyReversalTradingStreamInitParameter);
         super.run(csvFileName);
     }
 

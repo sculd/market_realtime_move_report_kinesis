@@ -112,7 +112,7 @@ public class BackTest {
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
                 ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
-        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekReverseChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
                 targetStopLossScanGridParam,
@@ -120,12 +120,12 @@ public class BackTest {
                 minDropThresholdScanGridParam,
                 changeAnalysisWindowScanGridParam);
 
-        for (ChangesAnomalyReversalTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
-            log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
+        for (ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
+            log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
             BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
-            barWithTimestampCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
+            barWithTimestampCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);
             parameterScan.addParameterRuns(
-                    barWithTimestampCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyTradingStreamInitParameter,
+                    barWithTimestampCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyReversalTradingStreamInitParameter,
                     barWithTimestampCSVProcessor.changesAnomalyReversalTradingStream.closedTrades);
         }
     }

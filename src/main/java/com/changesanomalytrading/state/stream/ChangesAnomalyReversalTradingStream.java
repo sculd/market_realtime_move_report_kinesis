@@ -30,13 +30,13 @@ public class ChangesAnomalyReversalTradingStream {
     Monitor mutex = new Monitor();
 
     @Builder
-    public static class ChangesAnomalyTradingStreamInitParameter {
+    public static class ChangesAnomalyReversalTradingStreamInitParameter {
         public States.StatesInitParameter statesInitParameter;
         public ChangesAnomalyReversalStateTransition.TransitionInitParameter transitionInitParameter;
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(ChangesAnomalyTradingStreamInitParameter.class)
+            return MoreObjects.toStringHelper(ChangesAnomalyReversalTradingStreamInitParameter.class)
                     .add("statesInitParameter", statesInitParameter)
                     .add("transitionInitParameter", transitionInitParameter)
                     .toString();
@@ -72,10 +72,10 @@ public class ChangesAnomalyReversalTradingStream {
             return String.join(",", columns);
         }
     }
-    public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter;
 
-    public void init(ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
-        this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
+    public void init(ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter) {
+        this.changesAnomalyReversalTradingStreamInitParameter = changesAnomalyReversalTradingStreamInitParameter;
     }
 
     public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream) {
@@ -85,7 +85,7 @@ public class ChangesAnomalyReversalTradingStream {
     States getState(BarWithTime bwt) {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStates.containsKey(key)) {
-            keyedStates.put(key, new States(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.statesInitParameter));
+            keyedStates.put(key, new States(bwt.bar.market, bwt.bar.symbol, changesAnomalyReversalTradingStreamInitParameter.statesInitParameter));
         }
         return keyedStates.get(key);
     }
@@ -94,7 +94,7 @@ public class ChangesAnomalyReversalTradingStream {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyReversalTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }
