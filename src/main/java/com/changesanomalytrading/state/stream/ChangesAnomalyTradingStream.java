@@ -10,7 +10,7 @@ import com.trading.performance.ClosedTrades;
 
 import com.trading.state.*;
 
-import com.changesanomalytrading.transition.ChangesAnomalyStateTransition;
+import com.changesanomalytrading.transition.ChangesAnomalyReversalStateTransition;
 import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +25,14 @@ public class ChangesAnomalyTradingStream {
 
     BarWithTimeStream barWithTimeStream;
     public Map<String, States> keyedStates = new HashMap<>();
-    public Map<String, ChangesAnomalyStateTransition> keyedStateTransition = new HashMap<>();
+    public Map<String, ChangesAnomalyReversalStateTransition> keyedStateTransition = new HashMap<>();
     public ClosedTrades closedTrades = new ClosedTrades();
     Monitor mutex = new Monitor();
 
     @Builder
     public static class ChangesAnomalyTradingStreamInitParameter {
         public States.StatesInitParameter statesInitParameter;
-        public ChangesAnomalyStateTransition.TransitionInitParameter transitionInitParameter;
+        public ChangesAnomalyReversalStateTransition.TransitionInitParameter transitionInitParameter;
 
         @Override
         public String toString() {
@@ -90,11 +90,11 @@ public class ChangesAnomalyTradingStream {
         return keyedStates.get(key);
     }
 
-    ChangesAnomalyStateTransition getStateTransition(BarWithTime bwt) {
+    ChangesAnomalyReversalStateTransition getStateTransition(BarWithTime bwt) {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }
@@ -108,10 +108,10 @@ public class ChangesAnomalyTradingStream {
         mutex.enter();
         try {
             States state = getState(bwt);
-            ChangesAnomalyStateTransition stateTransition = getStateTransition(bwt);
+            ChangesAnomalyReversalStateTransition stateTransition = getStateTransition(bwt);
 
             BarWithTimeSlidingWindow barWithTimeSlidingWindow = barWithTimeStream.keyedBarWithTimeSlidingWindows.get(BarWithTimeStream.bwtToKeyString(bwt));
-            ChangesAnomalyStateTransition.HandleStateResult result = stateTransition.handleState(state, barWithTimeSlidingWindow);
+            ChangesAnomalyReversalStateTransition.HandleStateResult result = stateTransition.handleState(state, barWithTimeSlidingWindow);
             if (result.closedTrade != null) {
                 onClosedTrade(result.closedTrade);
             }

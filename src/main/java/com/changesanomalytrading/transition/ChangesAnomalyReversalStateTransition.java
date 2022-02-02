@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-public class ChangesAnomalyStateTransition extends StateTransition {
-    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
+public class ChangesAnomalyReversalStateTransition extends StateTransition {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalStateTransition.class);
 
     @Builder
     static public class TransitionInitParameter {
@@ -42,7 +42,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
     }
     TransitionInitParameter initParameter;
 
-    public ChangesAnomalyStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
+    public ChangesAnomalyReversalStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
         super(market, symbol);
         this.initParameter = initParameter;
     }

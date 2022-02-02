@@ -1,7 +1,7 @@
 package com.changesanomalytrading.performance;
 
 import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
-import com.changesanomalytrading.transition.ChangesAnomalyStateTransition;
+import com.changesanomalytrading.transition.ChangesAnomalyReversalStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.state.*;
 import lombok.Builder;
@@ -110,11 +110,11 @@ public class ParameterScan {
                                                                         .build())
                                                                 .build())
                                                         .build())
-                                                .transitionInitParameter(ChangesAnomalyStateTransition.TransitionInitParameter.builder()
+                                                .transitionInitParameter(ChangesAnomalyReversalStateTransition.TransitionInitParameter.builder()
                                                         .maxJumpThreshold(maxJumpThreshold)
                                                         .minDropThreshold(minDropThreshold)
                                                         .changeAnalysisWindow(Duration.ofMinutes(changeAnalysisWindow))
-                                                        .triggerAnomalyType(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)
+                                                        .triggerAnomalyType(ChangesAnomalyReversalStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)
                                                         .build())
                                                 .build();
                                 grid.add(changesAnomalyTradingStreamInitParameter);
