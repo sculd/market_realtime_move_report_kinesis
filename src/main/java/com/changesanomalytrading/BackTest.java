@@ -9,6 +9,7 @@ import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
+import lombok.Builder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -71,16 +72,20 @@ public class BackTest {
         this.appType = appType;
     }
 
-    private void run() {
-        int year = 2022;
-        int month = 1;
-        int day = 19;
+    @Builder
+    static public class DailyRunParameter {
+        int year;
+        int month;
+        int day;
+    }
+
+    private void run(DailyRunParameter dailyRunParameter) {
         BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
                 .baseDirPath("marketdata/")
                 .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
                 .symbols(Arrays.asList())
-                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 0, 0))
-                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(year, month, day, 23, 59))
+                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
+                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
                 .build();
 
         String filename = BigQueryImport.getImportedFileName(importParam);
@@ -91,7 +96,8 @@ public class BackTest {
         }
         log.info(String.format("Back testing from %s file", filename));
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", year, month, day));
+
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScan.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam =
                 ParameterScan.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
@@ -120,6 +126,18 @@ public class BackTest {
             parameterScan.addParameterRuns(
                     barWithTimestampCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter,
                     barWithTimestampCSVProcessor.changesAnomalyTradingStream.closedTrades);
+        }
+    }
+
+    private void run() {
+        for (int day = 19; day <= 31; day++) {
+            DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
+                    .year(2022)
+                    .month(1)
+                    .day(day)
+                    .build();
+
+            run(dailyRunParameter);
         }
     }
 }

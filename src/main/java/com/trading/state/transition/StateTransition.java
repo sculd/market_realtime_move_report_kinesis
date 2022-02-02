@@ -83,6 +83,33 @@ public class StateTransition {
         return ret;
     }
 
+    public StateTransitionFollowUp handlePositionState(States state, Common.PriceSnapshot priceSnapshot) {
+        StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
+        if (state.stateType != States.StateType.IN_POSITION) {
+            return ret;
+        }
+
+        boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean timeoutTriggered = state.exitPlan.timeoutPlan.getIfTriggered(priceSnapshot.epochSeconds);
+        if (takeProfitTriggered) {
+            log.info(String.format("%s takeProfitTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
+            state.stateType = States.StateType.EXIT;
+            state.exit.init(state.position, state.exitPlan.takeProfitPlan.seek.seekPrice);
+        }
+        else if (stopLossTriggered) {
+            log.info(String.format("%s stopLossTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
+            state.stateType = States.StateType.EXIT;
+            state.exit.init(state.position, state.exitPlan.stopLossPlan.seek.seekPrice);
+        } else if (timeoutTriggered) {
+            log.info(String.format("%s timeoutTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
+            state.stateType = States.StateType.EXIT;
+            state.exit.init(state.position, priceSnapshot.price);
+        }
+
+        return ret;
+    }
+
     /*
      * tba
      */
