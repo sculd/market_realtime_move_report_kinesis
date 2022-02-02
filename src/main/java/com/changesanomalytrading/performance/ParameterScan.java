@@ -3,6 +3,7 @@ package com.changesanomalytrading.performance;
 import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
 import com.changesanomalytrading.transition.ChangesAnomalyReversalStateTransition;
 import com.trading.performance.ClosedTrades;
+import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;
 import lombok.Builder;
 
@@ -39,47 +40,13 @@ public class ParameterScan {
     }
     List<ParameterRun> parameterRuns = new ArrayList<>();
 
-    @Builder
-    public static class ScanGridDoubleParam {
-        public double startDouble;
-        public double endDouble; // end is inclusive
-        public double stepDouble;
-
-        List<Double> getValues() {
-            List<Double> ret = new ArrayList<>();
-            double value = startDouble;
-            while (value <= endDouble) {
-                ret.add(value);
-                value += stepDouble;
-            }
-            return ret;
-        }
-    }
-
-    @Builder
-    public static class ScanGridIntParam {
-        public int startInt;
-        public int endInt; // end is inclusive
-        public int stepInt;
-
-        List<Integer> getValues() {
-            List<Integer> ret = new ArrayList<>();
-            int value = startInt;
-            while (value <= endInt) {
-                ret.add(value);
-                value += stepInt;
-            }
-            return ret;
-        }
-    }
-
     static public List<ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
-            ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam,
-            ScanGridDoubleParam targetReturnFromEntryScanGridParam,
-            ScanGridDoubleParam targetStopLossScanGridParam,
-            ScanGridDoubleParam maxJumpThresholdScanGridParam,
-            ScanGridDoubleParam minDropThresholdScanGridParam,
-            ScanGridIntParam changeAnalysisWindowScanGridParam
+            ParameterScanCommon.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam,
+            ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam,
+            ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam,
+            ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam,
+            ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam,
+            ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam
     ) {
         List<ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter> grid = new ArrayList<>();
 

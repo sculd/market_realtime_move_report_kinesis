@@ -9,6 +9,7 @@ import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
+import com.trading.performance.ParameterScanCommon;
 import lombok.Builder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -99,18 +100,18 @@ public class BackTest {
 
         ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
-        ParameterScan.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
-        ParameterScan.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
-        ParameterScan.ScanGridDoubleParam targetStopLossScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
-        ParameterScan.ScanGridDoubleParam maxJumpThresholdScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
-        ParameterScan.ScanGridDoubleParam minDropThresholdScanGridParam =
-                ParameterScan.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
-        ParameterScan.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScan.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
+        ParameterScanCommon.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
+        ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
+                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
         List<ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekReverseChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
