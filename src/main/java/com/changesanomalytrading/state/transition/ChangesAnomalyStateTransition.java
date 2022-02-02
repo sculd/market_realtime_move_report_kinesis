@@ -1,10 +1,8 @@
-package com.changesanomalytrading.transition;
+package com.changesanomalytrading.state.transition;
 
 import com.google.common.base.MoreObjects;
-import com.marketsignal.timeseries.analysis.Changes;
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
-import com.marketsignal.util.Time;
+import com.marketsignal.timeseries.analysis.Changes;
 import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
 import com.trading.state.States;
@@ -15,8 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-public class ChangesAnomalyReversalStateTransition extends StateTransition {
-    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalStateTransition.class);
+public class ChangesAnomalyStateTransition extends StateTransition {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
 
     @Builder
     static public class TransitionInitParameter {
@@ -40,40 +38,15 @@ public class ChangesAnomalyReversalStateTransition extends StateTransition {
                     .toString();
         }
     }
-    TransitionInitParameter initParameter;
+    public TransitionInitParameter initParameter;
 
-    public ChangesAnomalyReversalStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
+    public ChangesAnomalyStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
         super(market, symbol);
         this.initParameter = initParameter;
     }
 
     public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis) {
-        StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
-        if (state.stateType != States.StateType.IDLE) {
-            return ret;
-        }
-        boolean triggerOnJumpAnomaly = initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP ||
-                initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP;
-        boolean triggerOnDropAnomaly = initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.DROP ||
-                initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP;
-        boolean jumpAnomalyTriggered = ChangesAnomaly.isMaxJumpAnomaly(analysis, initParameter.maxJumpThreshold) &&
-                analysis.analyzeParameter.windowSize.toMinutes() <= initParameter.changeAnalysisWindow.toMinutes();
-        boolean dropAnomalyTriggered = ChangesAnomaly.isMinDropAnomaly(analysis, initParameter.minDropThreshold) &&
-                analysis.analyzeParameter.windowSize.toMinutes() <= initParameter.changeAnalysisWindow.toMinutes();
-
-        if (triggerOnJumpAnomaly && jumpAnomalyTriggered) {
-            log.info(String.format("%s jump anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
-            state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
-            state.stateType = States.StateType.ENTER_PLAN;
-            ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
-        }
-        if (triggerOnDropAnomaly && dropAnomalyTriggered) {
-            log.info(String.format("%s drop anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
-            state.enterPlan.init(Common.PositionSideType.LONG, analysis.priceAtAnalysis);
-            state.stateType = States.StateType.ENTER_PLAN;
-            ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
-        }
-        return ret;
+        return  StateTransitionFollowUp.HALT_TRANSITION;
     }
 
     static public class HandleStateResult {

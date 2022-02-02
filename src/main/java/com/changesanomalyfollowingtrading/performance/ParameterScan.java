@@ -1,7 +1,7 @@
-package com.changesanomalytrading.performance;
+package com.changesanomalyfollowingtrading.performance;
 
-import com.changesanomalytrading.state.stream.ChangesAnomalyReversalTradingStream;
-import com.changesanomalytrading.transition.ChangesAnomalyReversalStateTransition;
+import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
+import com.changesanomalyfollowingtrading.state.transition.ChangesAnomalyFollowingStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;
@@ -24,7 +24,7 @@ public class ParameterScan {
             this.exportFileName = exportFileName;
             FileWriter exportFileWriter = new FileWriter(exportFileName);
             exportFileWriter.write(String.format("%s,%s\n",
-                    ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter.toCsvHeader(),
+                    ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter.toCsvHeader(),
                     ClosedTrades.toCsvHeader()));
             exportFileWriter.close();
         } catch (IOException e) {
@@ -35,33 +35,33 @@ public class ParameterScan {
 
     @Builder
     public static class ParameterRun {
-        public ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter;
+        public ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter;
         public ClosedTrades closedTrades;
     }
     List<ParameterRun> parameterRuns = new ArrayList<>();
 
-    static public List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> generateScanGrids(
-            ParameterScanCommon.ScanGridDoubleParam seekReverseChangeAmplitudeScanGridParam,
+    static public List<ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter> generateScanGrids(
+            ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam,
             ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam
     ) {
-        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> grid = new ArrayList<>();
+        List<ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter> grid = new ArrayList<>();
 
-        for (Double seekReverseChangeAmplitude : seekReverseChangeAmplitudeScanGridParam.getValues()) {
+        for (Double seekChangeAmplitude : seekChangeAmplitudeScanGridParam.getValues()) {
             for (Double targetReturnFromEntry : targetReturnFromEntryScanGridParam.getValues()) {
                 for (Double targetStopLoss : targetStopLossScanGridParam.getValues()) {
                     for (Double maxJumpThreshold : maxJumpThresholdScanGridParam.getValues()) {
                         for (Double minDropThreshold : minDropThresholdScanGridParam.getValues()) {
                             for (Integer changeAnalysisWindow : changeAnalysisWindowScanGridParam.getValues()) {
-                                ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter =
-                                        ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter.builder()
+                                ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter =
+                                        ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter.builder()
                                                 .statesInitParameter(States.StatesInitParameter.builder()
                                                         .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
                                                                 .targetFiatVolume(1000)
-                                                                .seekReverseChangeAmplitude(seekReverseChangeAmplitude)
+                                                                .seekChangeAmplitude(seekChangeAmplitude)
                                                                 .build())
                                                         .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
                                                                 .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder()
@@ -77,14 +77,14 @@ public class ParameterScan {
                                                                         .build())
                                                                 .build())
                                                         .build())
-                                                .transitionInitParameter(ChangesAnomalyReversalStateTransition.TransitionInitParameter.builder()
+                                                .transitionInitParameter(ChangesAnomalyFollowingStateTransition.TransitionInitParameter.builder()
                                                         .maxJumpThreshold(maxJumpThreshold)
                                                         .minDropThreshold(minDropThreshold)
                                                         .changeAnalysisWindow(Duration.ofMinutes(changeAnalysisWindow))
-                                                        .triggerAnomalyType(ChangesAnomalyReversalStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)
+                                                        .triggerAnomalyType(ChangesAnomalyFollowingStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)
                                                         .build())
                                                 .build();
-                                grid.add(changesAnomalyReversalTradingStreamInitParameter);
+                                grid.add(changesAnomalyFollowingTradingStreamInitParameter);
                             }
                         }
                     }
@@ -95,7 +95,7 @@ public class ParameterScan {
         return grid;
     }
 
-    public void addParameterRuns(ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter,
+    public void addParameterRuns(ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter,
                                  ClosedTrades closedTrades) {
         ParameterRun parameterRun = ParameterRun.builder()
                 .changesAnomalyReversalTradingStreamInitParameter(changesAnomalyReversalTradingStreamInitParameter)

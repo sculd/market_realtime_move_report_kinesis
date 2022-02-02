@@ -1,4 +1,4 @@
-package com.changesanomalytrading.recordprocessor;
+package com.changesanomalyreversaltrading.recordprocessor;
 
 import java.time.Duration;
 
@@ -8,7 +8,7 @@ import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
-import com.changesanomalytrading.state.stream.ChangesAnomalyReversalTradingStream;
+import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -14,13 +14,13 @@ public class EnterPlan {
     @Builder
     public static class EnterPlanInitParameter {
         public double targetFiatVolume;
-        public double seekReverseChangeAmplitude;
+        public double seekChangeAmplitude;
 
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(EnterPlanInitParameter.class)
                     .add("targetFiatVolume", targetFiatVolume)
-                    .add("seekReverseChangeAmplitude", seekReverseChangeAmplitude)
+                    .add("seekChangeAmplitude", seekChangeAmplitude)
                     .toString();
         }
     }
@@ -38,6 +38,6 @@ public class EnterPlan {
                 sign = -1.0;
                 break;
         }
-        seek.init(changeType, price, sign * enterPlanInitParameter.seekReverseChangeAmplitude);
+        seek.init(changeType, price, sign * enterPlanInitParameter.seekChangeAmplitude);
     }
 }
