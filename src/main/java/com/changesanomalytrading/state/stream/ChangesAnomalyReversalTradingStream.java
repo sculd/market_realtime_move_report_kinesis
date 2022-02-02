@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChangesAnomalyTradingStream {
-    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyTradingStream.class);
+public class ChangesAnomalyReversalTradingStream {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalTradingStream.class);
 
     BarWithTimeStream barWithTimeStream;
     public Map<String, States> keyedStates = new HashMap<>();
@@ -78,7 +78,7 @@ public class ChangesAnomalyTradingStream {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 
-    public ChangesAnomalyTradingStream(BarWithTimeStream barWithTimeStream) {
+    public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream) {
         this.barWithTimeStream = barWithTimeStream;
     }
 

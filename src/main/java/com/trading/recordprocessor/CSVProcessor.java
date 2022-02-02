@@ -48,7 +48,7 @@ public class CSVProcessor {
     }
 
     protected boolean ifProcessLine(String[] csvLine, int shardId, int shardSize) {
-        return false;
+        return true;
     }
 
     public void run(String csvFileName) {

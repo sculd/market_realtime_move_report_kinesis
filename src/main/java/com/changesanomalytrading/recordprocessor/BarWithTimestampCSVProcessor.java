@@ -8,7 +8,7 @@ import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
-import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
+import com.changesanomalytrading.state.stream.ChangesAnomalyReversalTradingStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
     private static final Logger log = LoggerFactory.getLogger(BarWithTimestampCSVProcessor.class);
 
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    public ChangesAnomalyTradingStream changesAnomalyTradingStream = new ChangesAnomalyTradingStream(barWithTimeStream);
+    public ChangesAnomalyReversalTradingStream changesAnomalyReversalTradingStream = new ChangesAnomalyReversalTradingStream(barWithTimeStream);
 
     BarWithTime csvLineToBarWithTime(String[] csvLine) {
         BarWithTime bwt = new BarWithTime(
@@ -42,13 +42,13 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
         return hashCode % shardSize == shardId;
     }
 
-    public void run(String csvFileName, ChangesAnomalyTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
-        changesAnomalyTradingStream.init(changesAnomalyTradingStreamInitParameter);
+    public void run(String csvFileName, ChangesAnomalyReversalTradingStream.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+        changesAnomalyReversalTradingStream.init(changesAnomalyTradingStreamInitParameter);
         super.run(csvFileName);
     }
 
     protected void onFinish() {
-        changesAnomalyTradingStream.closedTrades.print();
+        changesAnomalyReversalTradingStream.closedTrades.print();
         super.onFinish();
     }
 
@@ -59,6 +59,6 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
         }
         BarWithTime bwt = csvLineToBarWithTime(csvLine);
         barWithTimeStream.onBarWithTime(bwt);
-        changesAnomalyTradingStream.onBarWithTime(bwt);
+        changesAnomalyReversalTradingStream.onBarWithTime(bwt);
     }
 }

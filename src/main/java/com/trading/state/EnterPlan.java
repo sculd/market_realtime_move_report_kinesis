@@ -1,6 +1,5 @@
 package com.trading.state;
 
-import com.changesanomalytrading.state.stream.ChangesAnomalyTradingStream;
 import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
