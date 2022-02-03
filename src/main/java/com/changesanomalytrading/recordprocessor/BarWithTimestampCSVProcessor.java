@@ -1,6 +1,5 @@
-package com.changesanomalyfollowingtrading.recordprocessor;
+package com.changesanomalytrading.recordprocessor;
 
-import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTime;
@@ -15,10 +14,9 @@ import java.time.Duration;
 public class BarWithTimestampCSVProcessor extends CSVProcessor {
     private static final Logger log = LoggerFactory.getLogger(BarWithTimestampCSVProcessor.class);
 
-    BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    public ChangesAnomalyFollowingTradingStream changesAnomalyFollowingTradingStream = new ChangesAnomalyFollowingTradingStream(barWithTimeStream);
+    protected BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
 
-    BarWithTime csvLineToBarWithTime(String[] csvLine) {
+    public BarWithTime csvLineToBarWithTime(String[] csvLine) {
         BarWithTime bwt = new BarWithTime(
                 new Bar(/*market=*/"binance",
                         /*symbol=*/csvLine[1],
@@ -40,25 +38,5 @@ public class BarWithTimestampCSVProcessor extends CSVProcessor {
             hashCode *= -1;
         }
         return hashCode % shardSize == shardId;
-    }
-
-    public void run(String csvFileName, ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter ChangesAnomalyFollowingTradingStreamInitParameter) {
-        changesAnomalyFollowingTradingStream.init(ChangesAnomalyFollowingTradingStreamInitParameter);
-        super.run(csvFileName);
-    }
-
-    protected void onFinish() {
-        changesAnomalyFollowingTradingStream.closedTrades.print();
-        super.onFinish();
-    }
-
-    protected void processCsvLine(String[] csvLine) {
-        if (csvLine[1].equals("symbol")) {
-            // skip the header row.
-            return;
-        }
-        BarWithTime bwt = csvLineToBarWithTime(csvLine);
-        barWithTimeStream.onBarWithTime(bwt);
-        changesAnomalyFollowingTradingStream.onBarWithTime(bwt);
     }
 }

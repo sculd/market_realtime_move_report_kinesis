@@ -1,6 +1,6 @@
 package com.changesanomalyfollowingtrading;
 
-import com.changesanomalyfollowingtrading.recordprocessor.BarWithTimestampCSVProcessor;
+import com.changesanomalyfollowingtrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
 import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
 import com.changesanomalyfollowingtrading.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
@@ -98,7 +98,7 @@ public class BackTest {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/following/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
@@ -122,16 +122,16 @@ public class BackTest {
 
         for (ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyFollowingTradingStreamInitParameter));
-            BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
-            barWithTimestampCSVProcessor.run(filename, changesAnomalyFollowingTradingStreamInitParameter);
+            BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
+            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyFollowingTradingStreamInitParameter);
             parameterScan.addParameterRuns(
-                    barWithTimestampCSVProcessor.changesAnomalyFollowingTradingStream.changesAnomalyFollowingTradingStreamInitParameter,
-                    barWithTimestampCSVProcessor.changesAnomalyFollowingTradingStream.closedTrades);
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyFollowingTradingStream.changesAnomalyFollowingTradingStreamInitParameter,
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyFollowingTradingStream.closedTrades);
         }
     }
 
     private void run() {
-        for (int day = 19; day <= 31; day++) {
+        for (int day = 21; day <= 22; day++) {
             DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
                     .year(2022)
                     .month(1)

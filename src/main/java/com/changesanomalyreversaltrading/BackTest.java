@@ -1,6 +1,6 @@
 package com.changesanomalyreversaltrading;
 
-import com.changesanomalyreversaltrading.recordprocessor.BarWithTimestampCSVProcessor;
+import com.changesanomalyreversaltrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
 import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
 import com.changesanomalyreversaltrading.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
@@ -98,7 +98,7 @@ public class BackTest {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
@@ -122,11 +122,11 @@ public class BackTest {
 
         for (ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
-            BarWithTimestampCSVProcessor barWithTimestampCSVProcessor = new BarWithTimestampCSVProcessor();
-            barWithTimestampCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);
+            BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
+            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);
             parameterScan.addParameterRuns(
-                    barWithTimestampCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyReversalTradingStreamInitParameter,
-                    barWithTimestampCSVProcessor.changesAnomalyReversalTradingStream.closedTrades);
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyReversalTradingStreamInitParameter,
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.closedTrades);
         }
     }
 

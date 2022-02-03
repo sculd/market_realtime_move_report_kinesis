@@ -2,7 +2,6 @@ package com.changesanomalyreversaltrading.state.transition;
 
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
-import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.util.Time;
 import com.trading.state.Common;
 import com.trading.state.States;
