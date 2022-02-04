@@ -1,8 +1,7 @@
-package com.changesanomalyreversaltrading.performance;
+package com.tradingchangesanomalyreversal.performance;
 
-import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
-import com.changesanomalyreversaltrading.state.transition.ChangesAnomalyReversalStateTransition;
-import com.changesanomalytrading.state.transition.ChangesAnomalyStateTransition;
+import com.tradingchangesanomalyreversal.stream.ChangesAnomalyReversalTradingStream;
+import com.tradingchangesanomalyreversal.state.transition.ChangesAnomalyReversalStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;

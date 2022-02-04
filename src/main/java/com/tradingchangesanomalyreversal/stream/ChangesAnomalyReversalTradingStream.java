@@ -1,4 +1,4 @@
-package com.changesanomalyreversaltrading.stream;
+package com.tradingchangesanomalyreversal.stream;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.Monitor;
@@ -10,7 +10,7 @@ import com.trading.performance.ClosedTrades;
 
 import com.trading.state.*;
 
-import com.changesanomalyreversaltrading.state.transition.ChangesAnomalyReversalStateTransition;
+import com.tradingchangesanomalyreversal.state.transition.ChangesAnomalyReversalStateTransition;
 import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

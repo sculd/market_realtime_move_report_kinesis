@@ -1,8 +1,8 @@
-package com.changesanomalyreversaltrading;
+package com.tradingchangesanomalyreversal;
 
-import com.changesanomalyreversaltrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
-import com.changesanomalyreversaltrading.performance.ParameterScan;
+import com.tradingchangesanomalyreversal.performance.ParameterScan;
+import com.tradingchangesanomalyreversal.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
+import com.tradingchangesanomalyreversal.stream.ChangesAnomalyReversalTradingStream;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class BackTestBinance {
+public class BackTestStock {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
 
     public static void main(String... args) {
@@ -46,7 +46,7 @@ public class BackTestBinance {
                 }
             }
 
-            new BackTestBinance().run();
+            new BackTestStock().run();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
         }
@@ -62,7 +62,7 @@ public class BackTestBinance {
     private void run(DailyRunParameter dailyRunParameter) {
         BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
                 .baseDirPath("marketdata/")
-                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .table(QueryTemplates.Table.POLYGON_BAR_WITH_TIME)
                 .symbols(Arrays.asList())
                 .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
                 .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
@@ -77,7 +77,7 @@ public class BackTestBinance {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/binance/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/stock/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
@@ -110,7 +110,7 @@ public class BackTestBinance {
     }
 
     private void run() {
-        for (int day = 19; day <= 31; day++) {
+        for (int day = 20; day <= 21; day++) {
             DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
                     .year(2022)
                     .month(1)

@@ -1,4 +1,4 @@
-package com.changesanomalytrading.recordprocessor;
+package com.tradingchangesanomaly.recordprocessor;
 
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.Bar;

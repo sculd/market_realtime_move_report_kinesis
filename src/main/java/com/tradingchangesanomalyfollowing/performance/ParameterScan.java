@@ -1,8 +1,7 @@
-package com.changesanomalyfollowingtrading.performance;
+package com.tradingchangesanomalyfollowing.performance;
 
-import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
-import com.changesanomalyfollowingtrading.state.transition.ChangesAnomalyFollowingStateTransition;
-import com.changesanomalytrading.state.transition.ChangesAnomalyStateTransition;
+import com.tradingchangesanomalyfollowing.stream.ChangesAnomalyFollowingTradingStream;
+import com.tradingchangesanomalyfollowing.state.transition.ChangesAnomalyFollowingStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;

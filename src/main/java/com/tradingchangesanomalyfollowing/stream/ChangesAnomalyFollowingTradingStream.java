@@ -1,6 +1,6 @@
-package com.changesanomalyfollowingtrading.stream;
+package com.tradingchangesanomalyfollowing.stream;
 
-import com.changesanomalyfollowingtrading.state.transition.ChangesAnomalyFollowingStateTransition;
+import com.tradingchangesanomalyfollowing.state.transition.ChangesAnomalyFollowingStateTransition;
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.Monitor;
 import com.marketsignal.stream.BarWithTimeStream;

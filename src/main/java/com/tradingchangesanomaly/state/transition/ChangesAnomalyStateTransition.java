@@ -1,4 +1,4 @@
-package com.changesanomalytrading.state.transition;
+package com.tradingchangesanomaly.state.transition;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;

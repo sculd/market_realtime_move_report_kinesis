@@ -1,9 +1,9 @@
-package com.changesanomalyfollowingtrading;
+package com.tradingchangesanomalyfollowing;
 
-import com.changesanomalyfollowingtrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
-import com.changesanomalyfollowingtrading.performance.ParameterScan;
-import com.changesanomalyreversaltrading.BackTestBinance;
+import com.tradingchangesanomalyfollowing.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
+import com.tradingchangesanomalyfollowing.stream.ChangesAnomalyFollowingTradingStream;
+import com.tradingchangesanomalyfollowing.performance.ParameterScan;
+import com.tradingchangesanomalyreversal.BackTestBinance;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;

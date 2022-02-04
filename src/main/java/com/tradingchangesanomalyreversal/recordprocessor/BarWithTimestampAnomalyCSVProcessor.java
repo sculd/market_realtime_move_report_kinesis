@@ -1,8 +1,8 @@
-package com.changesanomalyreversaltrading.recordprocessor;
+package com.tradingchangesanomalyreversal.recordprocessor;
 
 import com.marketsignal.timeseries.BarWithTime;
-import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
-import com.changesanomalytrading.recordprocessor.BarWithTimestampCSVProcessor;
+import com.tradingchangesanomalyreversal.stream.ChangesAnomalyReversalTradingStream;
+import com.tradingchangesanomaly.recordprocessor.BarWithTimestampCSVProcessor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

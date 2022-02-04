@@ -1,20 +1,20 @@
-package com.changesanomalyreversaltrading.state.transition;
+package com.tradingchangesanomalyfollowing.state.transition;
 
 import com.marketsignal.timeseries.analysis.Changes;
 import com.marketsignal.timeseries.analysis.ChangesAnomaly;
 import com.marketsignal.util.Time;
 import com.trading.state.Common;
 import com.trading.state.States;
-import com.changesanomalytrading.state.transition.ChangesAnomalyStateTransition;
+import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class ChangesAnomalyReversalStateTransition extends ChangesAnomalyStateTransition {
-    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalStateTransition.class);
+public class ChangesAnomalyFollowingStateTransition extends ChangesAnomalyStateTransition {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyFollowingStateTransition.class);
 
-    public ChangesAnomalyReversalStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
+    public ChangesAnomalyFollowingStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
         super(market, symbol, initParameter);
     }
 
@@ -34,13 +34,13 @@ public class ChangesAnomalyReversalStateTransition extends ChangesAnomalyStateTr
 
         if (triggerOnJumpAnomaly && jumpAnomalyTriggered) {
             log.info(String.format("%s jump anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
-            state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
+            state.enterPlan.init(Common.PositionSideType.LONG, analysis.priceAtAnalysis);
             state.stateType = States.StateType.ENTER_PLAN;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
         }
         if (triggerOnDropAnomaly && dropAnomalyTriggered) {
             log.info(String.format("%s drop anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
-            state.enterPlan.init(Common.PositionSideType.LONG, analysis.priceAtAnalysis);
+            state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
             state.stateType = States.StateType.ENTER_PLAN;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
         }

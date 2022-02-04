@@ -1,8 +1,8 @@
-package com.changesanomalyfollowingtrading.recordprocessor;
+package com.tradingchangesanomalyfollowing.recordprocessor;
 
 import com.marketsignal.timeseries.BarWithTime;
-import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
-import com.changesanomalytrading.recordprocessor.BarWithTimestampCSVProcessor;
+import com.tradingchangesanomalyfollowing.stream.ChangesAnomalyFollowingTradingStream;
+import com.tradingchangesanomaly.recordprocessor.BarWithTimestampCSVProcessor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
