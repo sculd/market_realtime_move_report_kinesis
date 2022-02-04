@@ -1,6 +1,6 @@
 package com.tradingchangesanomalyreversal.performance;
 
-import com.tradingchangesanomalyreversal.stream.ChangesAnomalyReversalTradingStream;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyreversal.state.transition.ChangesAnomalyReversalStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.performance.ParameterScanCommon;
@@ -24,8 +24,8 @@ public class ParameterScan {
             this.exportFileName = exportFileName;
             FileWriter exportFileWriter = new FileWriter(exportFileName);
             exportFileWriter.write(String.format("%s,%s\n",
-                    ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter.toCsvHeader(),
-                    ClosedTrades.toCsvHeader()));
+                    ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
+                    ClosedTrades.toAggregationCsvHeader()));
             exportFileWriter.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -35,12 +35,12 @@ public class ParameterScan {
 
     @Builder
     public static class ParameterRun {
-        public ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter;
+        public ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter;
         public ClosedTrades closedTrades;
     }
     List<ParameterRun> parameterRuns = new ArrayList<>();
 
-    static public List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> generateScanGrids(
+    static public List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
             ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam,
@@ -48,7 +48,7 @@ public class ParameterScan {
             ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam,
             ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam
     ) {
-        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> grid = new ArrayList<>();
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> grid = new ArrayList<>();
 
         for (Double seekChangeAmplitude : seekChangeAmplitudeScanGridParam.getValues()) {
             for (Double targetReturnFromEntry : targetReturnFromEntryScanGridParam.getValues()) {
@@ -56,8 +56,8 @@ public class ParameterScan {
                     for (Double maxJumpThreshold : maxJumpThresholdScanGridParam.getValues()) {
                         for (Double minDropThreshold : minDropThresholdScanGridParam.getValues()) {
                             for (Integer changeAnalysisWindow : changeAnalysisWindowScanGridParam.getValues()) {
-                                ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter =
-                                        ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter.builder()
+                                ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter =
+                                        ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter.builder()
                                                 .statesInitParameter(States.StatesInitParameter.builder()
                                                         .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
                                                                 .targetFiatVolume(1000)
@@ -95,7 +95,7 @@ public class ParameterScan {
         return grid;
     }
 
-    public void addParameterRuns(ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter,
+    public void addParameterRuns(ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter,
                                  ClosedTrades closedTrades) {
         ParameterRun parameterRun = ParameterRun.builder()
                 .changesAnomalyReversalTradingStreamInitParameter(changesAnomalyReversalTradingStreamInitParameter)
@@ -108,7 +108,7 @@ public class ParameterScan {
     void appendRunToCsv(ParameterRun parameterRun) {
         String line = String.format("%s,%s\n",
                 parameterRun.changesAnomalyReversalTradingStreamInitParameter.toCsvLine(),
-                parameterRun.closedTrades.toCsvLine());
+                parameterRun.closedTrades.toAggregationCsvLine());
         try {
             Files.write(Paths.get(exportFileName), line.getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {

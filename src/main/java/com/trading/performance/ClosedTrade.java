@@ -30,7 +30,9 @@ public class ClosedTrade {
                 .add("positionSideType", positionSideType)
                 .add("PnL", getPnL())
                 .add("GainLossFiat", getGainLossFiat())
+                .add("entryTargetPrice", entryTargetPrice)
                 .add("entryPriceSnapshot", entryPriceSnapshot.toString())
+                .add("exitTargetPrice", exitTargetPrice)
                 .add("exitPriceSnapshot", exitPriceSnapshot.toString())
                 .toString();
     }
@@ -63,6 +65,7 @@ public class ClosedTrade {
         headers.add("volume");
         headers.add("exitPriceSnapshot.price");
         headers.add("exitPriceSnapshot.epochSeconds");
+        headers.add("pnl");
         return String.join(",", headers);
     }
 
@@ -76,6 +79,7 @@ public class ClosedTrade {
         columns.add(String.format("%f", volume));
         columns.add(String.format("%f", exitPriceSnapshot.price));
         columns.add(String.format("%d", exitPriceSnapshot.epochSeconds));
+        columns.add(String.format("%f", getPnL()));
         return String.join(",", columns);
     }
 }

@@ -1,7 +1,7 @@
 package com.tradingchangesanomalyfollowing;
 
 import com.tradingchangesanomalyfollowing.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.tradingchangesanomalyfollowing.stream.ChangesAnomalyFollowingTradingStream;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyfollowing.performance.ParameterScan;
 import com.tradingchangesanomalyreversal.BackTestBinance;
 import com.marketdata.imports.BigQueryImport;
@@ -92,7 +92,7 @@ public class BackTest {
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.05).endDouble(-0.05).stepDouble(0.05).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
                 ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(20).stepInt(10).build();
-        List<ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
                 targetStopLossScanGridParam,
@@ -100,7 +100,7 @@ public class BackTest {
                 minDropThresholdScanGridParam,
                 changeAnalysisWindowScanGridParam);
 
-        for (ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter : scanGrids) {
+        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyFollowingTradingStreamInitParameter));
             BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
             barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyFollowingTradingStreamInitParameter);

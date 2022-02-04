@@ -1,7 +1,7 @@
 package com.tradingchangesanomalyreversal;
 
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyreversal.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.tradingchangesanomalyreversal.stream.ChangesAnomalyReversalTradingStream;
 import com.tradingchangesanomalyreversal.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
@@ -91,7 +91,7 @@ public class BackTestBinance {
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
                 ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
-        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
                 targetStopLossScanGridParam,
@@ -99,7 +99,7 @@ public class BackTestBinance {
                 minDropThresholdScanGridParam,
                 changeAnalysisWindowScanGridParam);
 
-        for (ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
+        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
             BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
             barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);

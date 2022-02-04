@@ -49,7 +49,7 @@ public class ClosedTrades {
         printForList(closedShortTrades, false);
     }
 
-    static public String toCsvHeader() {
+    static public String toAggregationCsvHeader() {
         List<String> headers = new ArrayList<>();
         headers.add("closed_trades");
         headers.add("pnl");
@@ -63,7 +63,7 @@ public class ClosedTrades {
         return String.join(",", headers);
     }
 
-    public String toCsvLine() {
+    public String toAggregationCsvLine() {
         List<String> columns = new ArrayList<>();
         columns.add(String.format("%d", closedTrades.size()));
         columns.add(String.format("%f", getPnL(closedTrades)));

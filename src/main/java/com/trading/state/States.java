@@ -4,6 +4,9 @@ import com.google.common.base.MoreObjects;
 import com.trading.performance.ClosedTrade;
 import lombok.Builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class States {
     public String market;
     public String symbol;
@@ -36,6 +39,28 @@ public class States {
                     .add("enterPlanInitParameter", enterPlanInitParameter)
                     .add("exitPlanInitParameter", exitPlanInitParameter)
                     .toString();
+        }
+
+        static public String toCsvHeader() {
+            List<String> headers = new ArrayList<>();
+            headers.add("enterPlanInitParameter.seekChangeAmplitude");
+            headers.add("exitPlanInitParameter.takeProfitPlanInitParameter.takeProfitType");
+            headers.add("exitPlanInitParameter.takeProfitPlanInitParameter.targetReturnFromEntry");
+            headers.add("exitPlanInitParameter.stopLossPlanInitParameter.stopLossType");
+            headers.add("exitPlanInitParameter.stopLossPlanInitParameter.targetStopLoss");
+            headers.add("exitPlanInitParameter.timeoutPlanInitParameter.expirationDuration");
+            return String.join(",", headers);
+        }
+
+        public String toCsvLine() {
+            List<String> columns = new ArrayList<>();
+            columns.add(String.format("%f", enterPlanInitParameter.seekChangeAmplitude));
+            columns.add(String.format("%s", exitPlanInitParameter.takeProfitPlanInitParameter.takeProfitType));
+            columns.add(String.format("%f", exitPlanInitParameter.takeProfitPlanInitParameter.targetReturnFromEntry));
+            columns.add(String.format("%s", exitPlanInitParameter.stopLossPlanInitParameter.stopLossType));
+            columns.add(String.format("%f", exitPlanInitParameter.stopLossPlanInitParameter.targetStopLoss));
+            columns.add(String.format("%d", exitPlanInitParameter.timeoutPlanInitParameter.expirationDuration.toMinutes()));
+            return String.join(",", columns);
         }
     }
     StatesInitParameter statesInitParameter;
