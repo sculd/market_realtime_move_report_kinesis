@@ -2,6 +2,7 @@ package com.changesanomalyfollowingtrading.performance;
 
 import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
 import com.changesanomalyfollowingtrading.state.transition.ChangesAnomalyFollowingStateTransition;
+import com.changesanomalytrading.state.transition.ChangesAnomalyStateTransition;
 import com.trading.performance.ClosedTrades;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;
@@ -81,7 +82,7 @@ public class ParameterScan {
                                                         .maxJumpThreshold(maxJumpThreshold)
                                                         .minDropThreshold(minDropThreshold)
                                                         .changeAnalysisWindow(Duration.ofMinutes(changeAnalysisWindow))
-                                                        .triggerAnomalyType(ChangesAnomalyFollowingStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)
+                                                        .triggerAnomalyType(ChangesAnomalyFollowingStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP)
                                                         .build())
                                                 .build();
                                 grid.add(changesAnomalyFollowingTradingStreamInitParameter);

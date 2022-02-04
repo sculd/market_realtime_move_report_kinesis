@@ -6,7 +6,7 @@ import com.marketdata.util.Time;
 
 import java.util.Arrays;
 
-public class Main {
+public class MainBinance {
     public static void main(String[] args)
     {
         BigQueryImport bqImport = new BigQueryImport();

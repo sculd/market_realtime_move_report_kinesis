@@ -26,17 +26,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class BackTest {
-    private static final Logger log = LoggerFactory.getLogger(BackTest.class);
+public class BackTestBinance {
+    private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
 
     public static void main(String... args) {
         final CommandLineParser parser = new OptionParser(true);
         Options options = AppOption.create();
         try {
             CommandLine commandLine = parser.parse(options, args);
-
-            String shardId = commandLine.getOptionValue(AppOption.KEY_SHARD_ID);
-            log.info("shardId: {}", shardId);
 
             String envVarFile = commandLine.getOptionValue(AppOption.KEY_ENV_FILE);
             if (envVarFile == null || envVarFile.isEmpty()) {
@@ -49,28 +46,10 @@ public class BackTest {
                 }
             }
 
-            App.AppType appType = App.AppType.CHANGES_ANOMALY_STREAM;
-            String appTypeStr = commandLine.getOptionValue(AppOption.APP_TYPE);
-            if (appTypeStr == null || appTypeStr.isEmpty()) {
-                log.warn("the option apptype is null (or empty string)");
-            } else {
-                if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM)) {
-                    appType = App.AppType.CHANGES_ANOMALY_STREAM;
-                } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM)) {
-                    appType = App.AppType.ORDERBOOK_ANOMALY_STREAM;
-                }
-            }
-
-            new BackTest(appType).run();
+            new BackTestBinance().run();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
         }
-    }
-
-    private final App.AppType appType;
-
-    private BackTest(App.AppType appType) {
-        this.appType = appType;
     }
 
     @Builder
@@ -98,7 +77,7 @@ public class BackTest {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/binance/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();

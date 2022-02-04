@@ -1,9 +1,8 @@
-package com.changesanomalyfollowingtrading;
+package com.changesanomalyreversaltrading;
 
-import com.changesanomalyfollowingtrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.changesanomalyfollowingtrading.stream.ChangesAnomalyFollowingTradingStream;
-import com.changesanomalyfollowingtrading.performance.ParameterScan;
-import com.changesanomalyreversaltrading.BackTestBinance;
+import com.changesanomalyreversaltrading.performance.ParameterScan;
+import com.changesanomalyreversaltrading.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
+import com.changesanomalyreversaltrading.stream.ChangesAnomalyReversalTradingStream;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
@@ -27,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class BackTest {
+public class BackTestStock {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
 
     public static void main(String... args) {
@@ -47,7 +46,7 @@ public class BackTest {
                 }
             }
 
-            new BackTest().run();
+            new BackTestStock().run();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
         }
@@ -63,7 +62,7 @@ public class BackTest {
     private void run(DailyRunParameter dailyRunParameter) {
         BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
                 .baseDirPath("marketdata/")
-                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .table(QueryTemplates.Table.POLYGON_BAR_WITH_TIME)
                 .symbols(Arrays.asList())
                 .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
                 .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
@@ -78,21 +77,21 @@ public class BackTest {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/following/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
+        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/stock/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
 
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0).endDouble(0).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.08).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.04).endDouble(-0.01).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.04).endDouble(0.07).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.05).endDouble(-0.05).stepDouble(0.05).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(20).stepInt(10).build();
-        List<ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
+        List<ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
                 targetStopLossScanGridParam,
@@ -100,18 +99,18 @@ public class BackTest {
                 minDropThresholdScanGridParam,
                 changeAnalysisWindowScanGridParam);
 
-        for (ChangesAnomalyFollowingTradingStream.ChangesAnomalyFollowingTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter : scanGrids) {
-            log.info(String.format("Starting a new run: %s", changesAnomalyFollowingTradingStreamInitParameter));
+        for (ChangesAnomalyReversalTradingStream.ChangesAnomalyReversalTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
+            log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
             BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
-            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyFollowingTradingStreamInitParameter);
+            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);
             parameterScan.addParameterRuns(
-                    barWithTimestampAnomalyCSVProcessor.changesAnomalyFollowingTradingStream.changesAnomalyFollowingTradingStreamInitParameter,
-                    barWithTimestampAnomalyCSVProcessor.changesAnomalyFollowingTradingStream.closedTrades);
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyReversalTradingStreamInitParameter,
+                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.closedTrades);
         }
     }
 
     private void run() {
-        for (int day = 20; day <= 31; day++) {
+        for (int day = 20; day <= 21; day++) {
             DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
                     .year(2022)
                     .month(1)
