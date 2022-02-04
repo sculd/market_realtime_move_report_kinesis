@@ -1,8 +1,9 @@
 package com.tradingchangesanomalyreversal;
 
+import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyreversal.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.tradingchangesanomalyreversal.performance.ParameterScan;
+import com.tradingchangesanomaly.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
@@ -97,7 +98,8 @@ public class BackTestBinance {
                 targetStopLossScanGridParam,
                 maxJumpThresholdScanGridParam,
                 minDropThresholdScanGridParam,
-                changeAnalysisWindowScanGridParam);
+                changeAnalysisWindowScanGridParam,
+                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP);
 
         for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
