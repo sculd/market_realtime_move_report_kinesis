@@ -1,4 +1,4 @@
-package com.marketsignal.timeseries.analysis;
+package com.marketsignal.timeseries.analysis.changes;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;

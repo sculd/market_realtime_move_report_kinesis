@@ -5,6 +5,8 @@ import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
 import java.time.Duration;
+
+import com.marketsignal.timeseries.analysis.changes.Changes;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 

@@ -4,6 +4,8 @@ import com.marketsignal.timeseries.Bar;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.OHLC;
+import com.marketsignal.timeseries.analysis.changes.Changes;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 import org.junit.Test;
 
 import java.time.Duration;

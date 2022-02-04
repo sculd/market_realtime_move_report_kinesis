@@ -1,4 +1,4 @@
-package com.marketsignal.timeseries.analysis.anomalypublish;
+package com.marketsignal.timeseries.analysis.changes.anomalypublish;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -8,7 +8,7 @@ import com.amazonaws.services.dynamodbv2.document.PutItemOutcome;
 import com.amazonaws.services.dynamodbv2.document.Table;
 import com.amazonaws.regions.Regions;
 
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 import com.marketsignal.util.Time;
 
 import org.slf4j.Logger;

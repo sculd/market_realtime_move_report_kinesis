@@ -1,8 +1,8 @@
 package com.marketsignal.stream;
 
-import com.marketsignal.timeseries.analysis.anomalypublish.Publisher;
+import com.marketsignal.timeseries.analysis.changes.anomalypublish.Publisher;
 import com.marketsignal.timeseries.BarWithTime;
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

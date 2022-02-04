@@ -1,6 +1,6 @@
-package com.marketsignal.timeseries.analysis.anomalypublish;
+package com.marketsignal.timeseries.analysis.changes.anomalypublish;
 
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

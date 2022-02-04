@@ -1,11 +1,11 @@
-package com.marketsignal.timeseries.analysis.anomalypublish;
+package com.marketsignal.timeseries.analysis.changes.anomalypublish;
 
 import kong.unirest.Unirest;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

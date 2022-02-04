@@ -2,7 +2,7 @@ package com.tradingchangesanomaly.state.transition;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
-import com.marketsignal.timeseries.analysis.Changes;
+import com.marketsignal.timeseries.analysis.changes.Changes;
 import com.trading.performance.ClosedTrade;
 import com.trading.state.Common;
 import com.trading.state.States;

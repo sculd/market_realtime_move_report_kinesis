@@ -1,10 +1,10 @@
 package com.marketsignal;
 
-import com.marketsignal.timeseries.analysis.anomalypublish.DynamoDbPublisher;
-import com.marketsignal.timeseries.analysis.anomalypublish.NotificationPublisher;
-import com.marketsignal.timeseries.analysis.anomalypublish.SlackPublisher;
-import com.marketsignal.timeseries.analysis.Changes;
-import com.marketsignal.timeseries.analysis.ChangesAnomaly;
+import com.marketsignal.timeseries.analysis.changes.anomalypublish.DynamoDbPublisher;
+import com.marketsignal.timeseries.analysis.changes.anomalypublish.NotificationPublisher;
+import com.marketsignal.timeseries.analysis.changes.anomalypublish.SlackPublisher;
+import com.marketsignal.timeseries.analysis.changes.Changes;
+import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
