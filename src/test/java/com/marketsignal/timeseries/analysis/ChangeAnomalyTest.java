@@ -46,7 +46,9 @@ public class ChangeAnomalyTest {
         ChangesAnomaly.AnalyzeResult analysis = changesAnomaly.analyze(bwtSlidingWindow, parameter);
 
         assertEquals(1, analysis.anomalies.size());
-        Changes.AnalyzeResult analysisWanted = Changes.AnalyzeResult.builder()
+        Changes.AnalyzeResult changeAnalysisWanted = Changes.AnalyzeResult.builder()
+                .market("dummy_market")
+                .symbol("dummy_symbol")
                 .minDrop(0.0).minDropEpochSeconds(660).maxPriceForMinDrop(50).maxPriceForMinDropEpochSeconds(660).priceAtMinDrop(50)
                 .maxJump(3.0).maxJumpEpochSeconds(1200).minPriceForMaxJump(50).minPriceForMaxJumpEpochSeconds(660).priceAtMaxJump(200)
                 .change(1.0)
@@ -54,14 +56,18 @@ public class ChangeAnomalyTest {
                 .priceAtAnalysis(200)
                 .analyzeParameter(Changes.AnalyzeParameter.builder().windowSize(Duration.ofMinutes(10)).build())
                 .build();
-        assertThat(analysis).usingRecursiveComparison().isEqualTo(
-                ChangesAnomaly.AnalyzeResult.builder().anomalies(
-                        new ArrayList<>(List.of(
-                                ChangesAnomaly.Anomaly.builder()
-                                        .changeThreshold(0.1)
-                                        .market("dummy_market")
-                                        .symbol("dummy_symbol")
-                                        .changeAnalysis(analysisWanted).build()))
-                ).build());
+        ChangesAnomaly.AnalyzeResult analysisWanted = ChangesAnomaly.AnalyzeResult.builder()
+                        .anomalies(
+                                new ArrayList<>(List.of(
+                                        ChangesAnomaly.Anomaly.builder()
+                                                .changeThreshold(0.1)
+                                                .market("dummy_market")
+                                                .symbol("dummy_symbol")
+                                                .windowSize(Duration.ofMinutes(10))
+                                                .changeAnalysis(changeAnalysisWanted)
+                                                .build()))
+                        ).build();
+
+        assertThat(analysis).usingRecursiveComparison().isEqualTo(analysisWanted);
     }
 }

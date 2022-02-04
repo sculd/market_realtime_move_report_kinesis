@@ -18,6 +18,7 @@ public class OrderFlowImbalanceAnomalyTest {
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(10)))
                 .sampleDurations(List.of(Duration.ofSeconds(10)))
+                .aggregationDurations(List.of(Duration.ofMinutes(1)))
                 .thresholds(List.of(Double.valueOf(2)))
                 .build();
 
@@ -48,6 +49,7 @@ public class OrderFlowImbalanceAnomalyTest {
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(10)))
                 .sampleDurations(List.of(Duration.ofSeconds(10)))
+                .aggregationDurations(List.of(Duration.ofMinutes(1)))
                 .thresholds(List.of(Double.valueOf(2)))
                 .build();
 
@@ -83,6 +85,7 @@ public class OrderFlowImbalanceAnomalyTest {
         OrderFlowImbalanceAnomaly.AnalyzeParameter parameter = OrderFlowImbalanceAnomaly.AnalyzeParameter.builder()
                 .windowSizes(List.of(Duration.ofMinutes(10)))
                 .sampleDurations(List.of(Duration.ofSeconds(10)))
+                .aggregationDurations(List.of(Duration.ofMinutes(1)))
                 .thresholds(List.of(Double.valueOf(2), Double.valueOf(5)))
                 .build();
 

@@ -16,8 +16,10 @@ public class ClosedTrade {
     public String symbol;
 
     public Common.PositionSideType positionSideType;
+    public double entryTargetPrice;
     public Common.PriceSnapshot entryPriceSnapshot;
     public double volume;
+    public double exitTargetPrice;
     public Common.PriceSnapshot exitPriceSnapshot;
 
     @Override
