@@ -6,6 +6,9 @@ import lombok.Builder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 public class ClosedTrade {
     private static final Logger log = LoggerFactory.getLogger(ClosedTrade.class);
@@ -46,5 +49,31 @@ public class ClosedTrade {
 
     public void print() {
         log.info(String.format("%s", toString()));
+    }
+
+    static public String toCsvHeader() {
+        List<String> headers = new ArrayList<>();
+        headers.add("market");
+        headers.add("symbol");
+        headers.add("positionSideType");
+        headers.add("entryPriceSnapshot.price");
+        headers.add("entryPriceSnapshot.epochSeconds");
+        headers.add("volume");
+        headers.add("exitPriceSnapshot.price");
+        headers.add("exitPriceSnapshot.epochSeconds");
+        return String.join(",", headers);
+    }
+
+    public String toCsvLine() {
+        List<String> columns = new ArrayList<>();
+        columns.add(String.format("%s", market));
+        columns.add(String.format("%s", symbol));
+        columns.add(String.format("%s", positionSideType));
+        columns.add(String.format("%f", entryPriceSnapshot.price));
+        columns.add(String.format("%d", entryPriceSnapshot.epochSeconds));
+        columns.add(String.format("%f", volume));
+        columns.add(String.format("%f", exitPriceSnapshot.price));
+        columns.add(String.format("%d", exitPriceSnapshot.epochSeconds));
+        return String.join(",", columns);
     }
 }
