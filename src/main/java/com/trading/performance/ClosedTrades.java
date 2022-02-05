@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class ClosedTrades {
     private static final Logger log = LoggerFactory.getLogger(ClosedTrades.class);
-    List<ClosedTrade> closedTrades = new ArrayList<>();
+    public List<ClosedTrade> closedTrades = new ArrayList<>();
 
     public void addClosedTrades(ClosedTrade closedTrade) {
         closedTrades.add(closedTrade);
@@ -47,6 +47,24 @@ public class ClosedTrades {
         printForList(closedLongTrades, false);
         log.info("\nShort trades");
         printForList(closedShortTrades, false);
+    }
+
+    public ClosedTradesAggregation getClosedTradesAggregation() {
+        List<ClosedTrade> closedLongTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.LONG)
+                .collect(Collectors.toList());
+        List<ClosedTrade> closedShortTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.SHORT)
+                .collect(Collectors.toList());
+        return ClosedTradesAggregation.builder()
+                .closedTrades(closedTrades.size())
+                .pnl(getPnL(closedTrades))
+                .pnlPerTrade(getPnL(closedTrades) / closedTrades.size())
+                .closedTradesLong(closedLongTrades.size())
+                .pnlLong(getPnL(closedLongTrades))
+                .pnlPerTrade(getPnL(closedLongTrades) / closedLongTrades.size())
+                .closedTradesShort(closedShortTrades.size())
+                .pnlShort(getPnL(closedShortTrades))
+                .pnlPerTradeShort(getPnL(closedShortTrades) / closedShortTrades.size())
+                .build();
     }
 
     static public String toAggregationCsvHeader() {

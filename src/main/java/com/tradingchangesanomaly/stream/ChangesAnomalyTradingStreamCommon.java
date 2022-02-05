@@ -26,5 +26,9 @@ public class ChangesAnomalyTradingStreamCommon {
         public String toCsvLine() {
             return String.format("%s,%s", statesInitParameter.toCsvLine(), transitionInitParameter.toCsvLine());
         }
+
+        public String toFilenamePrefix() {
+            return String.format("%s_", toCsvLine());
+        }
     }
 }
