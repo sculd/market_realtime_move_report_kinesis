@@ -11,15 +11,15 @@ import org.slf4j.LoggerFactory;
 public class BarWithTimestampAnomalyCSVProcessor extends BarWithTimestampCSVProcessor {
     private static final Logger log = LoggerFactory.getLogger(BarWithTimestampAnomalyCSVProcessor.class);
 
-    public ChangesAnomalyReversalTradingStream changesAnomalyReversalTradingStream = new ChangesAnomalyReversalTradingStream(barWithTimeStream);
+    public ChangesAnomalyReversalTradingStream changesAnomalyTradingStream = new ChangesAnomalyReversalTradingStream(barWithTimeStream);
 
-    public void run(String csvFileName, ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter) {
-        changesAnomalyReversalTradingStream.init(changesAnomalyReversalTradingStreamInitParameter);
+    public void run(String csvFileName, ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+        changesAnomalyTradingStream.init(changesAnomalyTradingStreamInitParameter);
         super.run(csvFileName);
     }
 
     protected void onFinish() {
-        changesAnomalyReversalTradingStream.closedTrades.print();
+        changesAnomalyTradingStream.closedTrades.print();
         super.onFinish();
     }
 
@@ -30,6 +30,6 @@ public class BarWithTimestampAnomalyCSVProcessor extends BarWithTimestampCSVProc
         }
         BarWithTime bwt = csvLineToBarWithTime(csvLine);
         barWithTimeStream.onBarWithTime(bwt);
-        changesAnomalyReversalTradingStream.onBarWithTime(bwt);
+        changesAnomalyTradingStream.onBarWithTime(bwt);
     }
 }

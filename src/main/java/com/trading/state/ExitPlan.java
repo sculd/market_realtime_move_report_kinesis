@@ -3,6 +3,10 @@ package com.trading.state;
 import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 public class ExitPlan {
     public String market;
@@ -29,6 +33,36 @@ public class ExitPlan {
                     .add("stopLossPlanInitParameter", stopLossPlanInitParameter)
                     .add("timeoutPlanInitParameter", timeoutPlanInitParameter)
                     .toString();
+        }
+
+        static public String toCsvHeader() {
+            return String.format("%s,%s,%s",
+                    TakeProfitPlan.TakeProfitPlanInitParameter.toCsvHeader(),
+                    StopLossPlan.StopLossPlanInitParameter.toCsvHeader(),
+                    TimeoutPlan.TimeoutPlanInitParameter.toCsvHeader());
+        }
+
+        public String toCsvLine() {
+            return String.format("%s,%s,%s",
+                    takeProfitPlanInitParameter.toCsvLine(),
+                    stopLossPlanInitParameter.toCsvLine(),
+                    timeoutPlanInitParameter.toCsvLine());
+        }
+
+        static public ExitPlanInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            int l1 = TakeProfitPlan.TakeProfitPlanInitParameter.toCsvHeader().split(",").length;
+            int l2 = l1 + StopLossPlan.StopLossPlanInitParameter.toCsvHeader().split(",").length;
+            int l3 = l2 + TimeoutPlan.TimeoutPlanInitParameter.toCsvHeader().split(",").length;
+            String[] takeProfitPlanInitParameterColumns = Arrays.copyOfRange(columns, 0, l1);
+            String[] stopLossPlanInitParameter = Arrays.copyOfRange(columns, l1, l2);
+            String[] timeoutPlanInitParameter = Arrays.copyOfRange(columns, l2, l3);
+
+            return ExitPlanInitParameter.builder()
+                    .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.fromCsvLine(String.join(",", takeProfitPlanInitParameterColumns)))
+                    .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.fromCsvLine(String.join(",", stopLossPlanInitParameter)))
+                    .timeoutPlanInitParameter(TimeoutPlan.TimeoutPlanInitParameter.fromCsvLine(String.join(",", timeoutPlanInitParameter)))
+                    .build();
         }
     }
     ExitPlanInitParameter exitPlanInitParameter;

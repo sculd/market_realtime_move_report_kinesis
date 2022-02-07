@@ -82,4 +82,22 @@ public class ClosedTrade {
         columns.add(String.format("%f", getPnL()));
         return String.join(",", columns);
     }
+
+    static public ClosedTrade fromCsvLine(String csvLine) {
+        String[] columns = csvLine.split(",");
+        return ClosedTrade.builder()
+                .market(columns[0])
+                .symbol(columns[1])
+                .positionSideType(Common.PositionSideType.of(columns[2]))
+                .entryPriceSnapshot(Common.PriceSnapshot.builder()
+                        .price(Double.parseDouble(columns[3]))
+                        .epochSeconds(Long.parseLong(columns[4]))
+                        .build())
+                .volume(Double.parseDouble(columns[5]))
+                .exitPriceSnapshot(Common.PriceSnapshot.builder()
+                        .price(Double.parseDouble(columns[6]))
+                        .epochSeconds(Long.parseLong(columns[7]))
+                        .build())
+                .build();
+    }
 }

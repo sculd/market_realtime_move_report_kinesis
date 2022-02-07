@@ -24,10 +24,10 @@ public class ChangesAnomalyFollowingTradingStream {
     public ClosedTrades closedTrades = new ClosedTrades();
     Monitor mutex = new Monitor();
 
-    public ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
 
-    public void init(ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyFollowingTradingStreamInitParameter) {
-        this.changesAnomalyFollowingTradingStreamInitParameter = changesAnomalyFollowingTradingStreamInitParameter;
+    public void init(ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+        this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 
     public ChangesAnomalyFollowingTradingStream(BarWithTimeStream barWithTimeStream) {
@@ -37,7 +37,7 @@ public class ChangesAnomalyFollowingTradingStream {
     States getState(BarWithTime bwt) {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStates.containsKey(key)) {
-            keyedStates.put(key, new States(bwt.bar.market, bwt.bar.symbol, changesAnomalyFollowingTradingStreamInitParameter.statesInitParameter));
+            keyedStates.put(key, new States(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.statesInitParameter));
         }
         return keyedStates.get(key);
     }
@@ -46,7 +46,7 @@ public class ChangesAnomalyFollowingTradingStream {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyFollowingStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyFollowingTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyFollowingStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }

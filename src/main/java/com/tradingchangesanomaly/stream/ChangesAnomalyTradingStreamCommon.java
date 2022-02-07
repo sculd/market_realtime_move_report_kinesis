@@ -5,6 +5,9 @@ import com.trading.state.States;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import lombok.Builder;
 
+import java.util.Arrays;
+
+@Builder
 public class ChangesAnomalyTradingStreamCommon {
     @Builder
     public static class ChangesAnomalyTradingStreamInitParameter {
@@ -25,6 +28,19 @@ public class ChangesAnomalyTradingStreamCommon {
 
         public String toCsvLine() {
             return String.format("%s,%s", statesInitParameter.toCsvLine(), transitionInitParameter.toCsvLine());
+        }
+
+        static public ChangesAnomalyTradingStreamInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            int l1 = States.StatesInitParameter.toCsvHeader().split(",").length;
+            int l2 = l1 + ChangesAnomalyStateTransition.TransitionInitParameter.toCsvHeader().split(",").length;
+            String[] statesInitParameterColumns = Arrays.copyOfRange(columns, 0, l1);
+            String[] transitionInitParameterColumns = Arrays.copyOfRange(columns, l1, l2);
+
+            return ChangesAnomalyTradingStreamInitParameter.builder()
+                    .statesInitParameter(States.StatesInitParameter.fromCsvLine(String.join(",", statesInitParameterColumns)))
+                    .transitionInitParameter(ChangesAnomalyStateTransition.TransitionInitParameter.fromCsvLine(String.join(",", transitionInitParameterColumns)))
+                    .build();
         }
 
         public String toFilenamePrefix() {

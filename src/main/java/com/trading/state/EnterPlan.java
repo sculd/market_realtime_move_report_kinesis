@@ -3,6 +3,9 @@ package com.trading.state;
 import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 public class EnterPlan {
     static int precisionDecimals = 3;
@@ -22,6 +25,28 @@ public class EnterPlan {
                     .add("targetFiatVolume", targetFiatVolume)
                     .add("seekChangeAmplitude", seekChangeAmplitude)
                     .toString();
+        }
+
+        static public String toCsvHeader() {
+            List<String> headers = new ArrayList<>();
+            headers.add(String.format("%s", "targetFiatVolume"));
+            headers.add(String.format("%s", "seekChangeAmplitude"));
+            return String.join(",", headers);
+        }
+
+        public String toCsvLine() {
+            List<String> columns = new ArrayList<>();
+            columns.add(String.format("%f", targetFiatVolume));
+            columns.add(String.format("%f", seekChangeAmplitude));
+            return String.join(",", columns);
+        }
+
+        static public EnterPlanInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            return EnterPlanInitParameter.builder()
+                    .targetFiatVolume(Double.parseDouble(columns[0]))
+                    .seekChangeAmplitude(Double.parseDouble(columns[1]))
+                    .build();
         }
     }
     EnterPlanInitParameter enterPlanInitParameter;

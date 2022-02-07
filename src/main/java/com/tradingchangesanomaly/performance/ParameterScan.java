@@ -1,39 +1,15 @@
 package com.tradingchangesanomaly.performance;
 
-import com.trading.performance.ClosedTrades;
-import com.trading.performance.ClosedTradesAggregation;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
-import lombok.Builder;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterScan {
-    String aggregateExportFileName;
-
-    public ParameterScan(String exportFileName) {
-        try {
-            this.aggregateExportFileName = exportFileName;
-            FileWriter exportFileWriter = new FileWriter(exportFileName);
-            exportFileWriter.write(String.format("%s,%s\n",
-                    ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
-                    ClosedTradesAggregation.toCsvHeader()));
-            exportFileWriter.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-    }
-
     List<ParameterRun> parameterRuns = new ArrayList<>();
 
     static public List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
@@ -90,24 +66,5 @@ public class ParameterScan {
         }
 
         return grid;
-    }
-
-    public void addParameterRuns(ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter,
-                                 ClosedTrades closedTrades) {
-        ParameterRun parameterRun = ParameterRun.builder()
-                .changesAnomalyTradingStreamInitParameter(changesAnomalyTradingStreamInitParameter)
-                .closedTrades(closedTrades)
-                .build();
-        parameterRuns.add(parameterRun);
-        appendRunAggregateToCsv(parameterRun);
-    }
-
-    void appendRunAggregateToCsv(ParameterRun parameterRun) {
-        String line = parameterRun.toAggregationCsvLine();
-        try {
-            Files.write(Paths.get(aggregateExportFileName), line.getBytes(), StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            //exception handling left as an exercise for the reader
-        }
     }
 }

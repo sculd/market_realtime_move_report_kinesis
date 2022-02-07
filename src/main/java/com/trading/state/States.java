@@ -2,9 +2,12 @@ package com.trading.state;
 
 import com.google.common.base.MoreObjects;
 import com.trading.performance.ClosedTrade;
+import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import lombok.Builder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class States {
@@ -42,26 +45,30 @@ public class States {
         }
 
         static public String toCsvHeader() {
-            List<String> headers = new ArrayList<>();
-            headers.add("enterPlanInitParameter.seekChangeAmplitude");
-            headers.add("exitPlanInitParameter.takeProfitPlanInitParameter.takeProfitType");
-            headers.add("exitPlanInitParameter.takeProfitPlanInitParameter.targetReturnFromEntry");
-            headers.add("exitPlanInitParameter.stopLossPlanInitParameter.stopLossType");
-            headers.add("exitPlanInitParameter.stopLossPlanInitParameter.targetStopLoss");
-            headers.add("exitPlanInitParameter.timeoutPlanInitParameter.expirationDuration");
-            return String.join(",", headers);
+            return String.format("%s,%s",
+                    EnterPlan.EnterPlanInitParameter.toCsvHeader(),
+                    ExitPlan.ExitPlanInitParameter.toCsvHeader());
         }
 
         public String toCsvLine() {
-            List<String> columns = new ArrayList<>();
-            columns.add(String.format("%f", enterPlanInitParameter.seekChangeAmplitude));
-            columns.add(String.format("%s", exitPlanInitParameter.takeProfitPlanInitParameter.takeProfitType));
-            columns.add(String.format("%f", exitPlanInitParameter.takeProfitPlanInitParameter.targetReturnFromEntry));
-            columns.add(String.format("%s", exitPlanInitParameter.stopLossPlanInitParameter.stopLossType));
-            columns.add(String.format("%f", exitPlanInitParameter.stopLossPlanInitParameter.targetStopLoss));
-            columns.add(String.format("%d", exitPlanInitParameter.timeoutPlanInitParameter.expirationDuration.toMinutes()));
-            return String.join(",", columns);
+            return String.format("%s,%s",
+                    enterPlanInitParameter.toCsvLine(),
+                    exitPlanInitParameter.toCsvLine());
         }
+
+        static public StatesInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            int l1 = EnterPlan.EnterPlanInitParameter.toCsvHeader().split(",").length;
+            int l2 = l1 + ExitPlan.ExitPlanInitParameter.toCsvHeader().split(",").length;
+            String[] enterPlanInitParameterColumns = Arrays.copyOfRange(columns, 0, l1);
+            String[] exitPlanInitParameterColumns = Arrays.copyOfRange(columns, l1, l2);
+
+            return StatesInitParameter.builder()
+                    .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.fromCsvLine(String.join(",", enterPlanInitParameterColumns)))
+                    .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.fromCsvLine(String.join(",", exitPlanInitParameterColumns)))
+                    .build();
+        }
+
     }
     StatesInitParameter statesInitParameter;
 

@@ -49,12 +49,12 @@ public class ClosedTrades {
         printForList(closedShortTrades, false);
     }
 
-    public ClosedTradesAggregation getClosedTradesAggregation() {
+    public ClosedTradesPnl getClosedTradesPnl() {
         List<ClosedTrade> closedLongTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.LONG)
                 .collect(Collectors.toList());
         List<ClosedTrade> closedShortTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.SHORT)
                 .collect(Collectors.toList());
-        return ClosedTradesAggregation.builder()
+        return ClosedTradesPnl.builder()
                 .closedTrades(closedTrades.size())
                 .pnl(getPnL(closedTrades))
                 .pnlPerTrade(getPnL(closedTrades) / closedTrades.size())
@@ -65,38 +65,6 @@ public class ClosedTrades {
                 .pnlShort(getPnL(closedShortTrades))
                 .pnlPerTradeShort(getPnL(closedShortTrades) / closedShortTrades.size())
                 .build();
-    }
-
-    static public String toAggregationCsvHeader() {
-        List<String> headers = new ArrayList<>();
-        headers.add("closed_trades");
-        headers.add("pnl");
-        headers.add("pnl_per_trade");
-        headers.add("closed_trades_long");
-        headers.add("pnl_long");
-        headers.add("pnl_per_trade_long");
-        headers.add("closed_trades_short");
-        headers.add("pnl_short");
-        headers.add("pnl_per_trade_short");
-        return String.join(",", headers);
-    }
-
-    public String toAggregationCsvLine() {
-        List<String> columns = new ArrayList<>();
-        columns.add(String.format("%d", closedTrades.size()));
-        columns.add(String.format("%f", getPnL(closedTrades)));
-        columns.add(String.format("%f", getPnL(closedTrades) / closedTrades.size()));
-        List<ClosedTrade> closedLongTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.LONG)
-                .collect(Collectors.toList());
-        columns.add(String.format("%d", closedLongTrades.size()));
-        columns.add(String.format("%f", getPnL(closedLongTrades)));
-        columns.add(String.format("%f", getPnL(closedLongTrades) / closedTrades.size()));
-        List<ClosedTrade> closedShortTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.SHORT)
-                .collect(Collectors.toList());
-        columns.add(String.format("%d", closedShortTrades.size()));
-        columns.add(String.format("%f", getPnL(closedShortTrades)));
-        columns.add(String.format("%f", getPnL(closedShortTrades) / closedShortTrades.size()));
-        return String.join(",", columns);
     }
 
     @Override

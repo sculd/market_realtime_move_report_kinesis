@@ -1,9 +1,9 @@
 package com.tradingchangesanomalyreversal;
 
+import com.tradingchangesanomaly.performance.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyreversal.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
-import com.tradingchangesanomaly.performance.ParameterScan;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
@@ -78,8 +78,6 @@ public class BackTestBinance {
         log.info(String.format("Back testing from %s file", filename));
 
 
-        ParameterScan parameterScan = new ParameterScan(String.format("backtestdata/binance/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day));
-
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
@@ -101,13 +99,26 @@ public class BackTestBinance {
                 changeAnalysisWindowScanGridParam,
                 ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP);
 
-        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyReversalTradingStreamInitParameter : scanGrids) {
-            log.info(String.format("Starting a new run: %s", changesAnomalyReversalTradingStreamInitParameter));
+        String runsExportDir = String.format("backtestdata/following/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
+        String pnlsExportFileName = String.format("backtestdata/binance/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
+        ParameterRuns parameterRuns = new ParameterRuns(runsExportDir);
+        ParameterPnls parameterPnls = new ParameterPnls();
+        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
+            log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
             BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
-            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyReversalTradingStreamInitParameter);
-            parameterScan.addParameterRuns(
-                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.changesAnomalyReversalTradingStreamInitParameter,
-                    barWithTimestampAnomalyCSVProcessor.changesAnomalyReversalTradingStream.closedTrades);
+            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
+            ParameterRun parameterRun = ParameterRun.builder()
+                    .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
+                    .closedTrades(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades)
+                    .build();
+            parameterRuns.addParameterRun(parameterRun);
+
+            ParameterPnl parameterPnl = ParameterPnl.builder()
+                    .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
+                    .closedTradesPnl(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades.getClosedTradesPnl())
+                    .build();
+            parameterPnls.addParameterPnl(parameterPnl);
+            parameterPnls.appendPnlToCsv(pnlsExportFileName, parameterPnl);
         }
     }
 

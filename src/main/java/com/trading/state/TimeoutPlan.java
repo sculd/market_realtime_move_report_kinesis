@@ -4,6 +4,8 @@ import com.google.common.base.MoreObjects;
 import lombok.Builder;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TimeoutPlan {
     public Common.PriceSnapshot entryPriceSnapShot;
@@ -19,6 +21,25 @@ public class TimeoutPlan {
             return MoreObjects.toStringHelper(TimeoutPlanInitParameter.class)
                     .add("expirationDuration", expirationDuration)
                     .toString();
+        }
+
+        static public String toCsvHeader() {
+            List<String> headers = new ArrayList<>();
+            headers.add("expirationDuration");
+            return String.join(",", headers);
+        }
+
+        public String toCsvLine() {
+            List<String> columns = new ArrayList<>();
+            columns.add(String.format("%d", expirationDuration.toMinutes()));
+            return String.join(",", columns);
+        }
+
+        static public TimeoutPlanInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            return TimeoutPlanInitParameter.builder()
+                    .expirationDuration(Duration.ofMinutes(Integer.valueOf(columns[0])))
+                    .build();
         }
     }
 

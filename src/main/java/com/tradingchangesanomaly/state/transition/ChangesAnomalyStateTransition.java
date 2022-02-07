@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ChangesAnomalyStateTransition extends StateTransition {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
@@ -28,6 +32,13 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             JUMP,
             DROP,
             JUMP_OR_DROP;
+
+            private static final Map<String, TriggerAnomalyType> ENUM_MAP = Stream.of(TriggerAnomalyType.values())
+                    .collect(Collectors.toMap(Enum::name, Function.identity()));
+
+            public static TriggerAnomalyType of(final String name) {
+                return ENUM_MAP.getOrDefault(name, JUMP_OR_DROP);
+            }
         }
         public TriggerAnomalyType triggerAnomalyType;
 
@@ -57,6 +68,16 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             columns.add(String.format("%d", changeAnalysisWindow.toMinutes()));
             columns.add(String.format("%s", triggerAnomalyType));
             return String.join(",", columns);
+        }
+
+        static public TransitionInitParameter fromCsvLine(String csvLine) {
+            String[] columns = csvLine.split(",");
+            return TransitionInitParameter.builder()
+                    .maxJumpThreshold(Double.parseDouble(columns[0]))
+                    .minDropThreshold(Double.parseDouble(columns[1]))
+                    .changeAnalysisWindow(Duration.ofMinutes(Integer.parseInt(columns[2])))
+                    .triggerAnomalyType(TriggerAnomalyType.of(columns[3]))
+                    .build();
         }
     }
     public TransitionInitParameter initParameter;
