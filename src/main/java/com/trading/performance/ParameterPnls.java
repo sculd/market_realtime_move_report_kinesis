@@ -1,12 +1,10 @@
-package com.tradingchangesanomaly.performance;
+package com.trading.performance;
 
+import com.marketdata.imports.BigQueryImport;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -20,7 +18,7 @@ public class ParameterPnls {
         ParameterPnls.add(parameterPnl);
     }
 
-    void createIfNotPresent(String pnlExportFileName) {
+    static public void createNew(String pnlExportFileName) {
         try {
             FileWriter exportFileWriter = new FileWriter(pnlExportFileName);
             exportFileWriter.write(String.format("%s\n", ParameterPnl.toCsvHeader()));
@@ -29,6 +27,13 @@ public class ParameterPnls {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
+    }
+
+    void createIfNotPresent(String pnlExportFileName) {
+        if (new File(pnlExportFileName).exists()) {
+            return;
+        }
+        createNew(pnlExportFileName);
     }
 
     public void appendPnlToCsv(String pnlExportFileName, ParameterPnl parameterPnl) {

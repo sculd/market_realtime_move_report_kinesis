@@ -1,9 +1,7 @@
-package com.tradingchangesanomaly.performance;
+package com.trading.performance;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import com.trading.performance.ClosedTrade;
-import com.trading.performance.ClosedTrades;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import lombok.Builder;
 

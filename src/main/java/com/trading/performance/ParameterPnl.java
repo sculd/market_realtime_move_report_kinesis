@@ -1,6 +1,5 @@
-package com.tradingchangesanomaly.performance;
+package com.trading.performance;
 
-import com.trading.performance.ClosedTradesPnl;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import lombok.Builder;
 
@@ -13,7 +12,7 @@ public class ParameterPnl {
     public ClosedTradesPnl closedTradesPnl;
 
     static public String toCsvHeader() {
-        return String.format("%s,%s\n",
+        return String.format("%s,%s",
                 ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
                 ClosedTradesPnl.toCsvHeader());
     }

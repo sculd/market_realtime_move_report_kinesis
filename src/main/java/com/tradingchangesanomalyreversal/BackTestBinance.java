@@ -1,5 +1,6 @@
 package com.tradingchangesanomalyreversal;
 
+import com.trading.performance.*;
 import com.tradingchangesanomaly.performance.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
@@ -10,7 +11,6 @@ import com.marketdata.util.Time;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
-import com.trading.performance.ParameterScanCommon;
 import lombok.Builder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -100,9 +100,10 @@ public class BackTestBinance {
                 ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP);
 
         String runsExportDir = String.format("backtestdata/following/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-        String pnlsExportFileName = String.format("backtestdata/binance/reversal/backtest_%d_%d_%d.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-        ParameterRuns parameterRuns = new ParameterRuns(runsExportDir);
+        String pnlsExportFileName = String.format("backtestdata/binance/reversal/backtest_%d_%d_%d_.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
+        ParameterRuns parameterRuns = new ParameterRuns();
         ParameterPnls parameterPnls = new ParameterPnls();
+        ParameterPnls.createNew(pnlsExportFileName);
         for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
             log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
             BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
@@ -112,6 +113,7 @@ public class BackTestBinance {
                     .closedTrades(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades)
                     .build();
             parameterRuns.addParameterRun(parameterRun);
+            parameterRuns.appendRunToCsv(runsExportDir, parameterRun);
 
             ParameterPnl parameterPnl = ParameterPnl.builder()
                     .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
@@ -123,7 +125,7 @@ public class BackTestBinance {
     }
 
     private void run() {
-        for (int day = 19; day <= 31; day++) {
+        for (int day = 21; day <= 21; day++) {
             DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
                     .year(2022)
                     .month(1)

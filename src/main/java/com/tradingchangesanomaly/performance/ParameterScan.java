@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterScan {
-    List<ParameterRun> parameterRuns = new ArrayList<>();
-
     static public List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
             ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam,
