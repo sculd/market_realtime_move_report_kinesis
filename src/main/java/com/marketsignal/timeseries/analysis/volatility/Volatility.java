@@ -1,5 +1,6 @@
 package com.marketsignal.timeseries.analysis.volatility;
 
+import com.marketsignal.timeseries.analysis.Analysis;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import lombok.Builder;
@@ -19,9 +20,17 @@ public class Volatility {
     }
 
     @Builder
-    static public class AnalyzeResult {
+    static public class AnalyzeResult extends Analysis {
         @Builder.Default
         List<WindowedVolatility> windowedVolatilities = new ArrayList<>();
+
+        public List<String> getCsvHeaderColumns() {
+            return windowedVolatilities.stream().map(wv -> String.format("volatility_%d", wv.windowSize.toMinutes())).collect(Collectors.toList());
+        }
+
+        public List<String> getCsvValueColumns() {
+            return windowedVolatilities.stream().map(wv -> String.format("%.2f", wv.volatility)).collect(Collectors.toList());
+        }
     }
 
     @Builder

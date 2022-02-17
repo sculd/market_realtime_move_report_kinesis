@@ -2,6 +2,7 @@ package com.tradingchangesanomaly.state.transition;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
+import com.marketsignal.timeseries.analysis.Analyses;
 import com.marketsignal.timeseries.analysis.changes.Changes;
 import com.marketsignal.timeseries.analysis.volatility.Volatility;
 import com.trading.performance.ClosedTrade;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -103,6 +105,9 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         Volatility.AnalyzeResult volatilityAnalysis = Volatility.analyze(barWithTimeSlidingWindow, Volatility.AnalyzeParameter.builder()
                 .windowSizes(List.of(initParameter.changeAnalysisWindow, Duration.ofMinutes(initParameter.changeAnalysisWindow.toMinutes() * 2)))
                 .build());
+        Analyses analyses = new Analyses();
+        analyses.analysisList.add(changeAnalysis);
+        analyses.analysisList.add(volatilityAnalysis);
         HandleStateResult handleStateResult = new HandleStateResult();
         StateTransitionFollowUp stateTransitionFollowUp = StateTransitionFollowUp.CONTINUE_TRANSITION;
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
@@ -114,7 +119,10 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     stateTransitionFollowUp = handleEnterPlanState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
                     break;
                 case ENTER:
-                    stateTransitionFollowUp = handleEnterState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
+                    stateTransitionFollowUp = handleEnterState(
+                            state,
+                            Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
+                            analyses);
                     break;
                 case IN_POSITION:
                     state.exitPlan.stopLossPlan.onPriceUpdate(changeAnalysis.priceAtAnalysis);

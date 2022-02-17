@@ -84,4 +84,12 @@ public class TakeProfitPlan {
         double referencePrice = position.entryPriceSnapshot.price;
         seek.init(changeType, referencePrice, sign * takeProfitPlanInitParameter.targetReturnFromEntry);
     }
+
+    public boolean getIfTriggered(double price) {
+        if (takeProfitType == TakeProfitType.NO_TAKE_PROFIT) {
+            return false;
+        }
+
+        return seek.getIfTriggered(price);
+    }
 }

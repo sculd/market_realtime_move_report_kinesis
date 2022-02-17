@@ -36,7 +36,7 @@ public class ParameterScan {
                                                                 .build())
                                                         .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
                                                                 .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder()
-                                                                        .takeProfitType(TakeProfitPlan.TakeProfitType.TAKE_PROFIT_FROM_ENTRY)
+                                                                        .takeProfitType(TakeProfitPlan.TakeProfitType.NO_TAKE_PROFIT)
                                                                         .targetReturnFromEntry(targetReturnFromEntry)
                                                                         .build())
                                                                 .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.builder()

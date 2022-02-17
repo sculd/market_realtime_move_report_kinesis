@@ -76,4 +76,12 @@ public class ClosedTrades {
                 .add("GainLossFiat", getGainLossFiat(closedTrades))
                 .toString();
     }
+
+    public String toCsvHeader() {
+        if (closedTrades.isEmpty()) {
+            return ClosedTrade.toCsvHeaderWithoutAnalysis();
+        }
+        return closedTrades.get(0).toCsvHeader();
+    }
+
 }

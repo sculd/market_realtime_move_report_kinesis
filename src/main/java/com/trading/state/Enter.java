@@ -1,5 +1,6 @@
 package com.trading.state;
 
+import com.marketsignal.timeseries.analysis.Analyses;
 import com.trading.state.ExitPlan.ExitPlanInitParameter;
 
 import lombok.Builder;
@@ -27,7 +28,7 @@ public class Enter {
         public Result result;
     }
 
-    public ExecuteResult execute(Common.PriceSnapshot priceSnapshot) {
+    public ExecuteResult execute(Common.PriceSnapshot priceSnapshot, Analyses analyses) {
         Position position = Position.builder()
                 .market(market)
                 .symbol(symbol)
@@ -37,6 +38,7 @@ public class Enter {
                         .epochSeconds(priceSnapshot.epochSeconds)
                         .build())
                 .volume(targetVolume)
+                .analysesUponEnter(analyses)
                 .build();
         ExitPlan exitPlan = ExitPlan.builder()
                 .market(market)

@@ -99,8 +99,8 @@ public class BackTestBinance {
                 changeAnalysisWindowScanGridParam,
                 ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP);
 
-        String runsExportDir = String.format("backtestdata/following/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-        String pnlsExportFileName = String.format("backtestdata/binance/reversal/backtest_%d_%d_%d_.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
+        String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
+        String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%d_%d_%d_.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
         ParameterRuns parameterRuns = new ParameterRuns();
         ParameterPnls parameterPnls = new ParameterPnls();
         ParameterPnls.createNew(pnlsExportFileName);

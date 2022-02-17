@@ -1,5 +1,6 @@
 package com.trading.state.transition;
 
+import com.marketsignal.timeseries.analysis.Analyses;
 import com.marketsignal.util.Time;
 import com.trading.state.Common;
 import com.trading.state.Enter;
@@ -47,8 +48,8 @@ public class StateTransition {
         return ret;
     }
 
-    Enter.ExecuteResult enterPosition(Enter enter, Common.PriceSnapshot priceSnapshot) {
-        return enter.execute(priceSnapshot);
+    Enter.ExecuteResult enterPosition(Enter enter, Common.PriceSnapshot priceSnapshot, Analyses analyses) {
+        return enter.execute(priceSnapshot, analyses);
     }
 
     Exit.ExecuteResult exitPosition(Exit exit) {
@@ -58,13 +59,13 @@ public class StateTransition {
     /*
      * tba
      */
-    public StateTransitionFollowUp handleEnterState(States state, Common.PriceSnapshot priceSnapshot) {
+    public StateTransitionFollowUp handleEnterState(States state, Common.PriceSnapshot priceSnapshot, Analyses analyses) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.ENTER) {
             return ret;
         }
 
-        Enter.ExecuteResult executeResult = enterPosition(state.enter, priceSnapshot);
+        Enter.ExecuteResult executeResult = enterPosition(state.enter, priceSnapshot, analyses);
         switch (executeResult.result) {
             case SUCCESS:
                 log.info(String.format("%s entering into a position succeeded: %s at %s, resulting position: %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, executeResult.position));
@@ -89,7 +90,7 @@ public class StateTransition {
             return ret;
         }
 
-        boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.getIfTriggered(priceSnapshot.price);
         boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
         boolean timeoutTriggered = state.exitPlan.timeoutPlan.getIfTriggered(priceSnapshot.epochSeconds);
         if (takeProfitTriggered) {
@@ -155,6 +156,7 @@ public class StateTransition {
                         .price(state.exit.exitPriceSnapshot.price)
                         .epochSeconds(state.exit.exitPriceSnapshot.epochSeconds)
                         .build())
+                .analysesUponEnter(state.position.analysesUponEnter)
                 .build();
         state.stateType = States.StateType.IDLE;
         return StateTransitionFollowUp.HALT_TRANSITION;

@@ -20,7 +20,7 @@ public class ParameterRun {
         FileWriter exportFileWriter = null;
         try {
             exportFileWriter = new FileWriter(exportFileName);
-            exportFileWriter.write(String.format("%s\n", ClosedTrade.toCsvHeader()));
+            exportFileWriter.write(String.format("%s\n", closedTrades.toCsvHeader()));
             for (ClosedTrade closedTrade : closedTrades.closedTrades) {
                 exportFileWriter.write(String.format("%s\n", closedTrade.toCsvLine()));
             }

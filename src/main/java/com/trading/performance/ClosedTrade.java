@@ -1,6 +1,7 @@
 package com.trading.performance;
 
 import com.google.common.base.MoreObjects;
+import com.marketsignal.timeseries.analysis.Analyses;
 import com.trading.state.Common;
 import lombok.Builder;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ public class ClosedTrade {
     public double volume;
     public double exitTargetPrice;
     public Common.PriceSnapshot exitPriceSnapshot;
+    public Analyses analysesUponEnter;
 
     @Override
     public String toString() {
@@ -55,7 +57,7 @@ public class ClosedTrade {
         log.info(String.format("%s", toString()));
     }
 
-    static public String toCsvHeader() {
+    static public String toCsvHeaderWithoutAnalysis() {
         List<String> headers = new ArrayList<>();
         headers.add("market");
         headers.add("symbol");
@@ -66,6 +68,16 @@ public class ClosedTrade {
         headers.add("exitPriceSnapshot.price");
         headers.add("exitPriceSnapshot.epochSeconds");
         headers.add("pnl");
+        return String.join(",", headers);
+    }
+
+    public String toCsvHeader() {
+        List<String> headers = new ArrayList<>();
+        headers.add(toCsvHeaderWithoutAnalysis());
+        String analysisHeader = analysesUponEnter.toCsvHeader();
+        if (!analysisHeader.isEmpty()) {
+            headers.add(analysisHeader);
+        }
         return String.join(",", headers);
     }
 
@@ -80,6 +92,10 @@ public class ClosedTrade {
         columns.add(String.format("%f", exitPriceSnapshot.price));
         columns.add(String.format("%d", exitPriceSnapshot.epochSeconds));
         columns.add(String.format("%f", getPnL()));
+        String analysisLine = analysesUponEnter.toCsvLine();
+        if (!analysisLine.isEmpty()) {
+            columns.add(analysisLine);
+        }
         return String.join(",", columns);
     }
 

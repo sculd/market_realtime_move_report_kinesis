@@ -1,5 +1,6 @@
 package com.marketsignal.timeseries.analysis.changes;
 
+import com.marketsignal.timeseries.analysis.Analysis;
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
@@ -8,10 +9,12 @@ import com.marketsignal.util.Time;
 import lombok.Builder;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
 
 public class Changes {
     @Builder
-    static public class AnalyzeResult {
+    static public class AnalyzeResult extends Analysis {
         public String market;
         public String symbol;
         public double priceAtAnalysis;
@@ -75,6 +78,14 @@ public class Changes {
                     .add("minPriceForMaxJumpEpochSeconds", Time.fromEpochSecondsToDateTimeStr(minPriceForMaxJumpEpochSeconds))
                     .add("analyzeParameter", analyzeParameter.toString())
                     .toString();
+        }
+
+        public List<String> getCsvHeaderColumns() {
+            return Arrays.asList("priceAtAnalysis", "minDrop", "maxJump");
+        }
+
+        public List<String> getCsvValueColumns() {
+            return Arrays.asList(String.format("%.2f", priceAtAnalysis), String.format("%.2f", minDrop), String.format("%.2f", maxJump));
         }
     }
 

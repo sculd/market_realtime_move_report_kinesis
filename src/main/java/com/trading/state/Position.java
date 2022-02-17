@@ -1,7 +1,8 @@
 package com.trading.state;
 
 import com.google.common.base.MoreObjects;
-import com.marketsignal.util.Time;
+import com.marketsignal.timeseries.analysis.Analyses;
+
 import lombok.Builder;
 
 @Builder
@@ -12,6 +13,8 @@ public class Position {
     public Common.PositionSideType positionSideType;
     public Common.PriceSnapshot entryPriceSnapshot;
     public double volume;
+    @Builder.Default
+    public Analyses analysesUponEnter = new Analyses();
 
     public double getPnL(Common.PriceSnapshot currentPriceSnapshot) {
         switch (positionSideType) {
