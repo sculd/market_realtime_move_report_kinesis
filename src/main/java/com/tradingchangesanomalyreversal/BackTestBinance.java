@@ -1,5 +1,7 @@
 package com.tradingchangesanomalyreversal;
 
+import com.google.common.base.MoreObjects;
+import com.marketsignal.orderbook.Orderbook;
 import com.trading.performance.*;
 import com.tradingchangesanomaly.performance.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
@@ -30,6 +32,9 @@ import java.util.stream.Stream;
 public class BackTestBinance {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
 
+    ParameterRuns parameterRuns = new ParameterRuns();
+    ParameterPnls parameterPnls = new ParameterPnls();
+
     public static void main(String... args) {
         final CommandLineParser parser = new OptionParser(true);
         Options options = AppOption.create();
@@ -47,28 +52,14 @@ public class BackTestBinance {
                 }
             }
 
-            new BackTestBinance().run();
+            new BackTestBinance().doRunRange();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
         }
     }
 
-    @Builder
-    static public class DailyRunParameter {
-        int year;
-        int month;
-        int day;
-    }
-
-    private void run(DailyRunParameter dailyRunParameter) {
-        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
-                .baseDirPath("marketdata/")
-                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
-                .symbols(Arrays.asList())
-                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
-                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
-                .build();
-
+    private void run(BigQueryImport.ImportParam importParam, String runsExportDir, String pnlsExportFileName,
+                     ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         String filename = BigQueryImport.getImportedFileName(importParam);
         if (!BigQueryImport.getIfFileExist(importParam)) {
             log.info(String.format("Ingesting a file %s before a run", filename));
@@ -78,6 +69,26 @@ public class BackTestBinance {
         log.info(String.format("Back testing from %s file", filename));
 
 
+        ParameterPnls.createNew(pnlsExportFileName);
+        log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
+        BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
+        barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
+        ParameterRun parameterRun = ParameterRun.builder()
+                .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
+                .closedTrades(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades)
+                .build();
+        parameterRuns.addParameterRun(parameterRun);
+        parameterRuns.appendRunToCsv(runsExportDir, parameterRun);
+
+        ParameterPnl parameterPnl = ParameterPnl.builder()
+                .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
+                .closedTradesPnl(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades.getClosedTradesPnl())
+                .build();
+        parameterPnls.addParameterPnl(parameterPnl);
+        parameterPnls.appendPnlToCsv(pnlsExportFileName, parameterPnl);
+    }
+
+    private List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
@@ -97,42 +108,93 @@ public class BackTestBinance {
                 maxJumpThresholdScanGridParam,
                 minDropThresholdScanGridParam,
                 changeAnalysisWindowScanGridParam,
-                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP);
+                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP);
+        return scanGrids;
+    }
+
+    @Builder
+    static public class DailyRunParameter {
+        int year;
+        int month;
+        int day;
+    }
+
+    private void runDaily(DailyRunParameter dailyRunParameter) {
+        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
+                .baseDirPath("marketdata/")
+                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .symbols(Arrays.asList())
+                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
+                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
+                .build();
+
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
 
         String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
         String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%d_%d_%d_.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-        ParameterRuns parameterRuns = new ParameterRuns();
-        ParameterPnls parameterPnls = new ParameterPnls();
+
         ParameterPnls.createNew(pnlsExportFileName);
         for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
-            log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
-            BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
-            barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
-            ParameterRun parameterRun = ParameterRun.builder()
-                    .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
-                    .closedTrades(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades)
-                    .build();
-            parameterRuns.addParameterRun(parameterRun);
-            parameterRuns.appendRunToCsv(runsExportDir, parameterRun);
-
-            ParameterPnl parameterPnl = ParameterPnl.builder()
-                    .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
-                    .closedTradesPnl(barWithTimestampAnomalyCSVProcessor.changesAnomalyTradingStream.closedTrades.getClosedTradesPnl())
-                    .build();
-            parameterPnls.addParameterPnl(parameterPnl);
-            parameterPnls.appendPnlToCsv(pnlsExportFileName, parameterPnl);
+            run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
         }
     }
 
-    private void run() {
-        for (int day = 21; day <= 21; day++) {
+    @Builder
+    static public class RangeRunParameter {
+        int yearBegin;
+        int monthBegin;
+        int dayBegin;
+        int yearEnd;
+        int monthEnd;
+        int dayEnd;
+
+        public String toFileNamePhrase() {
+            return String.format("from_%d_%d_%d_to_%d_%d_%d", yearBegin, monthBegin, dayBegin, yearEnd, monthEnd, dayEnd);
+        }
+    }
+
+    private void runRange(RangeRunParameter rangeRunParameter) {
+        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
+                .baseDirPath("marketdata/")
+                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                .symbols(Arrays.asList())
+                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(rangeRunParameter.yearBegin, rangeRunParameter.monthBegin, rangeRunParameter.dayBegin, 0, 0))
+                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(rangeRunParameter.yearEnd, rangeRunParameter.monthEnd, rangeRunParameter.dayEnd, 23, 59))
+                .build();
+
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
+
+        String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());
+        String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%s.csv", rangeRunParameter.toFileNamePhrase());
+
+        ParameterPnls.createNew(pnlsExportFileName);
+        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
+            run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
+        }
+    }
+
+    private void doRunRange() {
+        RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
+                .yearBegin(2022)
+                .monthBegin(1)
+                .dayBegin(20)
+                .yearEnd(2022)
+                .monthEnd(1)
+                .dayEnd(20)
+                .build();
+
+        runRange(rangeRunParameter);
+    }
+
+    private void runEachDay() {
+        for (int day = 22; day <= 31; day++) {
             DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
                     .year(2022)
                     .month(1)
                     .day(day)
                     .build();
 
-            run(dailyRunParameter);
+            runDaily(dailyRunParameter);
         }
     }
 }
