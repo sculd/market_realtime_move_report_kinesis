@@ -180,7 +180,7 @@ public class BackTestBinance {
                 .dayBegin(20)
                 .yearEnd(2022)
                 .monthEnd(1)
-                .dayEnd(20)
+                .dayEnd(28)
                 .build();
 
         runRange(rangeRunParameter);
