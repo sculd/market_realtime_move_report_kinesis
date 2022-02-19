@@ -1,7 +1,5 @@
 package com.tradingchangesanomalyreversal;
 
-import com.google.common.base.MoreObjects;
-import com.marketsignal.orderbook.Orderbook;
 import com.trading.performance.*;
 import com.tradingchangesanomaly.performance.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
@@ -55,6 +53,31 @@ public class BackTestBinance {
             new BackTestBinance().doRunRange();
         } catch (ParseException ex) {
             log.error(ex.getMessage());
+        }
+    }
+
+    private void doRunRange() {
+        RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
+                .yearBegin(2022)
+                .monthBegin(1)
+                .dayBegin(1)
+                .yearEnd(2022)
+                .monthEnd(1)
+                .dayEnd(31)
+                .build();
+
+        runRange(rangeRunParameter);
+    }
+
+    private void runEachDay() {
+        for (int day = 22; day <= 31; day++) {
+            DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
+                    .year(2022)
+                    .month(1)
+                    .day(day)
+                    .build();
+
+            runDaily(dailyRunParameter);
         }
     }
 
@@ -149,17 +172,20 @@ public class BackTestBinance {
         public String toFileNamePhrase() {
             return String.format("from_%d_%d_%d_to_%d_%d_%d", yearBegin, monthBegin, dayBegin, yearEnd, monthEnd, dayEnd);
         }
+
+        BigQueryImport.ImportParam getImportParam() {
+            return BigQueryImport.ImportParam.builder()
+                    .baseDirPath("marketdata/")
+                    .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
+                    .symbols(Arrays.asList())
+                    .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearBegin, monthBegin, dayBegin, 0, 0))
+                    .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearEnd, monthEnd, dayEnd, 0, -1))
+                    .build();
+        }
     }
 
     private void runRange(RangeRunParameter rangeRunParameter) {
-        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
-                .baseDirPath("marketdata/")
-                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
-                .symbols(Arrays.asList())
-                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(rangeRunParameter.yearBegin, rangeRunParameter.monthBegin, rangeRunParameter.dayBegin, 0, 0))
-                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(rangeRunParameter.yearEnd, rangeRunParameter.monthEnd, rangeRunParameter.dayEnd, 23, 59))
-                .build();
-
+        BigQueryImport.ImportParam importParam = rangeRunParameter.getImportParam();
         List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
 
         String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());
@@ -168,31 +194,6 @@ public class BackTestBinance {
         ParameterPnls.createNew(pnlsExportFileName);
         for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
             run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
-        }
-    }
-
-    private void doRunRange() {
-        RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
-                .yearBegin(2022)
-                .monthBegin(1)
-                .dayBegin(11)
-                .yearEnd(2022)
-                .monthEnd(1)
-                .dayEnd(20)
-                .build();
-
-        runRange(rangeRunParameter);
-    }
-
-    private void runEachDay() {
-        for (int day = 22; day <= 31; day++) {
-            DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
-                    .year(2022)
-                    .month(1)
-                    .day(day)
-                    .build();
-
-            runDaily(dailyRunParameter);
         }
     }
 }
