@@ -20,6 +20,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,8 +79,17 @@ public class BigQueryImport {
     public void importAsCSV(ImportParam importParam) {
         String filename = getImportedFileName(importParam);
         if (new File(filename).exists()) {
-            log.info(String.format("The import file %s is already present.", filename));
-            return;
+            try {
+                long fileSize = Files.size(Paths.get(filename));
+                if (fileSize == 0) {
+                    log.info(String.format("The import file %s is already present but size zero, thus preceeding", filename));
+                } else {
+                    log.info(String.format("The import file %s is already present and of non-zero size.", filename));
+                    return;
+                }
+            } catch (IOException ex) {
+                log.error(ex.getMessage());
+            }
         }
 
         QueryTemplates templates = new QueryTemplates();

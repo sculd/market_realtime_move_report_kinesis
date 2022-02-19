@@ -20,7 +20,7 @@ public class ParameterRuns {
 
     public void appendRunToCsv(String runExportDir, ParameterRun parameterRun) {
         createDirIfNotPresent(runExportDir);
-        Path filename =  Paths.get(runExportDir).resolve(String.format("%s.cvs", parameterRun.changesAnomalyTradingStreamInitParameter.toCsvLine()));
+        Path filename =  Paths.get(runExportDir).resolve(String.format("%s.csv", parameterRun.changesAnomalyTradingStreamInitParameter.toCsvLine()));
         parameterRun.exportToCsv(filename.toString());
     }
 }

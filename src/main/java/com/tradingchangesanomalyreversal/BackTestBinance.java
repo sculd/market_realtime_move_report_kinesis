@@ -68,8 +68,6 @@ public class BackTestBinance {
         }
         log.info(String.format("Back testing from %s file", filename));
 
-
-        ParameterPnls.createNew(pnlsExportFileName);
         log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
         BarWithTimestampAnomalyCSVProcessor barWithTimestampAnomalyCSVProcessor = new BarWithTimestampAnomalyCSVProcessor();
         barWithTimestampAnomalyCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
@@ -177,10 +175,10 @@ public class BackTestBinance {
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
                 .yearBegin(2022)
                 .monthBegin(1)
-                .dayBegin(20)
+                .dayBegin(11)
                 .yearEnd(2022)
                 .monthEnd(1)
-                .dayEnd(28)
+                .dayEnd(20)
                 .build();
 
         runRange(rangeRunParameter);

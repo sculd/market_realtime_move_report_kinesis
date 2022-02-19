@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class Time {
-    public static long fromNewYorkDateTimeInfoToEpochSeconds(int year, int month, int day, int hour, int minute) {
+    public static Date fromYearMonthDayHourMinuteToNewYorkDateTime(int year, int month, int day, int hour, int minute) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeZone(TimeZone.getTimeZone("America/New_York"));
         cal.set(Calendar.YEAR, year);
@@ -15,7 +15,11 @@ public class Time {
         cal.set(Calendar.MINUTE, minute);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date t = cal.getTime();
+        return cal.getTime();
+    }
+
+    public static long fromNewYorkDateTimeInfoToEpochSeconds(int year, int month, int day, int hour, int minute) {
+        Date t = fromYearMonthDayHourMinuteToNewYorkDateTime(year, month, day, hour, minute);
         return (long)(t.getTime() / 1000.);
     }
 }
