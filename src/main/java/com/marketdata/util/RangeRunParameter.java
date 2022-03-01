@@ -31,6 +31,9 @@ public class RangeRunParameter {
                 .build();
     }
 
+    /*
+    Split a range into multiple separated by the internal.
+     */
     public List<RangeRunParameter> split(Duration interval) {
         List<RangeRunParameter> res = new ArrayList<>();
         Instant t = Time.fromYearMonthDayHourMinuteToNewYorkDateTime(yearBegin, monthBegin, dayBegin, 0, 0).toInstant();
