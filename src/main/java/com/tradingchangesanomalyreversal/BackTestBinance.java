@@ -7,11 +7,10 @@ import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.tradingchangesanomalyreversal.recordprocessor.BarWithTimestampAnomalyCSVProcessor;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
-import com.marketdata.util.Time;
+import com.marketdata.util.RangeRunParameter;
 import com.marketsignal.App;
 import com.marketsignal.AppOption;
 import com.marketsignal.OptionParser;
-import lombok.Builder;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -23,7 +22,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -69,19 +67,46 @@ public class BackTestBinance {
         runRange(rangeRunParameter);
     }
 
-    private void runEachDay() {
-        for (int day = 22; day <= 31; day++) {
-            DailyRunParameter dailyRunParameter = DailyRunParameter.builder()
-                    .year(2022)
-                    .month(1)
-                    .day(day)
-                    .build();
+    private List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
+        ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
+        ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
+        ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
+                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+                seekChangeAmplitudeScanGridParam,
+                targetReturnFromEntryScanGridParam,
+                targetStopLossScanGridParam,
+                maxJumpThresholdScanGridParam,
+                minDropThresholdScanGridParam,
+                changeAnalysisWindowScanGridParam,
+                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP);
+        return scanGrids;
+    }
 
-            runDaily(dailyRunParameter);
+    private void runRange(RangeRunParameter rangeRunParameter) {
+        BigQueryImport.ImportParam importParam = rangeRunParameter.getImportParam(QueryTemplates.Table.BINANCE_BAR_WITH_TIME);
+        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
+
+        String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());
+        String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%s.csv", rangeRunParameter.toFileNamePhrase());
+
+        ParameterPnls.createNew(pnlsExportFileName);
+        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
+            run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
         }
     }
 
-    private void run(BigQueryImport.ImportParam importParam, String runsExportDir, String pnlsExportFileName,
+    private void run(BigQueryImport.ImportParam importParam,
+                     String runsExportDir,
+                     String pnlsExportFileName,
                      ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         String filename = BigQueryImport.getImportedFileName(importParam);
         if (!BigQueryImport.getIfFileExist(importParam)) {
@@ -107,93 +132,5 @@ public class BackTestBinance {
                 .build();
         parameterPnls.addParameterPnl(parameterPnl);
         parameterPnls.appendPnlToCsv(pnlsExportFileName, parameterPnl);
-    }
-
-    private List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
-        ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
-        ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
-        ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
-        ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
-        ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
-        ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
-        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
-                seekChangeAmplitudeScanGridParam,
-                targetReturnFromEntryScanGridParam,
-                targetStopLossScanGridParam,
-                maxJumpThresholdScanGridParam,
-                minDropThresholdScanGridParam,
-                changeAnalysisWindowScanGridParam,
-                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP);
-        return scanGrids;
-    }
-
-    @Builder
-    static public class DailyRunParameter {
-        int year;
-        int month;
-        int day;
-    }
-
-    private void runDaily(DailyRunParameter dailyRunParameter) {
-        BigQueryImport.ImportParam importParam = BigQueryImport.ImportParam.builder()
-                .baseDirPath("marketdata/")
-                .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
-                .symbols(Arrays.asList())
-                .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 0, 0))
-                .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day, 23, 59))
-                .build();
-
-        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
-
-        String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%d_%d_%d", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-        String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%d_%d_%d_.csv", dailyRunParameter.year, dailyRunParameter.month, dailyRunParameter.day);
-
-        ParameterPnls.createNew(pnlsExportFileName);
-        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
-            run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
-        }
-    }
-
-    @Builder
-    static public class RangeRunParameter {
-        int yearBegin;
-        int monthBegin;
-        int dayBegin;
-        int yearEnd;
-        int monthEnd;
-        int dayEnd;
-
-        public String toFileNamePhrase() {
-            return String.format("from_%d_%d_%d_to_%d_%d_%d", yearBegin, monthBegin, dayBegin, yearEnd, monthEnd, dayEnd);
-        }
-
-        BigQueryImport.ImportParam getImportParam() {
-            return BigQueryImport.ImportParam.builder()
-                    .baseDirPath("marketdata/")
-                    .table(QueryTemplates.Table.BINANCE_BAR_WITH_TIME)
-                    .symbols(Arrays.asList())
-                    .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearBegin, monthBegin, dayBegin, 0, 0))
-                    .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearEnd, monthEnd, dayEnd, 0, -1))
-                    .build();
-        }
-    }
-
-    private void runRange(RangeRunParameter rangeRunParameter) {
-        BigQueryImport.ImportParam importParam = rangeRunParameter.getImportParam();
-        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
-
-        String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());
-        String pnlsExportFileName = String.format("backtestdata/binance/pnls/reversal/backtest_%s.csv", rangeRunParameter.toFileNamePhrase());
-
-        ParameterPnls.createNew(pnlsExportFileName);
-        for (ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
-            run(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
-        }
     }
 }
