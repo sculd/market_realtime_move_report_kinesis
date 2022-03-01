@@ -58,11 +58,11 @@ public class BackTestBinance {
 
     private void doRunRange() {
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
-                .yearBegin(2022)
-                .monthBegin(1)
+                .yearBegin(2021)
+                .monthBegin(10)
                 .dayBegin(1)
-                .yearEnd(2022)
-                .monthEnd(1)
+                .yearEnd(2021)
+                .monthEnd(10)
                 .dayEnd(31)
                 .build();
 
