@@ -1,6 +1,5 @@
 package com.trading.performance;
 
-import com.marketdata.imports.BigQueryImport;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 
@@ -18,10 +17,23 @@ public class ParameterPnls {
         ParameterPnls.add(parameterPnl);
     }
 
+    static void createDirIfNotPresent(String runExportDir) {
+        File dir = new File(runExportDir);
+        dir.mkdirs();
+    }
+
     static public void createNew(String pnlExportFileName) {
         try {
+            File pnlExportFile = new File(pnlExportFileName);
+            createDirIfNotPresent(pnlExportFile.getParent());
+            if (pnlExportFile.createNewFile()) {
+                System.out.println("File created: " + pnlExportFile.getName());
+            } else {
+                System.out.println("File already exists.");
+            }
             FileWriter exportFileWriter = new FileWriter(pnlExportFileName);
-            exportFileWriter.write(String.format("%s\n", ParameterPnl.toCsvHeader()));
+            String headerLine = String.format("%s\n", ParameterPnl.toCsvHeader());
+            exportFileWriter.write(headerLine);
             exportFileWriter.close();
         } catch (IOException e) {
             System.out.println("An error occurred.");
@@ -68,6 +80,7 @@ public class ParameterPnls {
             e.printStackTrace();
         }
     }
+
     static public ParameterPnls fromCsvFile(String csvFileName) {
         ParameterPnls parameterPnls = new ParameterPnls();
         try (CSVReader reader = new CSVReader(new FileReader(csvFileName))) {
