@@ -37,7 +37,7 @@ public class RangeRunParameter {
     public List<RangeRunParameter> split(Duration interval) {
         List<RangeRunParameter> res = new ArrayList<>();
         Instant t = Time.fromYearMonthDayHourMinuteToNewYorkDateTime(yearBegin, monthBegin, dayBegin, 0, 0).toInstant();
-        Instant tEnd = Time.fromYearMonthDayHourMinuteToNewYorkDateTime(yearEnd, monthEnd, dayEnd, 0, -1).toInstant();
+        Instant tEnd = Time.fromYearMonthDayHourMinuteToNewYorkDateTime(yearEnd, monthEnd, dayEnd, 0, 0).toInstant();
         while (t.isBefore(tEnd)) {
             Instant tSplitEnd = t.plus(interval);
             if (tSplitEnd.isAfter(tEnd)) {

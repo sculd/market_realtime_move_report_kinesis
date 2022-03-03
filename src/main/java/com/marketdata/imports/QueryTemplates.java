@@ -32,7 +32,8 @@ public class QueryTemplates {
 
     public enum Table {
         POLYGON_BAR_WITH_TIME ("market_data.by_minute"),
-        BINANCE_BAR_WITH_TIME ("market_data_binance.by_minute");
+        BINANCE_BAR_WITH_TIME ("market_data_binance.by_minute"),
+        GEMINI_BAR_WITH_TIME ("market_data_gemini.by_minute");
 
         private final String dataSetTableId;
         Table(String dataSetTableId) {
