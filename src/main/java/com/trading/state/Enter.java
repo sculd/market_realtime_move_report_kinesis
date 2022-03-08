@@ -3,9 +3,12 @@ package com.trading.state;
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.trading.state.ExitPlan.ExitPlanInitParameter;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
-@Builder
+//@AllArgsConstructor
+@SuperBuilder
 public class Enter {
     public String market;
     public String symbol;
