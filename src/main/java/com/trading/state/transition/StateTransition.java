@@ -2,10 +2,7 @@ package com.trading.state.transition;
 
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.marketsignal.util.Time;
-import com.trading.state.Common;
-import com.trading.state.Enter;
-import com.trading.state.Exit;
-import com.trading.state.States;
+import com.trading.state.*;
 import com.trading.performance.ClosedTrade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +25,7 @@ public class StateTransition {
     }
 
     /*
-     * tba
+     * handle the ENTER_PLAN state
      */
     public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
@@ -57,7 +54,7 @@ public class StateTransition {
     }
 
     /*
-     * tba
+     * handle the ENTER state
      */
     public StateTransitionFollowUp handleEnterState(States state, Common.PriceSnapshot priceSnapshot, Analyses analyses) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
@@ -69,7 +66,8 @@ public class StateTransition {
         switch (executeResult.result) {
             case SUCCESS:
                 log.info(String.format("%s entering into a position succeeded: %s at %s, resulting position: %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, executeResult.position));
-                state.stateType = States.StateType.IN_POSITION;
+                state.stateType = States.StateType.ENTER_ORDER_IN_PROGRESS;
+                state.enterInProgress.init(executeResult.orderID, priceSnapshot);
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
@@ -81,6 +79,33 @@ public class StateTransition {
         state.position = executeResult.position;
         state.exitPlan = executeResult.exitPlan;
         state.stateType = States.StateType.IN_POSITION;
+        return ret;
+    }
+
+    /*
+     * handle the ENTER_ORDER_IN_PROGRESS state
+     */
+    public StateTransitionFollowUp handleEnterInProgressState(States state) {
+        StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
+        if (state.stateType != States.StateType.ENTER_ORDER_IN_PROGRESS) {
+            return ret;
+        }
+
+        OrderInProgress.OrderInProgressStatus enterInProgressStatus = state.enterInProgress.getProgressStatus();
+        switch (enterInProgressStatus) {
+            case ORDER_COMPLETE:
+                state.stateType = States.StateType.IN_POSITION;
+                ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
+                break;
+            case ORDER_IN_PROGRESS:
+                // wait and retry
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
+                break;
+            case TIMEOUT:
+                state.stateType = States.StateType.IDLE;
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
+                break;
+        }
         return ret;
     }
 
@@ -122,15 +147,42 @@ public class StateTransition {
 
         Exit.ExecuteResult executeResult = exitPosition(state.exit);
 
-        switch (executeResult) {
+        switch (executeResult.result) {
             case SUCCESS:
                 log.info(String.format("exiting from a position succeeded: %s at %s", state.toString(), priceSnapshot));
-                state.stateType = States.StateType.TRADE_CLOSED;
+                state.stateType = States.StateType.EXIT_ORDER_IN_PROGRESS;
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case FAIL:
                 log.info(String.format("exiting from a position failed: %s at %s", state.toString(), priceSnapshot));
                 state.stateType = States.StateType.EXIT;
+                break;
+        }
+        return ret;
+    }
+
+    /*
+     * handle the EXIT_ORDER_IN_PROGRESS state
+     */
+    public StateTransitionFollowUp handleExitInProgressState(States state) {
+        StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
+        if (state.stateType != States.StateType.EXIT_ORDER_IN_PROGRESS) {
+            return ret;
+        }
+
+        OrderInProgress.OrderInProgressStatus enterInProgressStatus = state.enterInProgress.getProgressStatus();
+        switch (enterInProgressStatus) {
+            case ORDER_COMPLETE:
+                state.stateType = States.StateType.TRADE_CLOSED;
+                ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
+                break;
+            case ORDER_IN_PROGRESS:
+                // wait and retry
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
+                break;
+            case TIMEOUT:
+                state.stateType = States.StateType.IDLE;
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
                 break;
         }
         return ret;

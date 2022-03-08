@@ -25,6 +25,7 @@ public class Enter {
 
         public Position position;
         public ExitPlan exitPlan;
+        public String orderID;
         public Result result;
     }
 

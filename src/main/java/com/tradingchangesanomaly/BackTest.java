@@ -27,9 +27,9 @@ public class BackTest {
         ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.05).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.10).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(10).build();
+                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(20).build();
         List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,

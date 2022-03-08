@@ -124,12 +124,18 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
                             analyses);
                     break;
+                case ENTER_ORDER_IN_PROGRESS:
+                    stateTransitionFollowUp = handleEnterInProgressState(state);
+                    break;
                 case IN_POSITION:
                     state.exitPlan.stopLossPlan.onPriceUpdate(changeAnalysis.priceAtAnalysis);
                     stateTransitionFollowUp = handlePositionState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
                     break;
                 case EXIT:
                     stateTransitionFollowUp = handleExitState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
+                    break;
+                case EXIT_ORDER_IN_PROGRESS:
+                    stateTransitionFollowUp = handleExitInProgressState(state);
                     break;
                 case TRADE_CLOSED:
                     stateTransitionFollowUp = handleTradeClosed(state);
