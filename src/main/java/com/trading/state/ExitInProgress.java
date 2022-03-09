@@ -1,12 +1,12 @@
 package com.trading.state;
 
 import com.google.common.base.MoreObjects;
-import com.marketsignal.timeseries.analysis.Analyses;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Arrays;
 
-@Builder
+@SuperBuilder
 public class ExitInProgress {
     public String market;
     public String symbol;
@@ -68,6 +68,7 @@ public class ExitInProgress {
         public enum Status {
             ORDER_IN_PROGRESS,
             TIMEOUT,
+            ORDER_FAILED,
             ORDER_COMPLETE;
         }
 

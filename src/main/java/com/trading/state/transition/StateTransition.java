@@ -96,6 +96,10 @@ public class StateTransition {
                 state.exitPlan = enterInProgressStatus.exitPlan;
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
+            case ORDER_FAILED:
+                // wait and retry
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
+                break;
             case ORDER_IN_PROGRESS:
                 // wait and retry
                 ret = StateTransitionFollowUp.HALT_TRANSITION;
@@ -175,6 +179,10 @@ public class StateTransition {
                 ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
                 break;
             case ORDER_IN_PROGRESS:
+                // wait and retry
+                ret = StateTransitionFollowUp.HALT_TRANSITION;
+                break;
+            case ORDER_FAILED:
                 // wait and retry
                 ret = StateTransitionFollowUp.HALT_TRANSITION;
                 break;

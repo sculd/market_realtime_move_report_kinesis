@@ -1,6 +1,5 @@
 package com.trading.binancestate;
 
-import com.binance.connector.client.impl.SpotClientImpl;
 import com.google.gson.Gson;
 import com.marketapi.binance.response.NewOrder;
 import com.trading.state.Exit;
@@ -36,7 +35,7 @@ public class BinanceExit extends Exit {
         }
         parameters.put("type", "MARKET");
         parameters.put("timeInForce", "GTC");
-        parameters.put("quantity", 0);
+        parameters.put("quantity", position.quantity);
         String result = BinanceUtil.client.createTrade().newOrder(parameters);
         NewOrder newOrder = gson.fromJson(result, NewOrder.class);
 

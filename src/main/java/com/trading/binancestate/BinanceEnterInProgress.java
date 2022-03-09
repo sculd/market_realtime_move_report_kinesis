@@ -41,9 +41,23 @@ public class BinanceEnterInProgress extends EnterInProgress {
                 .position(position)
                 .build();
         exitPlan.init(position);
+
+        EnterInProgress.EnterInProgressStatus.Status status = EnterInProgress.EnterInProgressStatus.Status.ORDER_IN_PROGRESS;
+        String statusLower = queryOrder.status.toLowerCase();
+        switch (statusLower) {
+            case "new":
+                break;
+            case "success":
+                status = EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE;
+                break;
+            case "fail":
+                status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
+                break;
+        }
+
         return EnterInProgress.EnterInProgressStatus.builder()
                 .exitPlan(exitPlan)
                 .position(position)
-                .status(EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE).build();
+                .status(status).build();
     }
 }

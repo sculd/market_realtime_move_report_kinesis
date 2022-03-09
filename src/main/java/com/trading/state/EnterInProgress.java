@@ -71,6 +71,7 @@ public class EnterInProgress {
         public enum Status {
             ORDER_IN_PROGRESS,
             TIMEOUT,
+            ORDER_FAILED,
             ORDER_COMPLETE;
         }
 
