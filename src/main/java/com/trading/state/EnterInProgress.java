@@ -3,9 +3,11 @@ package com.trading.state;
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.analysis.Analyses;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import java.util.Arrays;
 
-@Builder
+//@Builder
+@SuperBuilder
 public class EnterInProgress {
     public String market;
     public String symbol;
@@ -20,7 +22,7 @@ public class EnterInProgress {
     @Builder.Default
     public TimeoutPlan timeoutPlan = new TimeoutPlan();
 
-    ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
+    public ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
 
     @Builder
     public static class EnterInProgressInitParameter {
