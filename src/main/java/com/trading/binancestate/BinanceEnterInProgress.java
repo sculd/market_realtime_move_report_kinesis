@@ -31,7 +31,7 @@ public class BinanceEnterInProgress extends EnterInProgress {
                         .price(Double.parseDouble(queryOrder.price))
                         .epochSeconds(entryPriceSnapshot.epochSeconds)
                         .build())
-                .volume(Double.parseDouble(queryOrder.executedQty))
+                .quantity(Double.parseDouble(queryOrder.executedQty))
                 .analysesUponEnter(analysesUponEnter)
                 .build();
         ExitPlan exitPlan = ExitPlan.builder()

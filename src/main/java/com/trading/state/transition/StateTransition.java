@@ -200,7 +200,7 @@ public class StateTransition {
                         .price(state.position.entryPriceSnapshot.price)
                         .epochSeconds(state.position.entryPriceSnapshot.epochSeconds)
                         .build())
-                .volume(state.position.volume)
+                .volume(state.position.getBaseVolume())
                 .exitTargetPrice(state.exit.targetPrice)
                 .exitPriceSnapshot(Common.PriceSnapshot.builder()
                         .price(state.exit.exitPriceSnapshot.price)

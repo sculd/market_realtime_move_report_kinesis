@@ -88,7 +88,7 @@ public class EnterInProgress {
                         .price(targetPrice)
                         .epochSeconds(entryPriceSnapshot.epochSeconds)
                         .build())
-                .volume(targetVolume)
+                .quantity(targetVolume / entryPriceSnapshot.price)
                 .analysesUponEnter(analysesUponEnter)
                 .build();
         ExitPlan exitPlan = ExitPlan.builder()

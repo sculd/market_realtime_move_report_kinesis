@@ -12,7 +12,7 @@ public class Position {
 
     public Common.PositionSideType positionSideType;
     public Common.PriceSnapshot entryPriceSnapshot;
-    public double volume;
+    public double quantity;
     @Builder.Default
     public Analyses analysesUponEnter = new Analyses();
 
@@ -26,8 +26,12 @@ public class Position {
         return 0.0;
     }
 
+    public double getBaseVolume() {
+        return entryPriceSnapshot.price * quantity;
+    }
+
     public double getGainLossFiat(Common.PriceSnapshot currentPriceSnapshot) {
-        return getPnL(currentPriceSnapshot) * volume;
+        return getPnL(currentPriceSnapshot) * getBaseVolume();
     }
 
     @Override
@@ -37,7 +41,7 @@ public class Position {
                 .add("symbol", symbol)
                 .add("positionSideType", positionSideType)
                 .add("entryPriceSnapshot", entryPriceSnapshot)
-                .add("volume", volume)
+                .add("quantity", quantity)
                 .toString();
     }
 }
