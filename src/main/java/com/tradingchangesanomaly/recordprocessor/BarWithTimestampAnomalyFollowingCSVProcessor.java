@@ -1,15 +1,14 @@
-package com.tradingchangesanomalyfollowing.recordprocessor;
+package com.tradingchangesanomaly.recordprocessor;
 
 import com.marketsignal.timeseries.BarWithTime;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
-import com.tradingchangesanomalyfollowing.stream.ChangesAnomalyFollowingTradingStream;
-import com.tradingchangesanomaly.recordprocessor.BarWithTimestampCSVProcessor;
+import com.tradingchangesanomaly.stream.ChangesAnomalyFollowingTradingStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BarWithTimestampAnomalyCSVProcessor extends BarWithTimestampCSVProcessor {
-    private static final Logger log = LoggerFactory.getLogger(BarWithTimestampAnomalyCSVProcessor.class);
+public class BarWithTimestampAnomalyFollowingCSVProcessor extends BarWithTimestampCSVProcessor {
+    private static final Logger log = LoggerFactory.getLogger(BarWithTimestampAnomalyFollowingCSVProcessor.class);
 
     public ChangesAnomalyFollowingTradingStream changesAnomalyTradingStream = new ChangesAnomalyFollowingTradingStream(barWithTimeStream);
 

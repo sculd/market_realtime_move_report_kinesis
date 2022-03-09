@@ -1,26 +1,27 @@
-package com.tradingchangesanomalyfollowing.stream;
+package com.tradingchangesanomaly.stream;
 
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
-import com.tradingchangesanomalyfollowing.state.transition.ChangesAnomalyFollowingStateTransition;
 import com.google.common.util.concurrent.Monitor;
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.trading.performance.ClosedTrade;
 import com.trading.performance.ClosedTrades;
-import com.trading.state.States;
+
+import com.trading.state.*;
+
+import com.tradingchangesanomaly.state.transition.ChangesAnomalyReversalStateTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ChangesAnomalyFollowingTradingStream {
-    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyFollowingTradingStream.class);
+public class ChangesAnomalyReversalTradingStream {
+    private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalTradingStream.class);
 
     BarWithTimeStream barWithTimeStream;
     public Map<String, States> keyedStates = new HashMap<>();
-    public Map<String, ChangesAnomalyFollowingStateTransition> keyedStateTransition = new HashMap<>();
+    public Map<String, ChangesAnomalyReversalStateTransition> keyedStateTransition = new HashMap<>();
     public ClosedTrades closedTrades = new ClosedTrades();
     Monitor mutex = new Monitor();
 
@@ -30,7 +31,7 @@ public class ChangesAnomalyFollowingTradingStream {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 
-    public ChangesAnomalyFollowingTradingStream(BarWithTimeStream barWithTimeStream) {
+    public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream) {
         this.barWithTimeStream = barWithTimeStream;
     }
 
@@ -42,11 +43,11 @@ public class ChangesAnomalyFollowingTradingStream {
         return keyedStates.get(key);
     }
 
-    ChangesAnomalyFollowingStateTransition getStateTransition(BarWithTime bwt) {
+    ChangesAnomalyReversalStateTransition getStateTransition(BarWithTime bwt) {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyFollowingStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }
@@ -60,10 +61,10 @@ public class ChangesAnomalyFollowingTradingStream {
         mutex.enter();
         try {
             States state = getState(bwt);
-            ChangesAnomalyFollowingStateTransition stateTransition = getStateTransition(bwt);
+            ChangesAnomalyReversalStateTransition stateTransition = getStateTransition(bwt);
 
             BarWithTimeSlidingWindow barWithTimeSlidingWindow = barWithTimeStream.keyedBarWithTimeSlidingWindows.get(BarWithTimeStream.bwtToKeyString(bwt));
-            ChangesAnomalyFollowingStateTransition.HandleStateResult result = stateTransition.handleState(state, barWithTimeSlidingWindow);
+            ChangesAnomalyReversalStateTransition.HandleStateResult result = stateTransition.handleState(state, barWithTimeSlidingWindow);
             if (result.closedTrade != null) {
                 onClosedTrade(result.closedTrade);
             }

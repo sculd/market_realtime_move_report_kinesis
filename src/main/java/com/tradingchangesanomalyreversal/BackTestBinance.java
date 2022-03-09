@@ -1,7 +1,7 @@
 package com.tradingchangesanomalyreversal;
 
 import com.trading.performance.*;
-import com.tradingchangesanomaly.BackTest;
+import com.tradingchangesanomaly.BackTestBase;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.List;
 
-public class BackTestBinance extends BackTest {
+public class BackTestBinance extends BackTestBase {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
 
     public static void main(String... args) {

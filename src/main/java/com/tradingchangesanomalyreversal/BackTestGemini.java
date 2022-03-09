@@ -4,14 +4,14 @@ import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.RangeRunParameter;
 import com.trading.performance.ParameterPnls;
-import com.tradingchangesanomaly.BackTest;
+import com.tradingchangesanomaly.BackTestBase;
 import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class BackTestGemini extends BackTest {
+public class BackTestGemini extends BackTestBase {
     private static final Logger log = LoggerFactory.getLogger(BackTestGemini.class);
 
     public static void main(String... args) {
