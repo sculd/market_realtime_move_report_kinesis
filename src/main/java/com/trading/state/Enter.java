@@ -13,8 +13,8 @@ public class Enter {
     public Common.PositionSideType positionSideType;
     public double targetPrice;
     public double targetVolume;
-
-    ExitPlanInitParameter exitPlanInitParameter;
+    public Common.PriceSnapshot entryPriceSnapshot;
+    public Analyses analysesUponEnter;
 
     @Builder
     public static class ExecuteResult {
@@ -23,34 +23,16 @@ public class Enter {
             FAIL;
         }
 
-        public Position position;
-        public ExitPlan exitPlan;
         public String orderID;
         public Result result;
     }
 
-    public ExecuteResult execute(Common.PriceSnapshot priceSnapshot, Analyses analyses) {
-        Position position = Position.builder()
-                .market(market)
-                .symbol(symbol)
-                .positionSideType(positionSideType)
-                .entryPriceSnapshot(Common.PriceSnapshot.builder()
-                        .price(targetPrice)
-                        .epochSeconds(priceSnapshot.epochSeconds)
-                        .build())
-                .volume(targetVolume)
-                .analysesUponEnter(analyses)
-                .build();
-        ExitPlan exitPlan = ExitPlan.builder()
-                .market(market)
-                .symbol(symbol)
-                .exitPlanInitParameter(exitPlanInitParameter)
-                .position(position)
-                .build();
-        exitPlan.init(position);
-        return ExecuteResult.builder().result(ExecuteResult.Result.SUCCESS)
-                .position(position)
-                .exitPlan(exitPlan)
+    public ExecuteResult execute(Common.PriceSnapshot entryPriceSnapshot, Analyses analysesUponEnter) {
+        this.entryPriceSnapshot = entryPriceSnapshot;
+        this.analysesUponEnter = analysesUponEnter;
+        return ExecuteResult.builder()
+                .orderID("dummy-id")
+                .result(ExecuteResult.Result.SUCCESS)
                 .build();
     }
 }

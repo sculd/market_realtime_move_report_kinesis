@@ -24,19 +24,19 @@ public class States {
 
     public EnterPlan enterPlan;
     public Enter enter;
-    public OrderInProgress enterInProgress;
+    public EnterInProgress enterInProgress;
     public Position position;
     public ExitPlan exitPlan;
     public Exit exit;
-    public OrderInProgress exitInProgress;
+    public ExitInProgress exitInProgress;
     public ClosedTrade closedTrade;
 
     @Builder
     public static class StatesInitParameter {
         public EnterPlan.EnterPlanInitParameter enterPlanInitParameter;
-        public OrderInProgress.OrderInProgressInitParameter enterInProgressInitParameter;
+        public EnterInProgress.EnterInProgressInitParameter enterInProgressInitParameter;
         public ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
-        public OrderInProgress.OrderInProgressInitParameter exitInProgressInitParameter;
+        public ExitInProgress.ExitInProgressInitParameter exitInProgressInitParameter;
 
         @Override
         public String toString() {
@@ -51,9 +51,9 @@ public class States {
         static public String toCsvHeader() {
             return String.format("%s,%s",
                     EnterPlan.EnterPlanInitParameter.toCsvHeader(),
-                    OrderInProgress.OrderInProgressInitParameter.toCsvHeader(),
+                    EnterInProgress.EnterInProgressInitParameter.toCsvHeader(),
                     ExitPlan.ExitPlanInitParameter.toCsvHeader(),
-                    OrderInProgress.OrderInProgressInitParameter.toCsvHeader());
+                    ExitInProgress.ExitInProgressInitParameter.toCsvHeader());
         }
 
         public String toCsvLine() {
@@ -67,9 +67,9 @@ public class States {
         static public StatesInitParameter fromCsvLine(String csvLine) {
             String[] columns = csvLine.split(",");
             int l1 = EnterPlan.EnterPlanInitParameter.toCsvHeader().split(",").length;
-            int l2 = l1 + OrderInProgress.OrderInProgressInitParameter.toCsvHeader().split(",").length;
+            int l2 = l1 + EnterInProgress.EnterInProgressInitParameter.toCsvHeader().split(",").length;
             int l3 = l2 + ExitPlan.ExitPlanInitParameter.toCsvHeader().split(",").length;
-            int l4 = l3 + OrderInProgress.OrderInProgressInitParameter.toCsvHeader().split(",").length;
+            int l4 = l3 + ExitInProgress.ExitInProgressInitParameter.toCsvHeader().split(",").length;
             String[] enterPlanInitParameterColumns = Arrays.copyOfRange(columns, 0, l1);
             String[] enterInProgressInitParameterColumns = Arrays.copyOfRange(columns, l1, l2);
             String[] exitPlanInitParameterColumns = Arrays.copyOfRange(columns, l2, l3);
@@ -77,9 +77,9 @@ public class States {
 
             return StatesInitParameter.builder()
                     .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.fromCsvLine(String.join(",", enterPlanInitParameterColumns)))
-                    .enterInProgressInitParameter(OrderInProgress.OrderInProgressInitParameter.fromCsvLine(String.join(",", enterInProgressInitParameterColumns)))
+                    .enterInProgressInitParameter(EnterInProgress.EnterInProgressInitParameter.fromCsvLine(String.join(",", enterInProgressInitParameterColumns)))
                     .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.fromCsvLine(String.join(",", exitPlanInitParameterColumns)))
-                    .enterInProgressInitParameter(OrderInProgress.OrderInProgressInitParameter.fromCsvLine(String.join(",", exitInProgressInitParameterColumns)))
+                    .exitInProgressInitParameter(ExitInProgress.ExitInProgressInitParameter.fromCsvLine(String.join(",", exitInProgressInitParameterColumns)))
                     .build();
         }
 
@@ -94,11 +94,16 @@ public class States {
         stateType = StateType.IDLE;
 
         enterPlan = EnterPlan.builder().enterPlanInitParameter(statesInitParameter.enterPlanInitParameter).build();
-        enter = Enter.builder().market(market).symbol(symbol).exitPlanInitParameter(statesInitParameter.exitPlanInitParameter).build();
-        enterInProgress = OrderInProgress.builder().orderInProgressPlanInitParameter(statesInitParameter.enterInProgressInitParameter).build();
+        enter = Enter.builder().market(market).symbol(symbol).build();
+        enterInProgress = EnterInProgress.builder()
+                .market(market).symbol(symbol)
+                .exitPlanInitParameter(statesInitParameter.exitPlanInitParameter)
+                .orderInProgressPlanInitParameter(statesInitParameter.enterInProgressInitParameter).build();
         // position, exitPlan are returned from enter.execute
         exit = new Exit();
-        exitInProgress = OrderInProgress.builder().orderInProgressPlanInitParameter(statesInitParameter.exitInProgressInitParameter).build();
+        exitInProgress = ExitInProgress.builder()
+                .market(market).symbol(symbol)
+                .orderInProgressPlanInitParameter(statesInitParameter.exitInProgressInitParameter).build();
     }
 
     @Override

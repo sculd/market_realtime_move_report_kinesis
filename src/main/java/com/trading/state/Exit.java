@@ -1,19 +1,13 @@
 package com.trading.state;
 
+import com.marketsignal.timeseries.analysis.Analyses;
 import lombok.Builder;
 
 public class Exit {
     public Position position;
     public double targetPrice;
     public Common.PriceSnapshot exitPriceSnapshot = Common.PriceSnapshot.builder().build();
-
-    /*
-    public enum ExecuteResult {
-        SUCCESS,
-        FAIL;
-    }
-
-     */
+    public Analyses analysesUponExit;
 
     @Builder
     public static class ExecuteResult {
@@ -31,10 +25,12 @@ public class Exit {
         this.targetPrice = targetPrice;
     }
 
-    public ExecuteResult execute() {
-        exitPriceSnapshot.price = targetPrice;
-        exitPriceSnapshot.epochSeconds = position.entryPriceSnapshot.epochSeconds;
-        return ExecuteResult.builder().result(ExecuteResult.Result.SUCCESS)
+    public ExecuteResult execute(Common.PriceSnapshot priceSnapshot, Analyses analyses) {
+        exitPriceSnapshot = priceSnapshot;
+        analysesUponExit = analyses;
+        return ExecuteResult.builder()
+                .orderID("dummy-id")
+                .result(ExecuteResult.Result.SUCCESS)
                 .build();
     }
 }

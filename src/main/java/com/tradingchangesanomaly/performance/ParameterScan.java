@@ -34,7 +34,7 @@ public class ParameterScan {
                                                                 .targetFiatVolume(1000)
                                                                 .seekChangeAmplitude(seekChangeAmplitude)
                                                                 .build())
-                                                        .enterInProgressInitParameter(OrderInProgress.OrderInProgressInitParameter.builder()
+                                                        .enterInProgressInitParameter(EnterInProgress.EnterInProgressInitParameter.builder()
                                                                 .timeoutPlanInitParameter(
                                                                         TimeoutPlan.TimeoutPlanInitParameter.builder()
                                                                                 .expirationDuration(Duration.ofSeconds(10))
@@ -53,7 +53,7 @@ public class ParameterScan {
                                                                         .expirationDuration(Duration.ofMinutes(60))
                                                                         .build())
                                                                 .build())
-                                                        .exitInProgressInitParameter(OrderInProgress.OrderInProgressInitParameter.builder()
+                                                        .exitInProgressInitParameter(ExitInProgress.ExitInProgressInitParameter.builder()
                                                                 .timeoutPlanInitParameter(
                                                                         TimeoutPlan.TimeoutPlanInitParameter.builder()
                                                                                 .expirationDuration(Duration.ofSeconds(10))
