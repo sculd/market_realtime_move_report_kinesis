@@ -1,6 +1,6 @@
 package com.tradingbinancechangesanomalyreversal.recordprocessor;
 
-import com.tradingbinancechangesanomalyreversal.stream.ChangesAnomalyStream;
+import com.tradingbinancechangesanomalyreversal.stream.ChangesAnomalyReversalTradingBinanceStream;
 
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
@@ -38,7 +38,7 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
     private long messageCount = 0;
 
     BarWithTimeStream barWithTimeStream = new BarWithTimeStream(Duration.ofHours(6), BarWithTimeSlidingWindow.TimeSeriesResolution.MINUTE);
-    ChangesAnomalyStream changesAnomalyStream = new ChangesAnomalyStream(barWithTimeStream);
+    ChangesAnomalyReversalTradingBinanceStream changesAnomalyReversalTradingBinanceStream = new ChangesAnomalyReversalTradingBinanceStream(barWithTimeStream);
 
     /**
      * Invoked by the KCL before data records are delivered to the ShardRecordProcessor instance (via
@@ -92,7 +92,7 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
             log.info("On 100ths message, processing bwt: {}", bwt.toString());
         }
         barWithTimeStream.onBarWithTime(bwt);
-        changesAnomalyStream.onBarWithTime(bwt);
+        changesAnomalyReversalTradingBinanceStream.onBarWithTime(bwt);
     }
 
     private void checkpoint(RecordProcessorCheckpointer checkpointer) {

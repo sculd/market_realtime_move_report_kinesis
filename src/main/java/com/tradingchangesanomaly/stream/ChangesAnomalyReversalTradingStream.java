@@ -9,7 +9,6 @@ import com.trading.performance.ClosedTrades;
 
 import com.trading.state.*;
 
-import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyReversalStateTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +33,10 @@ public class ChangesAnomalyReversalTradingStream {
 
     public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream) {
         this.barWithTimeStream = barWithTimeStream;
+    }
+
+    protected States createNewStates(String market, String symbol, States.StatesInitParameter statesInitParameter) {
+        return new States(market, symbol, statesInitParameter);
     }
 
     States getState(BarWithTime bwt) {

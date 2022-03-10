@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 public class Exit {
     public Position position;
     public double targetPrice;
+    @Builder.Default
     public Common.PriceSnapshot exitPriceSnapshot = Common.PriceSnapshot.builder().build();
     public Analyses analysesUponExit;
 
