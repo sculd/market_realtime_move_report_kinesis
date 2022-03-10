@@ -9,6 +9,7 @@ import com.trading.performance.ClosedTrades;
 
 import com.trading.state.*;
 
+import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyReversalStateTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,9 @@ public class ChangesAnomalyReversalTradingStream {
     public ClosedTrades closedTrades = new ClosedTrades();
     Monitor mutex = new Monitor();
 
-    public ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
 
-    public void init(ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+    public void init(ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 

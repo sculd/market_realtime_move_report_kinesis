@@ -8,7 +8,7 @@ import lombok.Builder;
 import java.util.Arrays;
 
 @Builder
-public class ChangesAnomalyTradingStreamCommon {
+public class ChangesAnomalyTradingStreamUtil {
     @Builder
     public static class ChangesAnomalyTradingStreamInitParameter {
         public States.StatesInitParameter statesInitParameter;

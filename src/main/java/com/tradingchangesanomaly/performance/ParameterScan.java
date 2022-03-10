@@ -3,14 +3,14 @@ package com.tradingchangesanomaly.performance;
 import com.trading.performance.ParameterScanCommon;
 import com.trading.state.*;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterScan {
-    static public List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
+    static public List<ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter> generateScanGrids(
             ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam,
             ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam,
@@ -19,7 +19,7 @@ public class ParameterScan {
             ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam,
             ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType triggerAnomalyType
     ) {
-        List<ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter> grid = new ArrayList<>();
+        List<ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter> grid = new ArrayList<>();
 
         for (Double seekChangeAmplitude : seekChangeAmplitudeScanGridParam.getValues()) {
             for (Double targetReturnFromEntry : targetReturnFromEntryScanGridParam.getValues()) {
@@ -27,8 +27,8 @@ public class ParameterScan {
                     for (Double maxJumpThreshold : maxJumpThresholdScanGridParam.getValues()) {
                         for (Double minDropThreshold : minDropThresholdScanGridParam.getValues()) {
                             for (Integer changeAnalysisWindow : changeAnalysisWindowScanGridParam.getValues()) {
-                                ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter =
-                                        ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter.builder()
+                                ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter =
+                                        ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter.builder()
                                                 .statesInitParameter(States.StatesInitParameter.builder()
                                                         .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
                                                                 .targetFiatVolume(1000)

@@ -1,7 +1,7 @@
 package com.tradingchangesanomaly.recordprocessor;
 
 import com.marketsignal.timeseries.BarWithTime;
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamCommon;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
 import com.tradingchangesanomaly.stream.ChangesAnomalyReversalTradingStream;
 
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ public class BarWithTimestampAnomalyReversalCSVProcessor extends BarWithTimestam
 
     public ChangesAnomalyReversalTradingStream changesAnomalyTradingStream = new ChangesAnomalyReversalTradingStream(barWithTimeStream);
 
-    public void run(String csvFileName, ChangesAnomalyTradingStreamCommon.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+    public void run(String csvFileName, ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         changesAnomalyTradingStream.init(changesAnomalyTradingStreamInitParameter);
         super.run(csvFileName);
     }
