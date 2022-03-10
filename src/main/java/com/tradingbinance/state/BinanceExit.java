@@ -1,14 +1,16 @@
-package com.trading.binancestate;
+package com.tradingbinance.state;
 
 import com.google.gson.Gson;
 import com.marketapi.binance.response.NewOrder;
 import com.trading.state.Exit;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 
+@SuperBuilder
 public class BinanceExit extends Exit {
     private static final Logger logger = LoggerFactory.getLogger(BinanceExit.class);
 

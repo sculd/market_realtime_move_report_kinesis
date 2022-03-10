@@ -2,7 +2,9 @@ package com.trading.state;
 
 import com.marketsignal.timeseries.analysis.Analyses;
 import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 public class Exit {
     public Position position;
     public double targetPrice;

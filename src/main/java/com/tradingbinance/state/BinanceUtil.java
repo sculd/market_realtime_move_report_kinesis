@@ -1,4 +1,4 @@
-package com.trading.binancestate;
+package com.tradingbinance.state;
 
 import com.binance.connector.client.impl.SpotClientImpl;
 

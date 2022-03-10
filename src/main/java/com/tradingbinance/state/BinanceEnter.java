@@ -1,4 +1,4 @@
-package com.trading.binancestate;
+package com.tradingbinance.state;
 
 import com.google.gson.Gson;
 import com.marketsignal.timeseries.analysis.Analyses;

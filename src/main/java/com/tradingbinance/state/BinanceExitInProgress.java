@@ -1,4 +1,4 @@
-package com.trading.binancestate;
+package com.tradingbinance.state;
 
 import com.google.gson.Gson;
 import com.marketapi.binance.response.QueryOrder;

@@ -100,7 +100,7 @@ public class States {
                 .exitPlanInitParameter(statesInitParameter.exitPlanInitParameter)
                 .orderInProgressPlanInitParameter(statesInitParameter.enterInProgressInitParameter).build();
         // position, exitPlan are returned from enter.execute
-        exit = new Exit();
+        exit = Exit.builder().build();
         exitInProgress = ExitInProgress.builder()
                 .market(market).symbol(symbol)
                 .orderInProgressPlanInitParameter(statesInitParameter.exitInProgressInitParameter).build();
