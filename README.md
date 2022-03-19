@@ -33,3 +33,24 @@ docker tag market-realtime-move-report-kinesis:latest ${ECR_REPOSITORY_URI}:late
 ```
 docker push ${ECR_REPOSITORY_URI}:latest
 ```
+
+## build script
+```
+./devops/build.sh
+```
+
+## update secrete
+```
+python devops/manage_kube_secrets.py
+```
+
+## deploy
+### deploy sudden move (bwt) market signal pusher
+```
+python devops/task_bwt.py
+```
+
+### deploy orderbook market signal pusher
+```
+python devops/task_orderbook.py
+```
