@@ -5,7 +5,7 @@ import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.RangeRunParameter;
 import com.trading.performance.ParameterPnls;
 import com.tradingchangesanomaly.BackTestBase;
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamInitParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,13 +33,13 @@ public class BackTestGemini extends BackTestBase {
 
     private void runRange(RangeRunParameter rangeRunParameter) {
         BigQueryImport.ImportParam importParam = rangeRunParameter.getImportParam(QueryTemplates.Table.GEMINI_BAR_WITH_TIME);
-        List<ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
+        List<ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
 
         String runsExportDir = String.format("backtestdata/gemini/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());
         String pnlsExportFileName = String.format("backtestdata/gemini/pnls/reversal/backtest_%s.csv", rangeRunParameter.toFileNamePhrase());
         ParameterPnls.createNew(pnlsExportFileName);
 
-        for (ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
+        for (ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter : scanGrids) {
             runForParam(importParam, runsExportDir, pnlsExportFileName, changesAnomalyTradingStreamInitParameter);
         }
     }

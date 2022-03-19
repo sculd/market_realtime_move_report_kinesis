@@ -23,9 +23,9 @@ public class ChangesAnomalyFollowingTradingStream {
     public ClosedTrades closedTrades = new ClosedTrades();
     Monitor mutex = new Monitor();
 
-    public ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
 
-    public void init(ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+    public void init(ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 

@@ -1,6 +1,6 @@
 package com.trading.performance;
 
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamInitParameter;
 import lombok.Builder;
 
 import java.util.Arrays;
@@ -8,12 +8,12 @@ import java.util.Arrays;
 
 @Builder
 public class ParameterPnl {
-    public ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
     public ClosedTradesPnl closedTradesPnl;
 
     static public String toCsvHeader() {
         return String.format("%s,%s",
-                ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
+                ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
                 ClosedTradesPnl.toCsvHeader());
     }
 
@@ -25,13 +25,13 @@ public class ParameterPnl {
 
     static public ParameterPnl fromCsvLine(String csvLine) {
         String[] columns = csvLine.split(",");
-        int l1 = ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter.toCsvHeader().split(",").length;
+        int l1 = ChangesAnomalyTradingStreamInitParameter.toCsvHeader().split(",").length;
         int l2 = l1 + ClosedTradesPnl.toCsvHeader().split(",").length;
         String[] changesAnomalyTradingStreamInitParameterColumns = Arrays.copyOfRange(columns, 0, l1);
         String[] closedTradesPnlParameter = Arrays.copyOfRange(columns, l1, l2);
 
         return ParameterPnl.builder()
-                .changesAnomalyTradingStreamInitParameter(ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter.fromCsvLine(String.join(",", changesAnomalyTradingStreamInitParameterColumns)))
+                .changesAnomalyTradingStreamInitParameter(ChangesAnomalyTradingStreamInitParameter.fromCsvLine(String.join(",", changesAnomalyTradingStreamInitParameterColumns)))
                 .closedTradesPnl(ClosedTradesPnl.fromCsvLine(String.join(",", closedTradesPnlParameter)))
                 .build();
     }

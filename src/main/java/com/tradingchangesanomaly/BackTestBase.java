@@ -4,7 +4,7 @@ import com.marketdata.imports.BigQueryImport;
 import com.trading.performance.*;
 import com.tradingchangesanomaly.performance.ParameterScan;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamInitParameter;
 import com.tradingchangesanomaly.recordprocessor.BarWithTimestampAnomalyReversalCSVProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class BackTestBase {
     protected ParameterRuns parameterRuns = new ParameterRuns();
     protected ParameterPnls parameterPnls = new ParameterPnls();
 
-    protected List<ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
+    protected List<ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
@@ -30,7 +30,7 @@ public class BackTestBase {
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.10).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
                 ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(20).build();
-        List<ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
+        List<ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
                 seekChangeAmplitudeScanGridParam,
                 targetReturnFromEntryScanGridParam,
                 targetStopLossScanGridParam,
@@ -44,7 +44,7 @@ public class BackTestBase {
     protected void runForParam(BigQueryImport.ImportParam importParam,
                      String runsExportDir,
                      String pnlsExportFileName,
-                     ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
+                     ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter) {
         String filename = BigQueryImport.getImportedFileName(importParam);
         if (!BigQueryImport.getIfFileExist(importParam)) {
             log.info(String.format("Ingesting a file %s before a run", filename));

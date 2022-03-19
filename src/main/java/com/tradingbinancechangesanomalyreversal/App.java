@@ -58,7 +58,7 @@ public class App {
     }
 
     public enum AppType {
-        CHANGES_ANOMALY_TRADING ("changes_anomaly_trading");
+        CHANGES_ANOMALY_TRADING ("realtime_market_trading_stream");
 
         private final String streamName;
         AppType(String streamName) {

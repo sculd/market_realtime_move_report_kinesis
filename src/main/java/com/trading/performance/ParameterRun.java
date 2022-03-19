@@ -2,7 +2,7 @@ package com.trading.performance;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamUtil;
+import com.tradingchangesanomaly.stream.ChangesAnomalyTradingStreamInitParameter;
 import lombok.Builder;
 
 import java.io.FileNotFoundException;
@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Builder
 public class ParameterRun {
-    public ChangesAnomalyTradingStreamUtil.ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
     public ClosedTrades closedTrades;
 
     void exportToCsv(String exportFileName) {
