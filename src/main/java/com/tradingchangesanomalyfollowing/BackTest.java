@@ -9,12 +9,11 @@ import com.trading.performance.ParameterRuns;
 import com.trading.performance.ParameterPnl;
 import com.trading.performance.ParameterPnls;
 import com.tradingchangesanomalyreversal.BackTestBinance;
+import com.main.AppOption;
+import com.main.OptionParser;
 import com.marketdata.imports.BigQueryImport;
 import com.marketdata.imports.QueryTemplates;
 import com.marketdata.util.Time;
-import com.marketsignal.App;
-import com.marketsignal.AppOption;
-import com.marketsignal.OptionParser;
 import com.trading.performance.ParameterScanCommon;
 import lombok.Builder;
 import org.apache.commons.cli.CommandLine;
@@ -24,13 +23,8 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class BackTest {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
@@ -40,17 +34,6 @@ public class BackTest {
         Options options = AppOption.create();
         try {
             CommandLine commandLine = parser.parse(options, args);
-
-            String envVarFile = commandLine.getOptionValue(AppOption.KEY_ENV_FILE);
-            if (envVarFile == null || envVarFile.isEmpty()) {
-                log.warn("the option envfile is null (or empty string)");
-            } else {
-                try (Stream<String> lines = Files.lines(Paths.get(envVarFile), Charset.defaultCharset())) {
-                    lines.forEachOrdered(line -> App.setEnv(line.split("=")[0], line.split("=")[1]));
-                } catch (IOException ex) {
-                    System.err.println(ex.getMessage());
-                }
-            }
 
             new BackTest().run();
         } catch (ParseException ex) {

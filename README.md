@@ -1,12 +1,26 @@
 # market_realtime_move_report_kinesis
 
 ## env vars
+The env vars are attached to the container as `overrides` in `devops/task_<flavor>.py`.
 
+### market signal
 * SLACK_TOKEN
 * SLACK_CHANNEL
+* SLACK_CHANNEL_POLYGON_STOCK
+* SLACK_CHANNEL_BINANCE
+* SLACK_CHANNEL_OKCOIN
+* SLACK_CHANNEL_KRAKEN
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* GCP_PROJECT_ID
+* GCP_BIGQUERY_DATASET_ID
+* GCP_BIGQUERY_TABLE_ID_ORDERBOOK_LIQUIDITY_IMBALANCE
 * NOTIFICATION_ENDPOINT
 * NOTIFICATION_ENDPOINT_API_KEY
 
+### trading
+* BINANCE_API_KEY
+* BINANCE_API_SECRET
 
 ## build steps
 
@@ -39,11 +53,6 @@ docker push ${ECR_REPOSITORY_URI}:latest
 ./devops/build.sh
 ```
 
-## update secrete
-```
-python devops/manage_kube_secrets.py
-```
-
 ## deploy
 ### deploy sudden move (bwt) market signal pusher
 ```
@@ -53,4 +62,9 @@ python devops/task_bwt.py
 ### deploy orderbook market signal pusher
 ```
 python devops/task_orderbook.py
+```
+
+### deploy market trading
+```
+python devops/task_trading.py
 ```

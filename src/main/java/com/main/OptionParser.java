@@ -1,4 +1,4 @@
-package com.marketsignal;
+package com.main;
 
 import java.util.ListIterator;
 import org.apache.commons.cli.GnuParser;

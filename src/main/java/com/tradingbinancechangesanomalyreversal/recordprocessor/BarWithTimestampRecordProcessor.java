@@ -5,6 +5,7 @@ import com.tradingbinancechangesanomalyreversal.stream.ChangesAnomalyReversalTra
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
+import com.tradingchangesanomaly.util.ChangesAnomalyTradingInitParameter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,12 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
         try {
             log.info("Initializing @ Sequence: {}", initializationInput.extendedSequenceNumber());
             nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
+
+            log.info("[initialize]");
+            String tradingParamJson = System.getenv("TRADING_PARAM_JSON");
+            ChangesAnomalyTradingInitParameter changesAnomalyTradingInitParameter = ChangesAnomalyTradingInitParameter.builder().build();
+            changesAnomalyTradingInitParameter.initFromJson(tradingParamJson);
+            log.info("changesAnomalyTradingInitParameter: {}", changesAnomalyTradingInitParameter);
         } finally {
             MDC.remove(SHARD_ID_MDC_KEY);
         }

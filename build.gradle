@@ -61,7 +61,25 @@ jar {
         }
     }
     manifest {
-        attributes('Main-Class': 'com.marketsignal.App')
+        attributes('Main-Class': 'com.main.MainApp')
     }
     duplicatesStrategy = 'include'
+}
+
+/*
+ not really used, kept for reference.
+ */
+task tradingJar(type: Jar) {
+    from {
+        (configurations.runtimeClasspath).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    with jar
+    manifest {
+        attributes('Main-Class': 'com.tradingbinancechangesanomalyreversal.App')
+    }
+    zip64 = true
+    duplicatesStrategy = 'include'
+    archiveFileName = 'trading.jar'
 }

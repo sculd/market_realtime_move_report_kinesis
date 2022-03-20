@@ -1,4 +1,4 @@
-package com.tradingbinancechangesanomalyreversal;
+package com.main;
 
 import org.apache.commons.cli.Options;
 
@@ -6,7 +6,9 @@ public abstract class AppOption extends Options {
     public static String KEY_SHARD_ID = "shardid";
     public static String KEY_ENV_FILE = "envfile";
     public static String APP_TYPE = "apptype";
-    public static String APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM = "changes_anomaly_trading";
+    public static String APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM = "changes_anomaly_stream";
+    public static String APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM = "orderbook_anomaly_stream";
+    public static String APP_TYPE_VALUE_CHANGES_ANOMALY_TRADING = "changes_anomaly_trading";
 
     public static Options create() {
         final Options options = new Options();
@@ -16,7 +18,7 @@ public abstract class AppOption extends Options {
                 .addOption("ef", KEY_ENV_FILE, true,
                         "env file that defines the env vars")
                 .addOption("at", APP_TYPE, true,
-                        "app type (changes_anomaly_trading)")
+                        "app type (changes_anomaly_stream, orderbook_anomaly_stream)")
 
         ;
         return options;
