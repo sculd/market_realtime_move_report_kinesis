@@ -37,6 +37,8 @@ public class States {
         public EnterInProgress.EnterInProgressInitParameter enterInProgressInitParameter;
         public ExitPlan.ExitPlanInitParameter exitPlanInitParameter;
         public ExitInProgress.ExitInProgressInitParameter exitInProgressInitParameter;
+        @Builder.Default
+        public boolean isDryRun = true;
 
         @Override
         public String toString() {

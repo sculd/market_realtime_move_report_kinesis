@@ -7,6 +7,8 @@ import com.tradingchangesanomaly.util.ChangesAnomalyTradingInitParameter;
 
 import java.io.*;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ParameterManage {
     static void exportParam() {
@@ -14,7 +16,7 @@ public class ParameterManage {
                 ChangesAnomalyTradingStreamInitParameter.builder()
                         .statesInitParameter(States.StatesInitParameter.builder()
                                 .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
-                                        .targetFiatVolume(1000)
+                                        .targetFiatVolume(100)
                                         .seekChangeAmplitude(0.01)
                                         .build())
                                 .enterInProgressInitParameter(EnterInProgress.EnterInProgressInitParameter.builder()
@@ -55,7 +57,7 @@ public class ParameterManage {
                 .changesAnomalyTradingStreamInitParameter(changesAnomalyTradingStreamInitParameter)
                 .build();
 
-        String fileName = "k8s/secrets/tradingparam.env";
+        String fileName = "k8s/secrets/tradingparam.json";
         File fileOutput = new File(fileName);
         try {
             fileOutput.createNewFile();
@@ -70,10 +72,15 @@ public class ParameterManage {
     }
 
     static void importParam() {
-        String fileName = "k8s/secrets/tradingparam.env";
+        String fileName = "k8s/secrets/tradingparam.json";
         try {
             BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
-            String paramJson = fileReader.readLine();
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                lines.add(line);
+            }
+            String paramJson = String.join("\n", lines);
             fileReader.close();
             ChangesAnomalyTradingInitParameter changesAnomalyTradingInitParameter = ChangesAnomalyTradingInitParameter.builder().build();
             changesAnomalyTradingInitParameter.initFromJson(paramJson);
