@@ -12,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 public class ChangesAnomalyTradingInitParameter extends TradingInitParameter {
     @Builder.Default
     Gson gson = new Gson();
-    ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
+    public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
 
     public String toJson() {
         return gson.toJson(changesAnomalyTradingStreamInitParameter);

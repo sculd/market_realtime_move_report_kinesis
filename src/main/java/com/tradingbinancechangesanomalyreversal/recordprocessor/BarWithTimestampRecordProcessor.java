@@ -59,6 +59,7 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
             ChangesAnomalyTradingInitParameter changesAnomalyTradingInitParameter = ChangesAnomalyTradingInitParameter.builder().build();
             changesAnomalyTradingInitParameter.initFromJson(tradingParamJson);
             log.info("changesAnomalyTradingInitParameter: {}", changesAnomalyTradingInitParameter);
+            changesAnomalyReversalTradingBinanceStream.init(changesAnomalyTradingInitParameter.changesAnomalyTradingStreamInitParameter);
         } finally {
             MDC.remove(SHARD_ID_MDC_KEY);
         }
