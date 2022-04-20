@@ -49,6 +49,7 @@ public class App {
          * ShardRecordProcessorFactory, is where the logic for record processing lives, and is located in a private
          * class below.
          */
+        log.info("[run] appType: {}", appType);
         DynamoDbAsyncClient dynamoClient = DynamoDbAsyncClient.builder().region(region).build();
         CloudWatchAsyncClient cloudWatchClient = CloudWatchAsyncClient.builder().region(region).build();
         ConfigsBuilder configsBuilder;

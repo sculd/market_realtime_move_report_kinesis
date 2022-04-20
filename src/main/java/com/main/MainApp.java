@@ -66,7 +66,7 @@ public class MainApp {
             if (envVarFile == null || envVarFile.isEmpty()) {
                 log.warn("the option envfile is null (or empty string)");
             } else {
-                log.error("processing the envfile: {}", envVarFile);
+                log.info("processing the envfile: {}", envVarFile);
                 try (Stream<String> lines = Files.lines(Paths.get(envVarFile), Charset.defaultCharset())) {
                     lines.forEachOrdered(line -> setEnv(line.split("=")[0], line.split("=")[1]));
                 } catch (IOException ex) {

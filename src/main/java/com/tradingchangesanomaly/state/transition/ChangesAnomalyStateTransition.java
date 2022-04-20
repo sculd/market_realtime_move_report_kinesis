@@ -112,6 +112,13 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
             switch (state.stateType) {
                 case IDLE:
+                    break;
+                default:
+                    log.info("non idle state: {}", state.toString());
+            }
+
+            switch (state.stateType) {
+                case IDLE:
                     stateTransitionFollowUp = planEnter(state, changeAnalysis);
                     break;
                 case ENTER_PLAN:
