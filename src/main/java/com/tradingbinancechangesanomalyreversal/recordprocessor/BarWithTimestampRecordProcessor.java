@@ -73,21 +73,17 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
      *                            related to them (e.g. checkpointing).
      */
     public void processRecords(ProcessRecordsInput processRecordsInput) {
-        MDC.put(SHARD_ID_MDC_KEY, shardId);
         try {
             // Checkpoint once every checkpoint interval
             if (System.currentTimeMillis() > nextCheckpointTimeInMillis) {
                 checkpoint(processRecordsInput.checkpointer());
                 nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
             }
-
-            log.info("Processing {} record(s)", processRecordsInput.records().size());
             processRecordsInput.records().forEach(this::processRecord);
         } catch (Throwable t) {
             log.error("Caught throwable while processing records. Aborting.");
             Runtime.getRuntime().halt(1);
         } finally {
-            MDC.remove(SHARD_ID_MDC_KEY);
         }
     }
 
@@ -96,9 +92,6 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
         record.data().get(arr);
         BarWithTime bwt = BarWithTime.fromBytes(arr);
         messageCount += 1;
-        if (messageCount % 100 == 0) {
-            log.info("On 100ths message, processing bwt: {}", bwt.toString());
-        }
         barWithTimeStream.onBarWithTime(bwt);
         changesAnomalyReversalTradingBinanceStream.onBarWithTime(bwt);
     }

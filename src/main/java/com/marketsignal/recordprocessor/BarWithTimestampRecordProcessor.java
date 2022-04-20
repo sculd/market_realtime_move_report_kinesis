@@ -70,8 +70,6 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
                 checkpoint(processRecordsInput.checkpointer());
                 nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
             }
-
-            log.info("Processing {} record(s)", processRecordsInput.records().size());
             processRecordsInput.records().forEach(this::processRecord);
         } catch (Throwable t) {
             log.error("Caught throwable while processing records. Aborting.");
@@ -86,9 +84,6 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
         record.data().get(arr);
         BarWithTime bwt = BarWithTime.fromBytes(arr);
         messageCount += 1;
-        if (messageCount % 100 == 0) {
-            log.info("On 100ths message, processing bwt: {}", bwt.toString());
-        }
         barWithTimeStream.onBarWithTime(bwt);
         changesAnomalyStream.onBarWithTime(bwt);
     }
