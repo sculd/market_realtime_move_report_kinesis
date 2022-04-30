@@ -41,7 +41,7 @@ public class MainApp {
     public enum AppType {
         CHANGES_ANOMALY_STREAM ("realtime_market_stream"),
         ORDERBOOK_ANOMALY_STREAM ("realtime_orderbook_stream"),
-        CHANGES_ANOMALY_TRADING ("realtime_trading_stream");
+        CHANGES_ANOMALY_TRADING_BINANCE ("realtime_trading_binance_stream");
 
         private final String streamName;
         AppType(String streamName) {
@@ -83,8 +83,8 @@ public class MainApp {
                     new com.marketsignal.App(AppType.CHANGES_ANOMALY_STREAM).run();
                 } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM)) {
                     new com.marketsignal.App(AppType.ORDERBOOK_ANOMALY_STREAM).run();
-                } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_TRADING)) {
-                    new com.tradingbinancechangesanomalyreversal.App(AppType.CHANGES_ANOMALY_TRADING).run();
+                } else if (appTypeStr.equals(AppOption.APP_TYPE_VALUE_CHANGES_ANOMALY_TRADING_BINANCE)) {
+                    new com.tradingbinancechangesanomalyreversal.App(AppType.CHANGES_ANOMALY_TRADING_BINANCE).run();
                 }
             }
         } catch (ParseException ex) {

@@ -53,7 +53,7 @@ public class App {
         DynamoDbAsyncClient dynamoClient = DynamoDbAsyncClient.builder().region(region).build();
         CloudWatchAsyncClient cloudWatchClient = CloudWatchAsyncClient.builder().region(region).build();
         ConfigsBuilder configsBuilder;
-        if (appType == MainApp.AppType.CHANGES_ANOMALY_TRADING) {
+        if (appType == MainApp.AppType.CHANGES_ANOMALY_TRADING_BINANCE) {
             configsBuilder = new ConfigsBuilder(appType.streamName(), appType.streamName(), kinesisClient, dynamoClient, cloudWatchClient, UUID.randomUUID().toString(), new App.BarWithTimestampRecordProcessorFactory());
         } else {
             log.error("invalid appType: {}", appType);

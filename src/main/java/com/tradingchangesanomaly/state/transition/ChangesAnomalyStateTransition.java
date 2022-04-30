@@ -95,6 +95,13 @@ public class ChangesAnomalyStateTransition extends StateTransition {
 
     static public class HandleStateResult {
         public ClosedTrade closedTrade;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(HandleStateResult.class)
+                    .add("closedTrade", closedTrade)
+                    .toString();
+        }
     }
 
     public HandleStateResult handleState(States state, BarWithTimeSlidingWindow barWithTimeSlidingWindow) {
@@ -109,14 +116,8 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         analyses.analysisList.add(volatilityAnalysis);
         HandleStateResult handleStateResult = new HandleStateResult();
         StateTransitionFollowUp stateTransitionFollowUp = StateTransitionFollowUp.CONTINUE_TRANSITION;
+        States.StateType initStateType = state.stateType;
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
-            switch (state.stateType) {
-                case IDLE:
-                    break;
-                default:
-                    log.info("non idle state: {}", state.toString());
-            }
-
             switch (state.stateType) {
                 case IDLE:
                     stateTransitionFollowUp = planEnter(state, changeAnalysis);
@@ -148,6 +149,12 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     handleStateResult.closedTrade = state.closedTrade;
                     break;
             }
+        }
+        switch (initStateType) {
+            case IDLE:
+                break;
+            default:
+                log.info("non idle state: {}, stateTransitionFollowUp: {}, handleStateResult: {}", state.toString(), stateTransitionFollowUp, handleStateResult);
         }
         return handleStateResult;
     }

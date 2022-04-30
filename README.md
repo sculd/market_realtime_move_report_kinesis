@@ -49,6 +49,11 @@ docker push ${ECR_REPOSITORY_URI}:latest
 ```
 
 ## build script
+### market signal
+```
+./devops/build.sh
+```
+### trading
 ```
 ./devops/build.sh
 ```

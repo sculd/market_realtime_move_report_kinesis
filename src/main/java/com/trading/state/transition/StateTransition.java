@@ -113,6 +113,7 @@ public class StateTransition {
     }
 
     public StateTransitionFollowUp handlePositionState(States state, Common.PriceSnapshot priceSnapshot) {
+        log.info("[handlePositionState] {}, state: {} position: {}, priceSnapshot: {}", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot);
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.IN_POSITION) {
             return ret;
@@ -143,6 +144,7 @@ public class StateTransition {
      * handle the EXIT state
      */
     public StateTransitionFollowUp handleExitState(States state, Common.PriceSnapshot priceSnapshot, Analyses analyses) {
+        log.info("[handleExitState] {}, state: {} position: {}, priceSnapshot: {}", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot);
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.EXIT) {
             return ret;
@@ -167,6 +169,7 @@ public class StateTransition {
      * handle the EXIT_ORDER_IN_PROGRESS state
      */
     public StateTransitionFollowUp handleExitInProgressState(States state) {
+        log.info("[handleExitInProgressState] state: {}, position: {}", state, state.position);
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.EXIT_ORDER_IN_PROGRESS) {
             return ret;
@@ -198,7 +201,7 @@ public class StateTransition {
      * tba
      */
     public StateTransitionFollowUp handleTradeClosed(States state) {
-        log.info(String.format("recapping a closed trade: %s", state.toString()));
+        log.info(String.format("[handleTradeClosed] recapping a closed trade: %s", state.toString()));
         state.closedTrade = ClosedTrade.builder()
                 .market(market)
                 .symbol(symbol)

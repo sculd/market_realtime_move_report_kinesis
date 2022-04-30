@@ -63,7 +63,6 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
      *                            related to them (e.g. checkpointing).
      */
     public void processRecords(ProcessRecordsInput processRecordsInput) {
-        MDC.put(SHARD_ID_MDC_KEY, shardId);
         try {
             // Checkpoint once every checkpoint interval
             if (System.currentTimeMillis() > nextCheckpointTimeInMillis) {
@@ -75,7 +74,6 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
             log.error("Caught throwable while processing records. Aborting.");
             Runtime.getRuntime().halt(1);
         } finally {
-            MDC.remove(SHARD_ID_MDC_KEY);
         }
     }
 

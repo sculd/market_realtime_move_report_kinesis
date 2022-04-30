@@ -8,7 +8,7 @@ public abstract class AppOption extends Options {
     public static String APP_TYPE = "apptype";
     public static String APP_TYPE_VALUE_CHANGES_ANOMALY_STREAM = "changes_anomaly_stream";
     public static String APP_TYPE_VALUE_ORDERBOOK_ANOMALY_STREAM = "orderbook_anomaly_stream";
-    public static String APP_TYPE_VALUE_CHANGES_ANOMALY_TRADING = "changes_anomaly_trading";
+    public static String APP_TYPE_VALUE_CHANGES_ANOMALY_TRADING_BINANCE = "realtime_trading_binance_stream";
 
     public static Options create() {
         final Options options = new Options();
