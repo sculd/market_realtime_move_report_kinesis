@@ -21,6 +21,10 @@ public class ClosedTrades {
         return closedTrades.stream().map(ct -> ct.getPnL()).mapToDouble(f -> f).sum();
     }
 
+    public double getPnLPerTrade(List<ClosedTrade> closedTrades) {
+        return closedTrades.isEmpty()? 0 : getPnL(closedTrades) / closedTrades.size();
+    }
+
     public double getGainLossFiat(List<ClosedTrade> closedTrades) {
         return closedTrades.stream().map(ct -> ct.getGainLossFiat()).mapToDouble(f -> f).sum();
     }
@@ -28,7 +32,7 @@ public class ClosedTrades {
     public void printForList(List<ClosedTrade> closedTrades, boolean printEntries) {
         log.info(String.format("Closed trades: %d", closedTrades.size()));
         double pnl = getPnL(closedTrades);
-        log.info(String.format("PnL: %f (per trade: %f)", pnl, pnl / closedTrades.size()));
+        log.info(String.format("PnL: %f (per trade: %f)", pnl, getPnLPerTrade(closedTrades)));
         log.info(String.format("GainLossFiat: %f", getGainLossFiat(closedTrades)));
         if (printEntries) {
             for (ClosedTrade ct : closedTrades) {
@@ -54,16 +58,24 @@ public class ClosedTrades {
                 .collect(Collectors.toList());
         List<ClosedTrade> closedShortTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.SHORT)
                 .collect(Collectors.toList());
+
+        double pnl = getPnL(closedTrades);
+        double pnlPerTrade = closedTrades.isEmpty()? 0 : pnl / closedTrades.size();
+        double pnlLong = getPnL(closedLongTrades);
+        double pnlPerTradeLong = closedLongTrades.isEmpty()? 0 : pnlLong / closedLongTrades.size();
+        double pnlShort = getPnL(closedShortTrades);
+        double pnlPerTradeShort = closedShortTrades.isEmpty()? 0 : pnlShort / closedShortTrades.size();
+
         return ClosedTradesPnl.builder()
                 .closedTrades(closedTrades.size())
-                .pnl(getPnL(closedTrades))
-                .pnlPerTrade(getPnL(closedTrades) / closedTrades.size())
+                .pnl(pnl)
+                .pnlPerTrade(pnlPerTrade)
                 .closedTradesLong(closedLongTrades.size())
-                .pnlLong(getPnL(closedLongTrades))
-                .pnlPerTrade(getPnL(closedLongTrades) / closedLongTrades.size())
+                .pnlLong(pnlLong)
+                .pnlPerTradeLong(pnlPerTradeLong)
                 .closedTradesShort(closedShortTrades.size())
-                .pnlShort(getPnL(closedShortTrades))
-                .pnlPerTradeShort(getPnL(closedShortTrades) / closedShortTrades.size())
+                .pnlShort(pnlShort)
+                .pnlPerTradeShort(pnlPerTradeShort)
                 .build();
     }
 

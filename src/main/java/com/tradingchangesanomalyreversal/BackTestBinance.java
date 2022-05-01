@@ -20,11 +20,11 @@ public class BackTestBinance extends BackTestBase {
     private void selectAndRunRange() {
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
                 .yearBegin(2022)
-                .monthBegin(2)
-                .dayBegin(22)
+                .monthBegin(4)
+                .dayBegin(26)
                 .yearEnd(2022)
-                .monthEnd(2)
-                .dayEnd(23)
+                .monthEnd(4)
+                .dayEnd(29)
                 .build();
 
         runRange(rangeRunParameter);
