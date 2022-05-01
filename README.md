@@ -55,7 +55,7 @@ docker push ${ECR_REPOSITORY_URI}:latest
 ```
 ### trading
 ```
-./devops/build.sh
+./devops/build_trade_binance.sh
 ```
 
 ## deploy
@@ -69,7 +69,7 @@ python devops/task_bwt.py
 python devops/task_orderbook.py
 ```
 
-### deploy market trading
+### deploy market trading binance
 ```
-python devops/task_trading.py
+python devops/task_trading_binance.py
 ```
