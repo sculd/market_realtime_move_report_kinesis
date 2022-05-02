@@ -2,6 +2,7 @@ package com.trading.performance;
 
 import com.google.common.base.MoreObjects;
 import com.marketsignal.timeseries.analysis.Analyses;
+import com.marketsignal.util.Time;
 import com.trading.state.Common;
 import lombok.Builder;
 import org.slf4j.Logger;
@@ -87,10 +88,10 @@ public class ClosedTrade {
         columns.add(String.format("%s", symbol));
         columns.add(String.format("%s", positionSideType));
         columns.add(String.format("%f", entryPriceSnapshot.price));
-        columns.add(String.format("%d", entryPriceSnapshot.epochSeconds));
+        columns.add(String.format("%s", Time.fromEpochSecondsToDateTimeStr(entryPriceSnapshot.epochSeconds)));
         columns.add(String.format("%f", volume));
         columns.add(String.format("%f", exitPriceSnapshot.price));
-        columns.add(String.format("%d", exitPriceSnapshot.epochSeconds));
+        columns.add(String.format("%s", Time.fromEpochSecondsToDateTimeStr(exitPriceSnapshot.epochSeconds)));
         columns.add(String.format("%f", getPnL()));
         String analysisLine = analysesUponEnter.toCsvLine();
         if (!analysisLine.isEmpty()) {
