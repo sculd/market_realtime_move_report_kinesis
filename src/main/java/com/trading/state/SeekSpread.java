@@ -1,19 +1,24 @@
 package com.trading.state;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SeekSpread {
+    private static final Logger log = LoggerFactory.getLogger(SeekSpread.class);
+
     public enum SpreadSeekType {
         LARGER,
         SMALLER;
 
-        private static final Map<String, Common.ChangeType> ENUM_MAP = Stream.of(Common.ChangeType.values())
+        private static final Map<String, SpreadSeekType> ENUM_MAP = Stream.of(SpreadSeekType.values())
                 .collect(Collectors.toMap(Enum::name, Function.identity()));
 
-        public static Common.ChangeType of(final String name) {
+        public static SpreadSeekType of(final String name) {
             return ENUM_MAP.getOrDefault(name, SMALLER);
         }
     }
@@ -27,22 +32,18 @@ public class SeekSpread {
         this.seekSpreadToMidRatio = seekSpreadToMidRatio;
     }
 
-    public boolean getIfTriggered(double price) {
-        /*
-        switch (changeType) {
-            case JUMP:
-                if (price >= seekPrice) {
-                    return true;
-                }
-                break;
-            case DROP:
-                if (price <= seekPrice) {
-                    return true;
-                }
-                break;
-        }
+    public boolean getIfTriggered(double bestAsk, double bestBid) {
+        double mid = (bestAsk + bestBid) / 2.0;
+        double spreadToMidRatio = (bestAsk - bestBid) / mid;
 
-         */
+        switch (spreadSeekType) {
+            case SMALLER:
+                return spreadToMidRatio <= seekSpreadToMidRatio;
+            case LARGER:
+                return spreadToMidRatio > seekSpreadToMidRatio;
+            default:
+                log.error("invalid spreadSeekType: {}", spreadSeekType);
+        }
         return false;
     }
 }
