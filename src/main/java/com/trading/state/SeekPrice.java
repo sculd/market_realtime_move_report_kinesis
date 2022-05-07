@@ -1,7 +1,5 @@
 package com.trading.state;
 
-import com.trading.state.transition.StateTransition;
-
 public class SeekPrice {
     public Common.ChangeType changeType;
 
