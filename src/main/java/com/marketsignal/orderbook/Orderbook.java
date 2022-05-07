@@ -144,6 +144,22 @@ public class Orderbook {
         return top.price;
     }
 
+    public double getMidPrice() {
+        return (getTopAskPrice() + getTopBidPrice()) / 2.0;
+    }
+
+    public double getSpread() {
+        return getTopAskPrice() - getTopBidPrice();
+    }
+
+    public double getSpreadToMidRatio() {
+        double mid = getMidPrice();
+        if (mid == 0) {
+            return 0.;
+        }
+        return getSpread() / mid;
+    }
+
     public double getCummulativeBidVolume(int depth) {
         return bids.quotes.subList(0, depth + 1).stream().mapToDouble(q -> q.volume).sum();
     }
