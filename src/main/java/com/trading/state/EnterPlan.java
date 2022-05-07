@@ -12,7 +12,7 @@ public class EnterPlan {
     public double targetVolume;
     public Common.PositionSideType positionSideType;
     @Builder.Default
-    public Seek seek = new Seek();
+    public SeekPrice seekPrice = new SeekPrice();
 
     @Builder
     public static class EnterPlanInitParameter {
@@ -63,6 +63,6 @@ public class EnterPlan {
                 sign = -1.0;
                 break;
         }
-        seek.init(changeType, price, sign * enterPlanInitParameter.seekChangeAmplitude);
+        seekPrice.init(changeType, price, sign * enterPlanInitParameter.seekChangeAmplitude);
     }
 }

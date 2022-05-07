@@ -33,7 +33,7 @@ public class StateTransition {
             return ret;
         }
 
-        boolean enterPlanTriggered = state.enterPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean enterPlanTriggered = state.enterPlan.seekPrice.getIfTriggered(priceSnapshot.price);
         if (enterPlanTriggered) {
             log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
             state.enter.targetPrice = priceSnapshot.price;
@@ -120,17 +120,17 @@ public class StateTransition {
         }
 
         boolean takeProfitTriggered = state.exitPlan.takeProfitPlan.getIfTriggered(priceSnapshot.price);
-        boolean stopLossTriggered = state.exitPlan.stopLossPlan.seek.getIfTriggered(priceSnapshot.price);
+        boolean stopLossTriggered = state.exitPlan.stopLossPlan.seekPrice.getIfTriggered(priceSnapshot.price);
         boolean timeoutTriggered = state.exitPlan.timeoutPlan.getIfTriggered(priceSnapshot.epochSeconds);
         if (takeProfitTriggered) {
             log.info(String.format("%s takeProfitTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
-            state.exit.init(state.position, state.exitPlan.takeProfitPlan.seek.seekPrice);
+            state.exit.init(state.position, state.exitPlan.takeProfitPlan.seekPrice.seekPrice);
         }
         else if (stopLossTriggered) {
             log.info(String.format("%s stopLossTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;
-            state.exit.init(state.position, state.exitPlan.stopLossPlan.seek.seekPrice);
+            state.exit.init(state.position, state.exitPlan.stopLossPlan.seekPrice.seekPrice);
         } else if (timeoutTriggered) {
             log.info(String.format("%s timeoutTriggered: state: %s position: %s, at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, state.position, priceSnapshot));
             state.stateType = States.StateType.EXIT;

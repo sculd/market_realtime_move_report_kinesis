@@ -27,7 +27,7 @@ public class StopLossPlan {
     }
     public StopLossType stopLossType;
 
-    public Seek seek = new Seek();
+    public SeekPrice seekPrice = new SeekPrice();
 
     @Builder
     public static class StopLossPlanInitParameter {
@@ -82,14 +82,14 @@ public class StopLossPlan {
                 sign = -1.0;
                 break;
         }
-        seek.init(changeType, referencePrice, sign * stopLossPlanInitParameter.targetStopLoss);
+        seekPrice.init(changeType, referencePrice, sign * stopLossPlanInitParameter.targetStopLoss);
     }
 
     public void onPriceUpdate(double price) {
         topPrice = Math.max(price, topPrice);
         switch (stopLossType) {
             case STOP_LOSS_FROM_TOP_PROFIT:
-                seek.updateReferencePrice(topPrice);
+                seekPrice.updateReferencePrice(topPrice);
                 break;
             case STOP_LOSS_FROM_ENTRY:
                 break;
@@ -102,7 +102,7 @@ public class StopLossPlan {
                 .add("entryPriceSnapShot", entryPriceSnapShot)
                 .add("topPrice", topPrice)
                 .add("stopLossType", stopLossType)
-                .add("seek", seek)
+                .add("seek", seekPrice)
                 .toString();
     }
 }

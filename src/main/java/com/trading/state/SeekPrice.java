@@ -2,7 +2,7 @@ package com.trading.state;
 
 import com.trading.state.transition.StateTransition;
 
-public class Seek {
+public class SeekPrice {
     public Common.ChangeType changeType;
 
     public double referencePrice;

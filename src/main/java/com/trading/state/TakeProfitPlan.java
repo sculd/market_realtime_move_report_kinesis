@@ -25,7 +25,7 @@ public class TakeProfitPlan {
     }
     public TakeProfitType takeProfitType;
 
-    public Seek seek = new Seek();
+    public SeekPrice seekPrice = new SeekPrice();
 
     @Builder
     public static class TakeProfitPlanInitParameter {
@@ -82,7 +82,7 @@ public class TakeProfitPlan {
                 break;
         }
         double referencePrice = position.entryPriceSnapshot.price;
-        seek.init(changeType, referencePrice, sign * takeProfitPlanInitParameter.targetReturnFromEntry);
+        seekPrice.init(changeType, referencePrice, sign * takeProfitPlanInitParameter.targetReturnFromEntry);
     }
 
     public boolean getIfTriggered(double price) {
@@ -90,6 +90,6 @@ public class TakeProfitPlan {
             return false;
         }
 
-        return seek.getIfTriggered(price);
+        return seekPrice.getIfTriggered(price);
     }
 }
