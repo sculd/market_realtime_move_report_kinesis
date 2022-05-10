@@ -1,5 +1,6 @@
 package com.tradingchangesanomaly.state.transition;
 
+import com.marketsignal.orderbook.OrderbookFactory;
 import com.marketsignal.timeseries.analysis.changes.Changes;
 import com.marketsignal.timeseries.analysis.changes.ChangesAnomaly;
 import com.marketsignal.util.Time;
@@ -13,8 +14,8 @@ import org.slf4j.LoggerFactory;
 public class ChangesAnomalyFollowingStateTransition extends ChangesAnomalyStateTransition {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyFollowingStateTransition.class);
 
-    public ChangesAnomalyFollowingStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
-        super(market, symbol, initParameter);
+    public ChangesAnomalyFollowingStateTransition(String market, String symbol, OrderbookFactory orderbookFactory, TransitionInitParameter initParameter) {
+        super(market, symbol, orderbookFactory, initParameter);
     }
 
     public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis) {

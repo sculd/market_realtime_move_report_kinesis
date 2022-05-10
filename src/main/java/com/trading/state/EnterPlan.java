@@ -13,17 +13,21 @@ public class EnterPlan {
     public Common.PositionSideType positionSideType;
     @Builder.Default
     public SeekPrice seekPrice = new SeekPrice();
+    @Builder.Default
+    public SeekSpread seekSpread = new SeekSpread();
 
     @Builder
     public static class EnterPlanInitParameter {
         public double targetFiatVolume;
         public double seekChangeAmplitude;
+        public double seekSpreadToMidRatio;
 
         @Override
         public String toString() {
             return MoreObjects.toStringHelper(EnterPlanInitParameter.class)
                     .add("targetFiatVolume", targetFiatVolume)
                     .add("seekChangeAmplitude", seekChangeAmplitude)
+                    .add("seekSpreadToMidRatio", seekSpreadToMidRatio)
                     .toString();
         }
 
@@ -31,6 +35,7 @@ public class EnterPlan {
             List<String> headers = new ArrayList<>();
             headers.add(String.format("%s", "targetFiatVolume"));
             headers.add(String.format("%s", "seekChangeAmplitude"));
+            headers.add(String.format("%s", "seekSpreadToMidRatio"));
             return String.join(",", headers);
         }
 
@@ -38,6 +43,7 @@ public class EnterPlan {
             List<String> columns = new ArrayList<>();
             columns.add(String.format("%f", targetFiatVolume));
             columns.add(String.format("%f", seekChangeAmplitude));
+            columns.add(String.format("%f", seekSpreadToMidRatio));
             return String.join(",", columns);
         }
 
@@ -46,6 +52,7 @@ public class EnterPlan {
             return EnterPlanInitParameter.builder()
                     .targetFiatVolume(Double.parseDouble(columns[0]))
                     .seekChangeAmplitude(Double.parseDouble(columns[1]))
+                    .seekSpreadToMidRatio(Double.parseDouble(columns[2]))
                     .build();
         }
     }
@@ -64,5 +71,6 @@ public class EnterPlan {
                 break;
         }
         seekPrice.init(changeType, price, sign * enterPlanInitParameter.seekChangeAmplitude);
+        seekSpread.init(SeekSpread.SpreadSeekType.SMALLER, enterPlanInitParameter.seekSpreadToMidRatio);
     }
 }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ParameterManage {
+    // manually run just once
     static void exportParam() {
         ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter =
                 ChangesAnomalyTradingStreamInitParameter.builder()
@@ -18,6 +19,7 @@ public class ParameterManage {
                                 .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
                                         .targetFiatVolume(100)
                                         .seekChangeAmplitude(0.01)
+                                        .seekSpreadToMidRatio(0.01)
                                         .build())
                                 .enterInProgressInitParameter(EnterInProgress.EnterInProgressInitParameter.builder()
                                         .timeoutPlanInitParameter(

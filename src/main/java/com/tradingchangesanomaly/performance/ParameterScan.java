@@ -33,6 +33,7 @@ public class ParameterScan {
                                                         .enterPlanInitParameter(EnterPlan.EnterPlanInitParameter.builder()
                                                                 .targetFiatVolume(1000)
                                                                 .seekChangeAmplitude(seekChangeAmplitude)
+                                                                .seekSpreadToMidRatio(0.01)
                                                                 .build())
                                                         .enterInProgressInitParameter(EnterInProgress.EnterInProgressInitParameter.builder()
                                                                 .timeoutPlanInitParameter(

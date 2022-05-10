@@ -1,6 +1,7 @@
 package com.tradingchangesanomaly.stream;
 
 import com.google.common.util.concurrent.Monitor;
+import com.marketsignal.orderbook.OrderbookFactory;
 import com.marketsignal.stream.BarWithTimeStream;
 import com.marketsignal.timeseries.BarWithTime;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
@@ -20,6 +21,7 @@ public class ChangesAnomalyReversalTradingStream {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalTradingStream.class);
 
     BarWithTimeStream barWithTimeStream;
+    OrderbookFactory orderbookFactory;
     public Map<String, States> keyedStates = new HashMap<>();
     public Map<String, ChangesAnomalyReversalStateTransition> keyedStateTransition = new HashMap<>();
     public ClosedTrades closedTrades = new ClosedTrades();
@@ -31,8 +33,9 @@ public class ChangesAnomalyReversalTradingStream {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 
-    public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream) {
+    public ChangesAnomalyReversalTradingStream(BarWithTimeStream barWithTimeStream, OrderbookFactory orderbookFactory) {
         this.barWithTimeStream = barWithTimeStream;
+        this.orderbookFactory = orderbookFactory;
     }
 
     protected States createNewStates(String market, String symbol, States.StatesInitParameter statesInitParameter) {
@@ -51,7 +54,8 @@ public class ChangesAnomalyReversalTradingStream {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyReversalStateTransition(bwt.bar.market, bwt.bar.symbol, orderbookFactory,
+                            changesAnomalyTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }

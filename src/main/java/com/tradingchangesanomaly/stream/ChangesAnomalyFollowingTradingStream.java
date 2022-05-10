@@ -1,5 +1,6 @@
 package com.tradingchangesanomaly.stream;
 
+import com.marketsignal.orderbook.OrderbookFactory;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyFollowingStateTransition;
 import com.google.common.util.concurrent.Monitor;
 import com.marketsignal.stream.BarWithTimeStream;
@@ -18,6 +19,7 @@ public class ChangesAnomalyFollowingTradingStream {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyFollowingTradingStream.class);
 
     BarWithTimeStream barWithTimeStream;
+    OrderbookFactory orderbookFactory;
     public Map<String, States> keyedStates = new HashMap<>();
     public Map<String, ChangesAnomalyFollowingStateTransition> keyedStateTransition = new HashMap<>();
     public ClosedTrades closedTrades = new ClosedTrades();
@@ -29,8 +31,9 @@ public class ChangesAnomalyFollowingTradingStream {
         this.changesAnomalyTradingStreamInitParameter = changesAnomalyTradingStreamInitParameter;
     }
 
-    public ChangesAnomalyFollowingTradingStream(BarWithTimeStream barWithTimeStream) {
+    public ChangesAnomalyFollowingTradingStream(BarWithTimeStream barWithTimeStream, OrderbookFactory orderbookFactory) {
         this.barWithTimeStream = barWithTimeStream;
+        this.orderbookFactory = orderbookFactory;
     }
 
     States getState(BarWithTime bwt) {
@@ -45,7 +48,8 @@ public class ChangesAnomalyFollowingTradingStream {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStateTransition.containsKey(key)) {
             keyedStateTransition.put(key,
-                    new ChangesAnomalyFollowingStateTransition(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.transitionInitParameter));
+                    new ChangesAnomalyFollowingStateTransition(bwt.bar.market, bwt.bar.symbol, orderbookFactory,
+                            changesAnomalyTradingStreamInitParameter.transitionInitParameter));
         }
         return keyedStateTransition.get(key);
     }

@@ -1,6 +1,7 @@
 package com.tradingchangesanomaly.state.transition;
 
 import com.google.common.base.MoreObjects;
+import com.marketsignal.orderbook.OrderbookFactory;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.marketsignal.timeseries.analysis.changes.Changes;
@@ -23,6 +24,8 @@ import java.util.stream.Stream;
 
 public class ChangesAnomalyStateTransition extends StateTransition {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
+
+    OrderbookFactory orderbookFactory;
 
     @Builder
     static public class TransitionInitParameter {
@@ -83,8 +86,10 @@ public class ChangesAnomalyStateTransition extends StateTransition {
     }
     public TransitionInitParameter initParameter;
 
-    public ChangesAnomalyStateTransition(String market, String symbol, TransitionInitParameter initParameter) {
+    public ChangesAnomalyStateTransition(String market, String symbol, OrderbookFactory orderbookFactory,
+                                         TransitionInitParameter initParameter) {
         super(market, symbol);
+        this.orderbookFactory = orderbookFactory;
         this.initParameter = initParameter;
     }
 
@@ -123,7 +128,10 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     stateTransitionFollowUp = planEnter(state, changeAnalysis);
                     break;
                 case ENTER_PLAN:
-                    stateTransitionFollowUp = handleEnterPlanState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
+                    stateTransitionFollowUp = handleEnterPlanState(
+                            state,
+                            Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
+                            orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis));
                     break;
                 case ENTER:
                     stateTransitionFollowUp = handleEnterState(

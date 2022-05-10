@@ -1,5 +1,6 @@
 package com.trading.state.transition;
 
+import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.marketsignal.util.Time;
 import com.trading.state.*;
@@ -27,14 +28,15 @@ public class StateTransition {
     /*
      * handle the ENTER_PLAN state
      */
-    public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot) {
+    public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot, Orderbook orderbook) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.ENTER_PLAN) {
             return ret;
         }
 
-        boolean enterPlanTriggered = state.enterPlan.seekPrice.getIfTriggered(priceSnapshot.price);
-        if (enterPlanTriggered) {
+        boolean enterPlanSeekPriceTriggered = state.enterPlan.seekPrice.getIfTriggered(priceSnapshot.price);
+        boolean enterPlanSeekSpreadTriggered = state.enterPlan.seekSpread.getIfTriggered(orderbook.getTopAskPrice(), orderbook.getTopBidPrice());
+        if (enterPlanSeekPriceTriggered && enterPlanSeekSpreadTriggered) {
             log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
             state.enter.targetPrice = priceSnapshot.price;
             state.enter.positionSideType = state.enterPlan.positionSideType;
