@@ -1,6 +1,7 @@
 package com.tradingchangesanomaly.state.transition;
 
 import com.google.common.base.MoreObjects;
+import com.marketsignal.marginasset.MarginAsset;
 import com.marketsignal.orderbook.OrderbookFactory;
 import com.marketsignal.timeseries.BarWithTimeSlidingWindow;
 import com.marketsignal.timeseries.analysis.Analyses;
@@ -26,6 +27,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyStateTransition.class);
 
     OrderbookFactory orderbookFactory;
+    MarginAsset marginAsset;
 
     @Builder
     static public class TransitionInitParameter {
@@ -86,10 +88,13 @@ public class ChangesAnomalyStateTransition extends StateTransition {
     }
     public TransitionInitParameter initParameter;
 
-    public ChangesAnomalyStateTransition(String market, String symbol, OrderbookFactory orderbookFactory,
+    public ChangesAnomalyStateTransition(String market, String symbol,
+                                         OrderbookFactory orderbookFactory,
+                                         MarginAsset marginAsset,
                                          TransitionInitParameter initParameter) {
         super(market, symbol);
         this.orderbookFactory = orderbookFactory;
+        this.marginAsset = marginAsset;
         this.initParameter = initParameter;
     }
 
@@ -131,7 +136,8 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     stateTransitionFollowUp = handleEnterPlanState(
                             state,
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
-                            orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis));
+                            orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis),
+                            marginAsset.isMarginAsset(this.symbol));
                     break;
                 case ENTER:
                     stateTransitionFollowUp = handleEnterState(

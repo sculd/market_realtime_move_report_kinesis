@@ -1,6 +1,7 @@
 package com.tradingbinancechangesanomalyreversal.stream;
 
 import com.trading.state.States;
+import com.marketsignalbinance.marginasset.MarginAssetBinance;
 import com.marketsignalbinance.orderbook.OrderbookFactoryBinance;
 import com.tradingchangesanomaly.stream.ChangesAnomalyReversalTradingStream;
 import com.tradingbinance.state.BinanceStates;
@@ -13,7 +14,7 @@ public class ChangesAnomalyReversalTradingBinanceStream extends ChangesAnomalyRe
     private static final Logger log = LoggerFactory.getLogger(ChangesAnomalyReversalTradingBinanceStream.class);
 
     public ChangesAnomalyReversalTradingBinanceStream(BarWithTimeStream barWithTimeStream) {
-        super(barWithTimeStream, new OrderbookFactoryBinance());
+        super(barWithTimeStream, new OrderbookFactoryBinance(), new MarginAssetBinance());
     }
 
     protected States createNewStates(String market, String symbol, States.StatesInitParameter statesInitParameter) {
