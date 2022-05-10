@@ -35,15 +35,21 @@ public class StateTransition {
         }
 
         boolean enterPlanSeekPriceTriggered = state.enterPlan.seekPrice.getIfTriggered(priceSnapshot.price);
-        boolean enterPlanSeekSpreadTriggered = state.enterPlan.seekSpread.getIfTriggered(orderbook.getTopAskPrice(), orderbook.getTopBidPrice());
-        if (enterPlanSeekPriceTriggered && enterPlanSeekSpreadTriggered) {
-            log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
-            state.enter.targetPrice = priceSnapshot.price;
-            state.enter.positionSideType = state.enterPlan.positionSideType;
-            state.enter.targetVolume = state.enterPlan.targetVolume;
-            state.stateType = States.StateType.ENTER;
-            ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
+        if (!enterPlanSeekPriceTriggered) {
+            return ret;
         }
+        boolean enterPlanSeekSpreadTriggered = state.enterPlan.seekSpread.getIfTriggered(orderbook.getTopAskPrice(), orderbook.getTopBidPrice());
+        if (!enterPlanSeekSpreadTriggered) {
+            log.info(String.format("%s seekPrice triggered but the seekSpread did not: %s priceSnapshot: %s, SpreadToMidRatio: %f, orderbook: %s",
+                    Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, orderbook.getSpreadToMidRatio(), orderbook));
+            return ret;
+        }
+        log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
+        state.enter.targetPrice = priceSnapshot.price;
+        state.enter.positionSideType = state.enterPlan.positionSideType;
+        state.enter.targetVolume = state.enterPlan.targetVolume;
+        state.stateType = States.StateType.ENTER;
+        ret = StateTransitionFollowUp.CONTINUE_TRANSITION;
         return ret;
     }
 

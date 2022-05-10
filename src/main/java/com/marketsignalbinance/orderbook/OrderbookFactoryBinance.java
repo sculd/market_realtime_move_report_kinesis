@@ -1,11 +1,11 @@
 package com.marketsignalbinance.orderbook;
 
-import com.binance.connector.client.impl.SpotClientImpl;
 import com.google.gson.Gson;
 import com.marketapi.binance.response.Depth;
 import com.marketsignal.orderbook.Orderbook;
 import com.marketsignal.orderbook.OrderbookFactory;
 import com.marketsignal.orderbook.OrderbookFactoryTrivial;
+import com.tradingbinance.state.BinanceUtil;
 import com.tradingchangesanomalyreversal.BackTestBinance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +15,6 @@ import java.util.List;
 
 public class OrderbookFactoryBinance implements OrderbookFactory {
     private static final Logger log = LoggerFactory.getLogger(BackTestBinance.class);
-
-    static public SpotClientImpl client = new SpotClientImpl(System.getenv("BINANCE_API_KEY"), System.getenv("BINANCE_API_SECRET"));
 
     Gson gson = new Gson();
 
@@ -29,7 +27,7 @@ public class OrderbookFactoryBinance implements OrderbookFactory {
         LinkedHashMap<String,Object> parameters = new LinkedHashMap<String,Object>();
         parameters.put("symbol", symbol);
         parameters.put("limit", 5);
-        String result = client.createMarket().depth(parameters);
+        String result = BinanceUtil.client.createMarket().depth(parameters);
         Depth depth = gson.fromJson(result, Depth.class);
         Orderbook orderbook = new Orderbook(market, symbol, java.time.Instant.now().getEpochSecond());
 
