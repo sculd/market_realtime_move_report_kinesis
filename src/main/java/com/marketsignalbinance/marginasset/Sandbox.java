@@ -4,8 +4,7 @@ import com.marketsignal.marginasset.MarginAsset;
 
 public class Sandbox {
     public static void main(String... args) {
-        MarginAssetFactoryBinance m = new MarginAssetFactoryBinance();
-        MarginAsset ma = m.create("binance");
+        MarginAsset ma = new MarginAssetBinance();
         System.out.println(String.format("%s: %b", "BTC", ma.isMarginAsset("BTC")));
         System.out.println(String.format("%s: %b", "DUMMY", ma.isMarginAsset("DUMMY")));
     }
