@@ -42,7 +42,7 @@ public class SeekSpread {
             case LARGER:
                 return spreadToMidRatio > seekSpreadToMidRatio;
             default:
-                log.error("invalid spreadSeekType: {}", spreadSeekType);
+                log.error("[SeekSpread.getIfTriggered] invalid spreadSeekType: {}", spreadSeekType);
         }
         return false;
     }

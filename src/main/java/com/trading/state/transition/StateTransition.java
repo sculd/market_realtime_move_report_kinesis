@@ -40,8 +40,8 @@ public class StateTransition {
         }
         boolean enterPlanSeekSpreadTriggered = state.enterPlan.seekSpread.getIfTriggered(orderbook.getTopAskPrice(), orderbook.getTopBidPrice());
         if (!enterPlanSeekSpreadTriggered) {
-            log.info(String.format("%s seekPrice triggered but the seekSpread did not: %s priceSnapshot: %s, SpreadToMidRatio: %f, orderbook: %s",
-                    Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, orderbook.getSpreadToMidRatio(), orderbook));
+            log.info(String.format("%s seekPrice triggered but the seekSpread did not: %s priceSnapshot: %s, SpreadToMidRatio: %f vs seekSpread.seekSpreadToMidRatio: %f, orderbook: %s",
+                    Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, orderbook.getSpreadToMidRatio(), state.enterPlan.seekSpread.seekSpreadToMidRatio, orderbook));
         }
         boolean isTradableAsset = state.enterPlan.positionSideType == Common.PositionSideType.LONG || isMarginAsset;
         if (!isTradableAsset) {
@@ -52,7 +52,9 @@ public class StateTransition {
             return ret;
         }
 
-        log.info(String.format("%s enterPlanTriggered: %s at %s", Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot));
+        log.info(String.format("%s enterPlanTriggered: %s at priceSnapshot: %s, SpreadToMidRatio: %f vs seekSpread.seekSpreadToMidRatio: %f, orderbook: %s",
+                Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot,
+                orderbook.getSpreadToMidRatio(), state.enterPlan.seekSpread.seekSpreadToMidRatio, orderbook));
         state.enter.targetPrice = priceSnapshot.price;
         state.enter.positionSideType = state.enterPlan.positionSideType;
         state.enter.targetVolume = state.enterPlan.targetVolume;
