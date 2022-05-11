@@ -12,7 +12,9 @@ import java.util.stream.Collectors;
 public class MarginAssetBinance implements MarginAsset {
     Gson gson = new Gson();
 
-    public boolean isMarginAsset(String symbol) {
+    public boolean isMarginAsset(String pair) {
+        String[] tokens = pair.split("USD");
+        String symbol = tokens[0];
         String result = BinanceUtil.client.createMargin().allAssets();
         MarginAssetResponse[] marginAssets = gson.fromJson(result, MarginAssetResponse[].class);
         Set<String> assets = Arrays.stream(marginAssets).map(mr -> mr.assetName).collect(Collectors.toSet());
