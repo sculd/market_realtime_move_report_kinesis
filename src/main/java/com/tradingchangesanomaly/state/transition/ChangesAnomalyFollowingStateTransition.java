@@ -19,7 +19,7 @@ public class ChangesAnomalyFollowingStateTransition extends ChangesAnomalyStateT
         super(market, symbol, orderbookFactory, marginAsset, initParameter);
     }
 
-    public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis) {
+    public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis, boolean isMarginAsset) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.IDLE) {
             return ret;
@@ -41,6 +41,13 @@ public class ChangesAnomalyFollowingStateTransition extends ChangesAnomalyStateT
         }
         if (triggerOnDropAnomaly && dropAnomalyTriggered) {
             log.info(String.format("%s drop anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
+
+            boolean isTradableAsset = initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP || isMarginAsset;
+            if (!isTradableAsset) {
+                log.info(String.format("%s drop anomaly found but not a tradable asset: %s analysis: %s", state, analysis));
+                return ret;
+            }
+
             state.enterPlan.init(Common.PositionSideType.SHORT, analysis.priceAtAnalysis);
             state.stateType = States.StateType.ENTER_PLAN;
             ret = StateTransitionFollowUp.CONTINUE_TRANSITION;

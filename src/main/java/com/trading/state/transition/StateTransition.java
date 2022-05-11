@@ -28,7 +28,7 @@ public class StateTransition {
     /*
      * handle the ENTER_PLAN state
      */
-    public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot, Orderbook orderbook, boolean isMarginAsset) {
+    public StateTransitionFollowUp handleEnterPlanState(States state, Common.PriceSnapshot priceSnapshot, Orderbook orderbook) {
         StateTransitionFollowUp ret = StateTransitionFollowUp.HALT_TRANSITION;
         if (state.stateType != States.StateType.ENTER_PLAN) {
             return ret;
@@ -42,13 +42,6 @@ public class StateTransition {
         if (!enterPlanSeekSpreadTriggered) {
             log.info(String.format("%s seekPrice triggered but the seekSpread did not: %s priceSnapshot: %s, SpreadToMidRatio: %f vs seekSpread.seekSpreadToMidRatio: %f, orderbook: %s",
                     Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, orderbook.getSpreadToMidRatio(), state.enterPlan.seekSpread.seekSpreadToMidRatio, orderbook));
-        }
-        boolean isTradableAsset = state.enterPlan.positionSideType == Common.PositionSideType.LONG || isMarginAsset;
-        if (!isTradableAsset) {
-            log.info(String.format("%s seekPrice triggered but not a tradable asset: %s priceSnapshot: %s, SpreadToMidRatio: %f",
-                    Time.fromEpochSecondsToDateTimeStr(priceSnapshot.epochSeconds), state, priceSnapshot, orderbook.getSpreadToMidRatio()));
-        }
-        if (!enterPlanSeekSpreadTriggered || !isTradableAsset) {
             return ret;
         }
 

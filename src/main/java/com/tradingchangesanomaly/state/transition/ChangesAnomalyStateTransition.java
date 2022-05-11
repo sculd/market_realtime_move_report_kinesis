@@ -98,7 +98,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         this.initParameter = initParameter;
     }
 
-    public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis) {
+    public StateTransitionFollowUp planEnter(States state, Changes.AnalyzeResult analysis, boolean isMarginAsset) {
         // to be implemented in following / reversal trades.
         return  StateTransitionFollowUp.HALT_TRANSITION;
     }
@@ -130,14 +130,13 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
             switch (state.stateType) {
                 case IDLE:
-                    stateTransitionFollowUp = planEnter(state, changeAnalysis);
+                    stateTransitionFollowUp = planEnter(state, changeAnalysis, marginAsset.isMarginAsset(this.symbol));
                     break;
                 case ENTER_PLAN:
                     stateTransitionFollowUp = handleEnterPlanState(
                             state,
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
-                            orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis),
-                            marginAsset.isMarginAsset(this.symbol));
+                            orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis));
                     break;
                 case ENTER:
                     stateTransitionFollowUp = handleEnterState(
