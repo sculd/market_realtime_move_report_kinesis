@@ -22,6 +22,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +60,7 @@ public class BigQueryImport {
         String baseDirPath;
         QueryTemplates.Table table;
         @Builder.Default
-        List<String> symbols = new ArrayList<>();
+        public List<String> symbols = new ArrayList<>();
         long startEpochSeconds;
         long endEpochSeconds;
     }
@@ -74,6 +76,13 @@ public class BigQueryImport {
     static public boolean getIfFileExist(ImportParam importParam) {
         String filename = getImportedFileName(importParam);
         return new File(filename).exists();
+    }
+
+    public static String formatNumber(Number n) {
+        NumberFormat format = DecimalFormat.getInstance();
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(8);
+        return format.format(n);
     }
 
     public void importAsCSV(ImportParam importParam) {
@@ -118,13 +127,13 @@ public class BigQueryImport {
                 FileWriter csvWriter = new FileWriter(filename);
                 csvWriter.write("timestamp,symbol,open,high,low,close,volume\n");
                 for (FieldValueList row : result.iterateAll()) {
-                    String line = String.format("%s,%s,%f,%f,%f,%f,%f\n",
+                    String line = String.format("%s,%s,%s,%s,%s,%s,%f\n",
                             row.get("timestamp").getTimestampValue() / 1000000,
                             row.get("symbol").getStringValue(),
-                            row.get("open").getDoubleValue(),
-                            row.get("high").getDoubleValue(),
-                            row.get("low").getDoubleValue(),
-                            row.get("close").getDoubleValue(),
+                            formatNumber(row.get("open").getDoubleValue()),
+                            formatNumber(row.get("high").getDoubleValue()),
+                            formatNumber(row.get("low").getDoubleValue()),
+                            formatNumber(row.get("close").getDoubleValue()),
                             row.get("volume").getDoubleValue());
                     csvWriter.write(line);
                 }

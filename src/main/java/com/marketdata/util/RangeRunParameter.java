@@ -25,7 +25,7 @@ public class RangeRunParameter {
         return BigQueryImport.ImportParam.builder()
                 .baseDirPath("marketdata/")
                 .table(table)
-                .symbols(Arrays.asList())
+                .symbols(new ArrayList<>())
                 .startEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearBegin, monthBegin, dayBegin, 0, 0))
                 .endEpochSeconds(Time.fromNewYorkDateTimeInfoToEpochSeconds(yearEnd, monthEnd, dayEnd, 0, -1))
                 .build();

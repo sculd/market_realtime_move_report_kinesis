@@ -46,12 +46,12 @@ public class MainBinance {
     {
         System.out.println("ingesting");
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
-                .yearBegin(2021)
-                .monthBegin(10)
-                .dayBegin(1)
-                .yearEnd(2021)
-                .monthEnd(10)
-                .dayEnd(30)
+                .yearBegin(2022)
+                .monthBegin(5)
+                .dayBegin(10)
+                .yearEnd(2022)
+                .monthEnd(5)
+                .dayEnd(11)
                 .build();
 
         importRange(rangeRunParameter);
