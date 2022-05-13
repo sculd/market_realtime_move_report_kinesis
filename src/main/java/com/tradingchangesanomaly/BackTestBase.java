@@ -1,6 +1,7 @@
 package com.tradingchangesanomaly;
 
 import com.marketdata.imports.BigQueryImport;
+import com.marketsignalbinance.marginasset.MarginAssetBinance;
 import com.trading.performance.*;
 import com.tradingchangesanomaly.performance.ParameterScan;
 import com.tradingchangesanomaly.state.transition.ChangesAnomalyStateTransition;
@@ -54,7 +55,7 @@ public class BackTestBase {
         log.info(String.format("Back testing from %s file", filename));
 
         log.info(String.format("Starting a new run: %s", changesAnomalyTradingStreamInitParameter));
-        BarWithTimestampAnomalyReversalCSVProcessor barWithTimestampAnomalyReversalCSVProcessor = new BarWithTimestampAnomalyReversalCSVProcessor();
+        BarWithTimestampAnomalyReversalCSVProcessor barWithTimestampAnomalyReversalCSVProcessor = new BarWithTimestampAnomalyReversalCSVProcessor(new MarginAssetBinance());
         barWithTimestampAnomalyReversalCSVProcessor.run(filename, changesAnomalyTradingStreamInitParameter);
         ParameterRun parameterRun = ParameterRun.builder()
                 .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)

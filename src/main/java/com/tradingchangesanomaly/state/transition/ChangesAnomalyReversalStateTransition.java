@@ -38,7 +38,7 @@ public class ChangesAnomalyReversalStateTransition extends ChangesAnomalyStateTr
 
             boolean isTradableAsset = initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP || isMarginAsset;
             if (!isTradableAsset) {
-                log.info(String.format("%s jump anomaly found but not a tradable asset: %s analysis: %s", state, analysis));
+                log.info(String.format("%s jump anomaly found but not a tradable asset: %s analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
                 return ret;
             }
 
