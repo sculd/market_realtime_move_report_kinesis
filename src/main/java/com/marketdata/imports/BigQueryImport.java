@@ -82,6 +82,7 @@ public class BigQueryImport {
         NumberFormat format = DecimalFormat.getInstance();
         format.setMinimumFractionDigits(2);
         format.setMaximumFractionDigits(8);
+        format.setGroupingUsed(false);
         return format.format(n);
     }
 
