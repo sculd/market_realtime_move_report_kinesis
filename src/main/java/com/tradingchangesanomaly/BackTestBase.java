@@ -1,5 +1,6 @@
 package com.tradingchangesanomaly;
 
+import com.google.common.io.Files;
 import com.marketdata.imports.BigQueryImport;
 import com.marketsignalbinance.marginasset.MarginAssetBinance;
 import com.trading.performance.*;
@@ -10,7 +11,6 @@ import com.tradingchangesanomaly.recordprocessor.BarWithTimestampAnomalyReversal
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 import java.time.Instant;
@@ -78,8 +78,9 @@ public class BackTestBase {
                 .build();
         parameterRuns.addParameterRun(parameterRun);
         parameterRuns.exportToCsv(runsExportDir, parameterRun);
-        ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(importParam.startEpochSeconds), ZoneId.of("America/New_York"));
+        ZonedDateTime startSateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(importParam.startEpochSeconds), ZoneId.of("America/New_York"));
         ZonedDateTime endDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(importParam.endEpochSeconds), ZoneId.of("America/New_York"));
+        ZonedDateTime dateTime = startSateTime;
         while (!dateTime.isAfter(endDateTime)) {
             String dailyRunsExportDir = Paths.get(runsExportDir).resolve(dateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))).toString();
             ZonedDateTime nextDateTime = dateTime.plusDays(1);
@@ -87,11 +88,22 @@ public class BackTestBase {
             dateTime = nextDateTime;
         }
 
+        ClosedTrades closedTrades = barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.closedTrades;
         ParameterPnl parameterPnl = ParameterPnl.builder()
                 .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
-                .closedTradesPnl(barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.closedTrades.getClosedTradesPnl())
+                .closedTradesPnl(closedTrades.getClosedTradesPnl())
                 .build();
         parameterPnls.addParameterPnl(parameterPnl);
         parameterPnls.appendPnlToCsv(pnlsExportFileName, parameterPnl);
+        dateTime = startSateTime;
+        while (!dateTime.isAfter(endDateTime)) {
+            String dailyPnlsExportFileName = Paths.get(pnlsExportFileName).getParent()
+                    .resolve(Files.getNameWithoutExtension(pnlsExportFileName))
+                    .resolve(dateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd.csv"))).toString();
+            ZonedDateTime nextDateTime = dateTime.plusDays(1);
+            parameterPnls.appendPnlToCsv(dailyPnlsExportFileName, parameterPnl.ofClosedTrades(
+                    closedTrades.ofRange(dateTime.toInstant().toEpochMilli() / 1000, nextDateTime.toInstant().toEpochMilli() / 1000)));
+            dateTime = nextDateTime;
+        }
     }
 }

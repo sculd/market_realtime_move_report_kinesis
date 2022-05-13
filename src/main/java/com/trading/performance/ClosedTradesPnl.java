@@ -17,6 +17,21 @@ public class ClosedTradesPnl {
     double pnlShort;
     double pnlPerTradeShort;
 
+    public ClosedTradesPnl ofClosedTrades(ClosedTrades of) {
+        ClosedTradesPnl ranged = ClosedTradesPnl.builder()
+                .closedTrades(of.closedTrades.size())
+                .pnl(of.getPnL())
+                .pnlPerTrade(of.getPnLPerTrade())
+                .closedTradesLong(of.longOnly().closedTrades.size())
+                .pnlLong(of.longOnly().getPnL())
+                .pnlPerTradeLong(of.longOnly().getPnLPerTrade())
+                .closedTradesShort(of.shortOnly().closedTrades.size())
+                .pnlShort(of.shortOnly().getPnL())
+                .pnlPerTradeShort(of.shortOnly().getPnLPerTrade())
+                .build();
+        return ranged;
+    }
+
     static public String toCsvHeader() {
         List<String> headers = new ArrayList<>();
         headers.add("closed_trades");

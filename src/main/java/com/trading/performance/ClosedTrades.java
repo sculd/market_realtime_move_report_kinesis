@@ -19,16 +19,39 @@ public class ClosedTrades {
         return ranged;
     }
 
+    public ClosedTrades longOnly() {
+        ClosedTrades ranged = new ClosedTrades();
+        ranged.closedTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.LONG).collect(Collectors.toList());
+        return ranged;
+    }
+
+    public ClosedTrades shortOnly() {
+        ClosedTrades ranged = new ClosedTrades();
+        ranged.closedTrades = closedTrades.stream().filter(ct -> ct.positionSideType == Common.PositionSideType.SHORT).collect(Collectors.toList());
+        return ranged;
+    }
+
     public void addClosedTrades(ClosedTrade closedTrade) {
         closedTrades.add(closedTrade);
     }
 
+    public double getPnL() {
+        return getPnL(closedTrades);
+    }
     public double getPnL(List<ClosedTrade> closedTrades) {
         return closedTrades.stream().map(ct -> ct.getPnL()).mapToDouble(f -> f).sum();
     }
 
+    public double getPnLPerTrade() {
+        return getPnLPerTrade(closedTrades);
+    }
+
     public double getPnLPerTrade(List<ClosedTrade> closedTrades) {
         return closedTrades.isEmpty()? 0 : getPnL(closedTrades) / closedTrades.size();
+    }
+
+    public double getGainLossFiat() {
+        return getGainLossFiat(closedTrades);
     }
 
     public double getGainLossFiat(List<ClosedTrade> closedTrades) {

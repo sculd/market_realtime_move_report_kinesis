@@ -11,6 +11,14 @@ public class ParameterPnl {
     public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
     public ClosedTradesPnl closedTradesPnl;
 
+    public ParameterPnl ofClosedTrades(ClosedTrades closedTrades) {
+        ParameterPnl ranged = ParameterPnl.builder()
+                .changesAnomalyTradingStreamInitParameter(changesAnomalyTradingStreamInitParameter)
+                .closedTradesPnl(closedTradesPnl.ofClosedTrades(closedTrades))
+                .build();
+        return ranged;
+    }
+
     static public String toCsvHeader() {
         return String.format("%s,%s",
                 ChangesAnomalyTradingStreamInitParameter.toCsvHeader(),
