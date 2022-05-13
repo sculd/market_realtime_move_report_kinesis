@@ -10,6 +10,8 @@ import com.tradingchangesanomaly.recordprocessor.BarWithTimestampAnomalyReversal
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class BackTestBase {
@@ -31,14 +33,21 @@ public class BackTestBase {
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.10).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
                 ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(20).build();
-        List<ChangesAnomalyTradingStreamInitParameter> scanGrids = ParameterScan.generateScanGrids(
-                seekChangeAmplitudeScanGridParam,
-                targetReturnFromEntryScanGridParam,
-                targetStopLossScanGridParam,
-                maxJumpThresholdScanGridParam,
-                minDropThresholdScanGridParam,
-                changeAnalysisWindowScanGridParam,
-                ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP);
+
+        List<ChangesAnomalyTradingStreamInitParameter> scanGrids = new ArrayList<>();
+        for (ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType triggerAnomalyType :
+                Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP,
+                        ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP,
+                        ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)) {
+            scanGrids.addAll(ParameterScan.generateScanGrids(
+                    seekChangeAmplitudeScanGridParam,
+                    targetReturnFromEntryScanGridParam,
+                    targetStopLossScanGridParam,
+                    maxJumpThresholdScanGridParam,
+                    minDropThresholdScanGridParam,
+                    changeAnalysisWindowScanGridParam,
+                    triggerAnomalyType));
+        }
         return scanGrids;
     }
 
