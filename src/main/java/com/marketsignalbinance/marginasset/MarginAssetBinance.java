@@ -17,11 +17,20 @@ import java.util.stream.Collectors;
 
 public class MarginAssetBinance implements MarginAsset {
     Gson gson = new Gson();
+    LoadingCache<String, Boolean> cached;
     LoadingCache<String, String> cachedAPIResult;
 
     final String API_RESULT_KEY = "all";
 
     public MarginAssetBinance() {
+        cached = CacheBuilder.newBuilder()
+                .expireAfterAccess(10, TimeUnit.MINUTES)
+                .build(
+                        new CacheLoader<String, Boolean>() {
+                            public Boolean load(String pair) { // no checked exception
+                                return queryIsMarginAsset(pair);
+                            }
+                        });
         cachedAPIResult = CacheBuilder.newBuilder()
                 .expireAfterAccess(10, TimeUnit.MINUTES)
                 .build(
@@ -36,6 +45,15 @@ public class MarginAssetBinance implements MarginAsset {
         return BinanceUtil.client.createMargin().allAssets();
     }
 
+    boolean queryIsMarginAsset(String pair) {
+        String result = getAllMarginAssetsResponse();
+        String[] tokens = pair.split("USD");
+        String symbol = tokens[0];
+        MarginAssetResponse[] marginAssets = gson.fromJson(result, MarginAssetResponse[].class);
+        Set<String> assets = Arrays.stream(marginAssets).map(mr -> mr.assetName).collect(Collectors.toSet());
+        return assets.contains(symbol);
+    }
+
     String getAllMarginAssetsResponse() {
         try {
             return cachedAPIResult.get(API_RESULT_KEY);
@@ -46,11 +64,30 @@ public class MarginAssetBinance implements MarginAsset {
     }
 
     public boolean isMarginAsset(String pair) {
-        String result = getAllMarginAssetsResponse();
-        MarginAssetResponse[] marginAssets = gson.fromJson(result, MarginAssetResponse[].class);
-        Set<String> assets = Arrays.stream(marginAssets).map(mr -> mr.assetName).collect(Collectors.toSet());
-        String[] tokens = pair.split("USD");
-        String symbol = tokens[0];
-        return assets.contains(symbol);
+        try {
+            return cached.get(pair);
+        } catch (ExecutionException e) {
+            // retry
+            return queryIsMarginAsset(pair);
+        }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
