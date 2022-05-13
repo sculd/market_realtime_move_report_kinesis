@@ -61,8 +61,8 @@ public class BigQueryImport {
         QueryTemplates.Table table;
         @Builder.Default
         public List<String> symbols = new ArrayList<>();
-        long startEpochSeconds;
-        long endEpochSeconds;
+        public long startEpochSeconds;
+        public long endEpochSeconds;
     }
 
     static public String getImportedFileName(ImportParam importParam) {

@@ -18,7 +18,7 @@ public class ParameterRuns {
         dir.mkdirs();
     }
 
-    public void appendRunToCsv(String runExportDir, ParameterRun parameterRun) {
+    public void exportToCsv(String runExportDir, ParameterRun parameterRun) {
         createDirIfNotPresent(runExportDir);
         Path filename =  Paths.get(runExportDir).resolve(String.format("%s.csv", parameterRun.changesAnomalyTradingStreamInitParameter.toCsvLine()));
         parameterRun.exportToCsv(filename.toString());

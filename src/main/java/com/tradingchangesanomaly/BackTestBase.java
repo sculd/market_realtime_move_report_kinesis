@@ -10,6 +10,12 @@ import com.tradingchangesanomaly.recordprocessor.BarWithTimestampAnomalyReversal
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +77,15 @@ public class BackTestBase {
                 .closedTrades(barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.closedTrades)
                 .build();
         parameterRuns.addParameterRun(parameterRun);
-        parameterRuns.appendRunToCsv(runsExportDir, parameterRun);
+        parameterRuns.exportToCsv(runsExportDir, parameterRun);
+        ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(importParam.startEpochSeconds), ZoneId.of("America/New_York"));
+        ZonedDateTime endDateTime = ZonedDateTime.ofInstant(Instant.ofEpochSecond(importParam.endEpochSeconds), ZoneId.of("America/New_York"));
+        while (!dateTime.isAfter(endDateTime)) {
+            String dailyRunsExportDir = Paths.get(runsExportDir).resolve(dateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd"))).toString();
+            ZonedDateTime nextDateTime = dateTime.plusDays(1);
+            parameterRuns.exportToCsv(dailyRunsExportDir, parameterRun.ofRange(dateTime.toInstant().toEpochMilli() / 1000, nextDateTime.toInstant().toEpochMilli() / 1000));
+            dateTime = nextDateTime;
+        }
 
         ParameterPnl parameterPnl = ParameterPnl.builder()
                 .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyReversalCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)

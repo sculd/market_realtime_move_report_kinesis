@@ -13,6 +13,12 @@ public class ClosedTrades {
     private static final Logger log = LoggerFactory.getLogger(ClosedTrades.class);
     public List<ClosedTrade> closedTrades = new ArrayList<>();
 
+    public ClosedTrades ofRange(long epochSecondsBegin, long epochSecondsEnd) {
+        ClosedTrades ranged = new ClosedTrades();
+        ranged.closedTrades = closedTrades.stream().filter(ct -> ct.entryPriceSnapshot.epochSeconds >= epochSecondsBegin && ct.entryPriceSnapshot.epochSeconds < epochSecondsEnd).collect(Collectors.toList());
+        return ranged;
+    }
+
     public void addClosedTrades(ClosedTrade closedTrade) {
         closedTrades.add(closedTrade);
     }

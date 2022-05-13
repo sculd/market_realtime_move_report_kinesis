@@ -16,6 +16,14 @@ public class ParameterRun {
     public ChangesAnomalyTradingStreamInitParameter changesAnomalyTradingStreamInitParameter;
     public ClosedTrades closedTrades;
 
+    public ParameterRun ofRange(long epochSecondsBegin, long epochSecondsEnd) {
+        ParameterRun ranged = ParameterRun.builder()
+                .changesAnomalyTradingStreamInitParameter(changesAnomalyTradingStreamInitParameter)
+                .closedTrades(closedTrades.ofRange(epochSecondsBegin, epochSecondsEnd))
+                .build();
+        return ranged;
+    }
+
     void exportToCsv(String exportFileName) {
         FileWriter exportFileWriter = null;
         try {

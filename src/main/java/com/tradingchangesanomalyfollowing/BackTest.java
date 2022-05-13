@@ -100,7 +100,7 @@ public class BackTest {
                     .closedTrades(barWithTimestampAnomalyFollowingCSVProcessor.changesAnomalyTradingStream.closedTrades)
                     .build();
             parameterRuns.addParameterRun(parameterRun);
-            parameterRuns.appendRunToCsv(runsExportDir, parameterRun);
+            parameterRuns.exportToCsv(runsExportDir, parameterRun);
 
             ParameterPnl parameterPnl = ParameterPnl.builder()
                     .changesAnomalyTradingStreamInitParameter(barWithTimestampAnomalyFollowingCSVProcessor.changesAnomalyTradingStream.changesAnomalyTradingStreamInitParameter)
