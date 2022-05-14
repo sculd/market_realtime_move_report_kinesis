@@ -42,8 +42,7 @@ public class ChangesAnomalyFollowingStateTransition extends ChangesAnomalyStateT
         if (triggerOnDropAnomaly && dropAnomalyTriggered) {
             log.info(String.format("%s drop anomaly found: %s, analysis: %s", Time.fromEpochSecondsToDateTimeStr(analysis.epochSecondsAtAnalysis), state, analysis));
 
-            boolean isTradableAsset = initParameter.triggerAnomalyType == TransitionInitParameter.TriggerAnomalyType.JUMP || isMarginAsset;
-            if (!isTradableAsset) {
+            if (!isMarginAsset) {
                 log.info(String.format("%s drop anomaly found but not a tradable asset: %s analysis: %s", state, analysis));
                 return ret;
             }
