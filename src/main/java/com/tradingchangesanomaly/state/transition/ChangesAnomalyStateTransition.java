@@ -133,6 +133,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
                     stateTransitionFollowUp = planEnter(state, changeAnalysis, marginAsset.isMarginAsset(this.symbol));
                     break;
                 case ENTER_PLAN:
+                    state.enterPlan.onPriceUpdate(changeAnalysis.priceAtAnalysis);
                     stateTransitionFollowUp = handleEnterPlanState(
                             state,
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),

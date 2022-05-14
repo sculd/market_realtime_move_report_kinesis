@@ -73,4 +73,19 @@ public class EnterPlan {
         seekPrice.init(changeType, price, sign * enterPlanInitParameter.seekChangeAmplitude);
         seekSpread.init(SeekSpread.SpreadSeekType.SMALLER, enterPlanInitParameter.seekSpreadToMidRatio);
     }
+
+    public void onPriceUpdate(double price) {
+        switch (seekPrice.changeType) {
+            case DROP:
+                if (price > seekPrice.referencePrice) {
+                    seekPrice.updateReferencePrice(price);
+                }
+                break;
+            case JUMP:
+                if (price < seekPrice.referencePrice) {
+                    seekPrice.updateReferencePrice(price);
+                }
+                break;
+        }
+    }
 }

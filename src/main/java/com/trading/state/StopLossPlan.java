@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 public class StopLossPlan {
     public Common.PriceSnapshot entryPriceSnapShot;
-    public double topPrice;
+    public double referencePrice;
 
     public enum StopLossType {
         STOP_LOSS_FROM_TOP_PROFIT,
@@ -68,8 +68,7 @@ public class StopLossPlan {
     public void init(Position position, StopLossPlan.StopLossPlanInitParameter stopLossPlanInitParameter) {
         this.entryPriceSnapShot = position.entryPriceSnapshot;
         stopLossType = stopLossPlanInitParameter.stopLossType;
-        topPrice = position.entryPriceSnapshot.price;
-        double referencePrice = topPrice;
+        referencePrice = position.entryPriceSnapshot.price;
 
         Common.ChangeType changeType = Common.ChangeType.JUMP;
         double sign = 1.0;
@@ -86,10 +85,22 @@ public class StopLossPlan {
     }
 
     public void onPriceUpdate(double price) {
-        topPrice = Math.max(price, topPrice);
         switch (stopLossType) {
             case STOP_LOSS_FROM_TOP_PROFIT:
-                seekPrice.updateReferencePrice(topPrice);
+                switch (seekPrice.changeType) {
+                    case DROP:
+                        if (price > seekPrice.referencePrice) {
+                            referencePrice = price;
+                            seekPrice.updateReferencePrice(price);
+                        }
+                        break;
+                    case JUMP:
+                        if (price < seekPrice.referencePrice) {
+                            referencePrice = price;
+                            seekPrice.updateReferencePrice(price);
+                        }
+                        break;
+                }
                 break;
             case STOP_LOSS_FROM_ENTRY:
                 break;
@@ -100,7 +111,7 @@ public class StopLossPlan {
     public String toString() {
         return MoreObjects.toStringHelper(StopLossPlan.class)
                 .add("entryPriceSnapShot", entryPriceSnapShot)
-                .add("topPrice", topPrice)
+                .add("referencePrice", referencePrice)
                 .add("stopLossType", stopLossType)
                 .add("seek", seekPrice)
                 .toString();

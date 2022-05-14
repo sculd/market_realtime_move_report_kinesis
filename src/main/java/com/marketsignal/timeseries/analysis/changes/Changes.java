@@ -79,7 +79,7 @@ public class Changes {
         }
 
         public List<String> getCsvValueColumns() {
-            return Arrays.asList(String.format("%.2f", priceAtAnalysis), String.format("%.2f", minDrop), String.format("%.2f", maxJump));
+            return Arrays.asList(String.format("%.2f", priceAtAnalysis), String.format("%.2f", minDrop.change), String.format("%.2f", maxJump.change));
         }
     }
 
