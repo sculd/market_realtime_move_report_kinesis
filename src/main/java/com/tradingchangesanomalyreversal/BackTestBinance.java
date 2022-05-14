@@ -21,9 +21,9 @@ public class BackTestBinance extends BackTestBase {
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
                 .yearBegin(2022)
                 .monthBegin(4)
-                .dayBegin(10)
+                .dayBegin(1)
                 .yearEnd(2022)
-                .monthEnd(4)
+                .monthEnd(5)
                 .dayEnd(12)
                 .build();
 

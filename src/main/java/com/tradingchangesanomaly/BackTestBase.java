@@ -99,7 +99,7 @@ public class BackTestBase {
         while (!dateTime.isAfter(endDateTime)) {
             String dailyPnlsExportFileName = Paths.get(pnlsExportFileName).getParent()
                     .resolve(Files.getNameWithoutExtension(pnlsExportFileName))
-                    .resolve(dateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd.csv"))).toString();
+                    .resolve(dateTime.format(DateTimeFormatter.ofPattern("yyyy_MM_dd")) + ".csv").toString();
             ZonedDateTime nextDateTime = dateTime.plusDays(1);
             parameterPnls.appendPnlToCsv(dailyPnlsExportFileName, parameterPnl.ofClosedTrades(
                     closedTrades.ofRange(dateTime.toInstant().toEpochMilli() / 1000, nextDateTime.toInstant().toEpochMilli() / 1000)));
