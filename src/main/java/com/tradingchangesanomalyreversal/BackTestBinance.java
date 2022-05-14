@@ -21,10 +21,10 @@ public class BackTestBinance extends BackTestBase {
         RangeRunParameter rangeRunParameter = RangeRunParameter.builder()
                 .yearBegin(2022)
                 .monthBegin(5)
-                .dayBegin(1)
+                .dayBegin(11)
                 .yearEnd(2022)
                 .monthEnd(5)
-                .dayEnd(13)
+                .dayEnd(12)
                 .build();
 
         runRange(rangeRunParameter);
@@ -32,6 +32,7 @@ public class BackTestBinance extends BackTestBase {
 
     private void runRange(RangeRunParameter rangeRunParameter) {
         BigQueryImport.ImportParam importParam = rangeRunParameter.getImportParam(QueryTemplates.Table.BINANCE_BAR_WITH_TIME);
+        //importParam.symbols.add("PEOPLEUSDT");
         List<ChangesAnomalyTradingStreamInitParameter> scanGrids = generateScanGrids();
 
         String runsExportDir = String.format("backtestdata/binance/runs/reversal/backtest_runs_%s", rangeRunParameter.toFileNamePhrase());

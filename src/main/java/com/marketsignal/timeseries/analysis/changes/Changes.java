@@ -14,47 +14,49 @@ import java.util.List;
 
 public class Changes {
     @Builder
+    static public class Change {
+        public double change;
+        public double priceAtChange;
+        public double priceChangedFrom;
+        public long priceAtChangeEpochSeconds;
+        public long priceChangedFromEpochSeconds;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(Change.class)
+                    .add("change", Format.ratioToPercent(change))
+                    .add("priceAtChange", priceAtChange)
+                    .add("priceChangedFrom", priceChangedFrom)
+                    .add("priceAtChangeEpochSeconds", Time.fromEpochSecondsToDateTimeStr(priceAtChangeEpochSeconds))
+                    .add("priceChangedFromEpochSeconds", Time.fromEpochSecondsToDateTimeStr(priceChangedFromEpochSeconds))
+                    .toString();
+        }
+    }
+
+    @Builder
     static public class AnalyzeResult extends Analysis {
         public String market;
         public String symbol;
         public double priceAtAnalysis;
         public long epochSecondsAtAnalysis;
-        public double minDrop;
-        public double priceAtMinDrop;
-        public long minDropEpochSeconds;
-        public double maxPriceForMinDrop;
-        public long maxPriceForMinDropEpochSeconds;
-        public double maxJump;
-        public double priceAtMaxJump;
-        public long maxJumpEpochSeconds;
-        public double minPriceForMaxJump;
-        public long minPriceForMaxJumpEpochSeconds;
+        public Change minDrop;
+        public Change maxJump;
         public double change;
         public AnalyzeParameter analyzeParameter;
 
         public AnalyzeResult(
                  String market, String symbol,
                  double priceAtAnalysis, long epochSecondsAtAnalysis,
-                 double minDrop, double priceAtMinDrop, long minDropEpochSeconds,
-                 double maxPriceForMinDrop, long maxPriceForMinDropEpochSeconds,
-                 double maxJump, double priceAtMaxJump, long maxJumpEpochSeconds,
-                 double minPriceForMaxJump, long minPriceForMaxJumpEpochSeconds,
+                 Change minDrop,
+                 Change maxJump,
                  double change,
-         AnalyzeParameter analyzeParameter) {
+                 AnalyzeParameter analyzeParameter) {
             this.market = market;
             this.symbol = symbol;
             this.priceAtAnalysis = priceAtAnalysis;
             this.epochSecondsAtAnalysis = epochSecondsAtAnalysis;
             this.minDrop = minDrop;
-            this.priceAtMinDrop = priceAtMinDrop;
-            this.minDropEpochSeconds = minDropEpochSeconds;
-            this.maxPriceForMinDrop = maxPriceForMinDrop;
-            this.maxPriceForMinDropEpochSeconds = maxPriceForMinDropEpochSeconds;
             this.maxJump = maxJump;
-            this.priceAtMaxJump = priceAtMaxJump;
-            this.maxJumpEpochSeconds = maxJumpEpochSeconds;
-            this.minPriceForMaxJump = minPriceForMaxJump;
-            this.minPriceForMaxJumpEpochSeconds = minPriceForMaxJumpEpochSeconds;
             this.change = change;
             this.analyzeParameter = analyzeParameter;
         }
@@ -66,16 +68,8 @@ public class Changes {
                     .add("epochSecondsAtAnalysis", Time.fromEpochSecondsToDateTimeStr(epochSecondsAtAnalysis))
                     .add("datetime_str", Time.fromEpochSecondsToDateTimeStr(epochSecondsAtAnalysis))
                     .add("change", Format.ratioToPercent(change))
-                    .add("minDrop", Format.ratioToPercent(minDrop))
-                    .add("priceAtMinDrop", Format.truncatePrice(priceAtMinDrop))
-                    .add("minDropEpochSeconds", Time.fromEpochSecondsToDateTimeStr(minDropEpochSeconds))
-                    .add("maxPriceForMinDrop", Format.truncatePrice(maxPriceForMinDrop))
-                    .add("maxPriceForMinDropEpochSeconds", Time.fromEpochSecondsToDateTimeStr(maxPriceForMinDropEpochSeconds))
-                    .add("maxJump", Format.ratioToPercent(maxJump))
-                    .add("priceAtMaxJump", Format.truncatePrice(priceAtMaxJump))
-                    .add("maxJumpEpochSeconds", Time.fromEpochSecondsToDateTimeStr(maxJumpEpochSeconds))
-                    .add("minPriceForMaxJump", Format.truncatePrice(minPriceForMaxJump))
-                    .add("minPriceForMaxJumpEpochSeconds", Time.fromEpochSecondsToDateTimeStr(minPriceForMaxJumpEpochSeconds))
+                    .add("minDrop", minDrop)
+                    .add("maxJump", maxJump)
                     .add("analyzeParameter", analyzeParameter.toString())
                     .toString();
         }
@@ -112,19 +106,11 @@ public class Changes {
 
         Double minPrice = null;
         Double maxPrice = null;
+        Change maxJump = null;
+        Change minDrop = null;
         long minPriceEpochSeconds = 0;
         long maxPriceEpochSeconds = 0;
-        Double minDrop = null;
-        Double maxJump = null;
         double change = 0;
-        double priceAtMaxJump = 0;
-        double priceAtMinDrop = 0;
-        double maxPriceForMinDrop = 0;
-        double minPriceForMaxJump = 0;
-        long maxJumpEpochSeconds = 0;
-        long minDropEpochSeconds = 0;
-        long maxPriceForMinDropEpochSeconds = 0;
-        long minPriceForMaxJumpEpochSeconds = 0;
 
         for (BarWithTime bwt : bwtSlidingWindow.window) {
             if (!bwtSlidingWindow.isEpochSecondsInWindow(bwt.epochSeconds, parameter.windowSize)) {
@@ -137,12 +123,14 @@ public class Changes {
                 minPriceEpochSeconds = bwt.epochSeconds;
             }
             double jump = (bwtClose - minPrice) / minPrice;
-            if (maxJump == null || jump > maxJump) {
-                maxJump = jump;
-                priceAtMaxJump = bwtClose;
-                maxJumpEpochSeconds = bwt.epochSeconds;
-                minPriceForMaxJump = minPrice;
-                minPriceForMaxJumpEpochSeconds = minPriceEpochSeconds;
+            if (maxJump == null || jump > maxJump.change) {
+                maxJump = Change.builder()
+                        .change(jump)
+                        .priceAtChange(bwtClose)
+                        .priceAtChangeEpochSeconds(bwt.epochSeconds)
+                        .priceChangedFrom(minPrice)
+                        .priceChangedFromEpochSeconds(minPriceEpochSeconds)
+                        .build();
             }
 
             if (maxPrice == null || bwtClose > maxPrice) {
@@ -150,12 +138,14 @@ public class Changes {
                 maxPriceEpochSeconds = bwt.epochSeconds;
             }
             double drop = (bwtClose - maxPrice) / maxPrice;
-            if (minDrop == null || drop < minDrop) {
-                minDrop = drop;
-                priceAtMinDrop = bwtClose;
-                minDropEpochSeconds = bwt.epochSeconds;
-                maxPriceForMinDrop = maxPrice;
-                maxPriceForMinDropEpochSeconds = maxPriceEpochSeconds;
+            if (minDrop == null || drop < minDrop.change) {
+                minDrop = Change.builder()
+                        .change(drop)
+                        .priceAtChange(bwtClose)
+                        .priceAtChangeEpochSeconds(bwt.epochSeconds)
+                        .priceChangedFrom(maxPrice)
+                        .priceChangedFromEpochSeconds(maxPriceEpochSeconds)
+                        .build();
             }
         }
 
@@ -168,8 +158,8 @@ public class Changes {
                 .symbol(bwtSlidingWindow.symbol)
                 .priceAtAnalysis(recentClose)
                 .epochSecondsAtAnalysis(bwtSlidingWindow.window.getLast().epochSeconds)
-                .minDrop(minDrop).priceAtMinDrop(priceAtMinDrop).minDropEpochSeconds(minDropEpochSeconds).maxPriceForMinDrop(maxPriceForMinDrop).maxPriceForMinDropEpochSeconds(maxPriceForMinDropEpochSeconds)
-                .maxJump(maxJump).priceAtMaxJump(priceAtMaxJump).maxJumpEpochSeconds(maxJumpEpochSeconds).minPriceForMaxJump(minPriceForMaxJump).minPriceForMaxJumpEpochSeconds(minPriceForMaxJumpEpochSeconds)
+                .minDrop(minDrop)
+                .maxJump(maxJump)
                 .change(change)
                 .analyzeParameter(parameter)
                 .build();

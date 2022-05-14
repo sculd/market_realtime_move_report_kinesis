@@ -36,15 +36,16 @@ public class BackTestBase {
         ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.10).stepDouble(0.10).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.20).endDouble(-0.20).stepDouble(0.10).build();
         ParameterScanCommon.ScanGridIntParam changeAnalysisWindowScanGridParam =
-                ParameterScanCommon.ScanGridIntParam.builder().startInt(20).endInt(40).stepInt(20).build();
+                ParameterScanCommon.ScanGridIntParam.builder().startInt(40).endInt(40).stepInt(20).build();
 
         List<ChangesAnomalyTradingStreamInitParameter> scanGrids = new ArrayList<>();
         for (ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType triggerAnomalyType :
+                //Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP)) {
                 Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP,
-                        ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP,
-                        ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)) {
+                    ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP,
+                      ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)) {
             scanGrids.addAll(ParameterScan.generateScanGrids(
                     seekChangeAmplitudeScanGridParam,
                     targetReturnFromEntryScanGridParam,

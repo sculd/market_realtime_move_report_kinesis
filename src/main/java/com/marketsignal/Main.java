@@ -46,7 +46,7 @@ public class Main {
                 .market("dummy_market")
                 .symbol("dummy_symbol")
                 .changeAnalysis(Changes.AnalyzeResult.builder()
-                        .maxJump(0.15)
+                        .maxJump(Changes.Change.builder().change(0.15).build())
                         .analyzeParameter(Changes.AnalyzeParameter.builder()
                                 .windowSize(Duration.ofMinutes(60))
                                 .build())

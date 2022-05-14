@@ -26,14 +26,14 @@ public class ChangesAnomaly {
         public Changes.AnalyzeResult changeAnalysis;
 
         public String getChangeTypeStr() {
-            if (Math.abs(changeAnalysis.minDrop) < changeThreshold && changeAnalysis.maxJump < changeThreshold) {
+            if (Math.abs(changeAnalysis.minDrop.change) < changeThreshold && changeAnalysis.maxJump.change < changeThreshold) {
                 return "";
-            } else if (Math.abs(changeAnalysis.minDrop) < changeThreshold) {
+            } else if (Math.abs(changeAnalysis.minDrop.change) < changeThreshold) {
                 return "Jump";
-            } else if (changeAnalysis.maxJump < changeThreshold) {
+            } else if (changeAnalysis.maxJump.change < changeThreshold) {
                 return "Drop";
             } else {
-                if (changeAnalysis.minDropEpochSeconds < changeAnalysis.maxJumpEpochSeconds) {
+                if (changeAnalysis.minDrop.priceAtChangeEpochSeconds < changeAnalysis.maxJump.priceAtChangeEpochSeconds) {
                     return "Drop->Jump";
                 } else {
                     return "Jump->Drop";
@@ -87,20 +87,20 @@ public class ChangesAnomaly {
     Map<String, Long> prevAnomalyEpochSeconds = new HashMap<>();
 
     static public boolean isMinDropAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
-        if (analyzeResult.minDrop > changeThreshold) {
+        if (analyzeResult.minDrop.change > changeThreshold) {
             return false;
         }
-        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.minDropEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
+        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.minDrop.priceAtChangeEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
             return false;
         }
         return true;
     }
 
     static public boolean isMaxJumpAnomaly(Changes.AnalyzeResult analyzeResult, double changeThreshold) {
-        if (analyzeResult.maxJump < changeThreshold) {
+        if (analyzeResult.maxJump.change < changeThreshold) {
             return false;
         }
-        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.maxJumpEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
+        if (analyzeResult.epochSecondsAtAnalysis - analyzeResult.maxJump.priceAtChangeEpochSeconds >= Duration.ofMinutes(1).toSeconds()) {
             return false;
         }
         return true;

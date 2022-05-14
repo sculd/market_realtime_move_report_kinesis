@@ -35,13 +35,13 @@ public class ChangesTest {
         Changes.AnalyzeParameter parameter = Changes.AnalyzeParameter.builder().windowSize(Duration.ofMinutes(20)).build();
         Changes.AnalyzeResult analysis = Changes.analyze(bwtSlidingWindow, parameter);
 
-        assertEquals(-0.5, analysis.minDrop, equalDelta);
-        assertEquals(50, analysis.priceAtMinDrop, equalDelta);
-        assertEquals(300, analysis.minDropEpochSeconds);
+        assertEquals(-0.5, analysis.minDrop.change, equalDelta);
+        assertEquals(50, analysis.minDrop.priceAtChange, equalDelta);
+        assertEquals(300, analysis.minDrop.priceAtChangeEpochSeconds);
 
-        assertEquals(3.0, analysis.maxJump, equalDelta);
-        assertEquals(200, analysis.priceAtMaxJump, equalDelta);
-        assertEquals(1200, analysis.maxJumpEpochSeconds);
+        assertEquals(3.0, analysis.maxJump.change, equalDelta);
+        assertEquals(200, analysis.maxJump.priceAtChange, equalDelta);
+        assertEquals(1200, analysis.maxJump.priceAtChangeEpochSeconds);
 
         assertEquals(1.0, analysis.change, equalDelta);
     }
