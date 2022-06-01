@@ -21,6 +21,7 @@ public class Sanbox {
         LinkedHashMap<String,Object> parameters;
         String result;
 
+        // test buy
         parameters = new LinkedHashMap<String,Object>();
         parameters.put("symbol","BTCUSDT");
         parameters.put("side", "SELL");
@@ -31,6 +32,7 @@ public class Sanbox {
         result = client.createTrade().testNewOrder(parameters);
         System.out.println(result);
 
+        // test buy invalid pair
         try {
             parameters.put("symbol","dummy");
             result = client.createTrade().testNewOrder(parameters);
@@ -44,6 +46,7 @@ public class Sanbox {
                     e.getMessage(), e.getErrMsg(), e.getErrorCode(), e.getHttpStatusCode(), e);
         }
 
+        // test account, system status
         Gson gson = new Gson(); // Or use new GsonBuilder().create();
         parameters = new LinkedHashMap<String,Object>();
         parameters.put("type", "SPOT");
@@ -57,15 +60,27 @@ public class Sanbox {
         SystemStatus systemStatus = gson.fromJson(result, SystemStatus.class);
         System.out.println(systemStatus);
 
-        result = client.createMargin().allPairs();
-        System.out.println(result);
-        List<Pair> pairs = gson.fromJson(result, Pair.getListType());
-        System.out.println(pairs);
+        // test borrow margin
+        parameters.put("asset","XRP");
+        parameters.put("amount", 5);
+        result = client.createMargin().borrow(parameters);
+        logger.info(result);
 
-        System.out.println(MarginPair.getAllPairs(true));
-
+        // test repay borrowed
         try {
-            parameters.put("symbol","dummy");
+            parameters.put("asset","XRP");
+            parameters.put("amount", 11);
+            result = client.createMargin().repay(parameters);
+            logger.info(result);
+        }
+        catch (BinanceClientException e) {
+            logger.error("fullErrMessage: {} \nerrMessage: {} \nerrCode: {} \nHTTPStatusCode: {}",
+                    e.getMessage(), e.getErrMsg(), e.getErrorCode(), e.getHttpStatusCode(), e);
+        }
+
+        // test short
+        try {
+            parameters.put("symbol","BTCUSDT");
             parameters.put("side", "SELL");
             parameters.put("type", "LIMIT");
             parameters.put("timeInForce", "GTC");

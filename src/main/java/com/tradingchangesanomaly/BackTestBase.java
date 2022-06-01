@@ -28,11 +28,11 @@ public class BackTestBase {
 
     protected List<ChangesAnomalyTradingStreamInitParameter> generateScanGrids() {
         ParameterScanCommon.ScanGridDoubleParam seekChangeAmplitudeScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.01).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.01).endDouble(0.02).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetReturnFromEntryScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.05).endDouble(0.05).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam targetStopLossScanGridParam =
-                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.03).stepDouble(0.01).build();
+                ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(-0.03).endDouble(-0.01).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam maxJumpThresholdScanGridParam =
                 ParameterScanCommon.ScanGridDoubleParam.builder().startDouble(0.10).endDouble(0.10).stepDouble(0.01).build();
         ParameterScanCommon.ScanGridDoubleParam minDropThresholdScanGridParam =
@@ -42,8 +42,8 @@ public class BackTestBase {
 
         List<ChangesAnomalyTradingStreamInitParameter> scanGrids = new ArrayList<>();
         for (ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType triggerAnomalyType :
-                //Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP)) {
-                Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP,
+            //Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP)) {
+            Arrays.asList(ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP_OR_DROP,
                     ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.JUMP,
                       ChangesAnomalyStateTransition.TransitionInitParameter.TriggerAnomalyType.DROP)) {
             scanGrids.addAll(ParameterScan.generateScanGrids(

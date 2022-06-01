@@ -130,25 +130,32 @@ public class ChangesAnomalyStateTransition extends StateTransition {
         while (stateTransitionFollowUp == StateTransitionFollowUp.CONTINUE_TRANSITION) {
             switch (state.stateType) {
                 case IDLE:
+                    // seek price, spread
                     stateTransitionFollowUp = planEnter(state, changeAnalysis, marginAsset.isMarginAsset(this.symbol));
                     break;
                 case ENTER_PLAN:
+                    // adjust enter seek target
                     state.enterPlan.onPriceUpdate(changeAnalysis.priceAtAnalysis);
+                    // check if the plan is triggered
                     stateTransitionFollowUp = handleEnterPlanState(
                             state,
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
                             orderbookFactory.create(this.market, this.symbol, changeAnalysis.priceAtAnalysis));
                     break;
                 case ENTER:
+                    // execute the plan
                     stateTransitionFollowUp = handleEnterState(
                             state,
                             Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build(),
                             analyses);
                     break;
                 case ENTER_ORDER_IN_PROGRESS:
+                    // check if the execution is complete
+                    // plan exit
                     stateTransitionFollowUp = handleEnterInProgressState(state);
                     break;
                 case IN_POSITION:
+                    // adjust exit seek target
                     state.exitPlan.stopLossPlan.onPriceUpdate(changeAnalysis.priceAtAnalysis);
                     stateTransitionFollowUp = handlePositionState(state, Common.PriceSnapshot.builder().price(changeAnalysis.priceAtAnalysis).epochSeconds(changeAnalysis.epochSecondsAtAnalysis).build());
                     break;
