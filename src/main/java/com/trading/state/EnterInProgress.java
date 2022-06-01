@@ -80,7 +80,7 @@ public class EnterInProgress {
         public Status status;
     }
 
-    public EnterInProgressStatus getProgressStatus(Common.PriceSnapshot entryPriceSnapshot, Analyses analysesUponEnter) {
+    public EnterInProgressStatus getProgressStatus(Common.PositionSideType positionSideType, Common.PriceSnapshot entryPriceSnapshot, Analyses analysesUponEnter) {
         Position position = Position.builder()
                 .market(market)
                 .symbol(symbol)

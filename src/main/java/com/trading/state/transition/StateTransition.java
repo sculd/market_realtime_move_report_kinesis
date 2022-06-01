@@ -99,7 +99,7 @@ public class StateTransition {
             return ret;
         }
 
-        EnterInProgress.EnterInProgressStatus enterInProgressStatus = state.enterInProgress.getProgressStatus(state.enter.entryPriceSnapshot, state.enter.analysesUponEnter);
+        EnterInProgress.EnterInProgressStatus enterInProgressStatus = state.enterInProgress.getProgressStatus(state.enter.positionSideType, state.enter.entryPriceSnapshot, state.enter.analysesUponEnter);
         switch (enterInProgressStatus.status) {
             case ORDER_COMPLETE:
                 state.stateType = States.StateType.IN_POSITION;
@@ -186,7 +186,7 @@ public class StateTransition {
             return ret;
         }
 
-        ExitInProgress.ExitInProgressStatus exitInProgressStatus = state.exitInProgress.getProgressStatus();
+        ExitInProgress.ExitInProgressStatus exitInProgressStatus = state.exitInProgress.getProgressStatus(state.position.positionSideType);
         switch (exitInProgressStatus.status) {
             case ORDER_COMPLETE:
                 state.stateType = States.StateType.TRADE_CLOSED;

@@ -3,6 +3,7 @@ package com.trading;
 import com.binance.connector.client.impl.SpotClientImpl;
 import com.binance.connector.client.exceptions.BinanceClientException;
 import com.binance.connector.client.exceptions.BinanceConnectorException;
+import com.marketapi.binance.response.QueryCrossMarginAccountDetails;
 import com.marketapi.binance.response.SystemStatus;
 import com.marketapi.binance.response.AccountSnapshot;
 import com.marketapi.binance.response.Pair;
@@ -10,6 +11,8 @@ import com.marketapi.binance.MarginPair;
 import com.google.gson.Gson;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import com.tradingbinance.state.BinanceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,6 +99,12 @@ public class Sanbox {
             logger.error("fullErrMessage: {} \nerrMessage: {} \nerrCode: {} \nHTTPStatusCode: {}",
                     e.getMessage(), e.getErrMsg(), e.getErrorCode(), e.getHttpStatusCode(), e);
         }
+
+        // test margin account detail
+        parameters.clear();
+        result = BinanceUtil.client.createMargin().account(parameters);
+        QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
+        logger.info(marginAccountDetail.toString());
 
         System.out.println("done");
     }

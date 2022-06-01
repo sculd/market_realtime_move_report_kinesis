@@ -1,37 +1,84 @@
 package com.tradingbinance.state;
 
 import com.google.gson.Gson;
+import com.marketapi.binance.response.MarginAccountRepay;
+import com.marketapi.binance.response.QueryCrossMarginAccountDetails;
 import com.marketapi.binance.response.QueryOrder;
+import com.marketapi.binance.response.QueryMarginAccountOrder;
+import com.trading.state.Common;
 import com.trading.state.ExitInProgress;
 
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 
 @SuperBuilder
 public class BinanceExitInProgress  extends ExitInProgress {
+    private static final Logger logger = LoggerFactory.getLogger(BinanceExitInProgress.class);
+
     @Builder.Default
     Gson gson = new Gson();
 
-    public ExitInProgressStatus getProgressStatus() {
+    @Override
+    public ExitInProgressStatus getProgressStatus(Common.PositionSideType positionSideType) {
         LinkedHashMap<String,Object> parameters;
         parameters = new LinkedHashMap<String,Object>();
-        parameters.put("symbol", symbol);
-        parameters.put("orderId", Long.valueOf(orderID));
-        String result = BinanceUtil.client.createTrade().newOrder(parameters);
-        QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
 
+        String result;
         ExitInProgressStatus.Status status = ExitInProgressStatus.Status.ORDER_IN_PROGRESS;
-        String statusLower = queryOrder.status.toLowerCase();
-        switch (statusLower) {
-            case "new":
+
+        switch (positionSideType) {
+            case LONG:
+                parameters.put("symbol", symbol);
+                parameters.put("orderId", Long.valueOf(orderID));
+                result = BinanceUtil.client.createTrade().newOrder(parameters);
+                QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
+
+                switch (queryOrder.status.toLowerCase()) {
+                    case "new":
+                        break;
+                    case "success":
+                        status = ExitInProgressStatus.Status.ORDER_COMPLETE;
+                        break;
+                    case "fail":
+                        status = ExitInProgressStatus.Status.ORDER_FAILED;
+                        break;
+                }
                 break;
-            case "success":
-                status = ExitInProgressStatus.Status.ORDER_COMPLETE;
-                break;
-            case "fail":
-                status = ExitInProgressStatus.Status.ORDER_FAILED;
+            case SHORT:
+                parameters.put("symbol", symbol);
+                parameters.put("orderId", Long.valueOf(orderID));
+                result = BinanceUtil.client.createTrade().newOrder(parameters);
+                QueryMarginAccountOrder queryMarginAccountOrder = gson.fromJson(result, QueryMarginAccountOrder.class);
+
+                switch (queryMarginAccountOrder.status.toLowerCase()) {
+                    case "new":
+                        break;
+                    case "success":
+                        status = ExitInProgressStatus.Status.ORDER_COMPLETE;
+                        String[] tokens = symbol.split("USD");
+                        String asset = tokens[0];
+
+                        result = BinanceUtil.client.createMargin().account(new LinkedHashMap<String,Object>());
+                        QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
+                        double borrowed = marginAccountDetail.getBorrowedAmount(asset);
+                        double freeAmount = marginAccountDetail.getFreeAmount(asset);
+                        logger.info("{} is borrowed, amount: {}, freeAmount: {}", asset, borrowed, freeAmount);
+
+                        parameters.clear();
+                        parameters.put("asset", asset);
+                        parameters.put("amount", Math.min(borrowed, freeAmount));
+                        result = BinanceUtil.client.createMargin().repay(parameters);
+                        MarginAccountRepay repay = gson.fromJson(result, MarginAccountRepay.class);
+                        logger.info("{} is repaid, repay: {}", asset, repay);
+                        break;
+                    case "fail":
+                        status = ExitInProgressStatus.Status.ORDER_FAILED;
+                        break;
+                }
                 break;
         }
 

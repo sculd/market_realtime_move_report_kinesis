@@ -75,7 +75,7 @@ public class ExitInProgress {
         public Status status;
     }
 
-    public ExitInProgressStatus getProgressStatus() {
+    public ExitInProgressStatus getProgressStatus(Common.PositionSideType positionSideType) {
         return ExitInProgressStatus.builder()
                 .status(ExitInProgressStatus.Status.ORDER_COMPLETE).build();
     }
