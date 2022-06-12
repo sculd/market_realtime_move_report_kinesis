@@ -1,5 +1,7 @@
 package com.trading.state;
 
+import com.google.common.base.MoreObjects;
+import com.marketapi.binance.response.MarginAccountBorrow;
 import com.marketsignal.timeseries.analysis.Analyses;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
@@ -21,6 +23,14 @@ public class Exit {
 
         public String orderID;
         public Result result;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ExecuteResult.class)
+                    .add("orderID", orderID)
+                    .add("result", result)
+                    .toString();
+        }
     }
 
     public void init(Position position, double targetPrice) {

@@ -49,9 +49,11 @@ public class BinanceEnterInProgress extends EnterInProgress {
                     case "new":
                         break;
                     case "success":
+                    case "filled":
                         status = EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE;
                         break;
                     case "fail":
+                    case "failed":
                         status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
                         break;
                 }
@@ -74,6 +76,19 @@ public class BinanceEnterInProgress extends EnterInProgress {
                         .analysesUponEnter(analysesUponEnter)
                         .build();
 
+                statusLower = queryMarginAccountOrder.status.toLowerCase();
+                switch (statusLower) {
+                    case "new":
+                        break;
+                    case "success":
+                    case "filled":
+                        status = EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE;
+                        break;
+                    case "fail":
+                    case "failed":
+                        status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
+                        break;
+                }
                 break;
         }
 

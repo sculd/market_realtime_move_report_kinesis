@@ -3,7 +3,10 @@ package com.tradingbinance.state;
 import com.google.gson.Gson;
 import com.marketapi.binance.response.NewOrder;
 import com.marketapi.binance.response.MarginAccountNewOrder;
+import com.marketapi.binance.response.QueryCrossMarginAccountDetails;
+import com.marketapi.binance.response.ExchangeInformation;
 import com.trading.state.Exit;
+import com.tradingbinance.state.BinanceUtil;
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
 import org.slf4j.Logger;
@@ -35,14 +38,26 @@ public class BinanceExit extends Exit {
                 orderId = String.valueOf(newOrder.orderId);
                 break;
             case SHORT:
+                String[] tokens = position.symbol.split("USD");
+                String asset = tokens[0];
+                result = BinanceUtil.client.createMargin().account(parameters);
+                QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
+                double borrowed = marginAccountDetail.getBorrowedAmount(asset);
+                logger.info("{} had been borrowed, amount: {} repaying with buy position quantity: {}", asset, borrowed, position.quantity);
+
                 parameters.put("symbol", position.symbol);
                 parameters.put("side", "BUY");
                 parameters.put("type", "MARKET");
-                parameters.put("timeInForce", "GTC");
-                parameters.put("quantity", position.quantity);
+                ExchangeInformation exchangeInformation = BinanceUtil.getExchangeInfo(position.symbol);
+                double quantity = Math.max(borrowed, position.quantity);
+                //quantity -= marginAccountDetail.getFreeAmount(asset);
+                quantity = exchangeInformation.quantifyByStepSize(position.symbol, quantity);
+                parameters.put("quantity", quantity);
+                logger.info("buying {}, quantity: {}", position.symbol, quantity);
                 result = BinanceUtil.client.createMargin().newOrder(parameters);
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);
                 orderId = String.valueOf(marginAccountNewOrder.orderId);
+                break;
             default:
                 logger.warn("Invalid position type for binance enter: {}", position.positionSideType);
                 return com.trading.state.Exit.ExecuteResult.builder()

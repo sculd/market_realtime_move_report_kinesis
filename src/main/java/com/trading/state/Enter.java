@@ -1,5 +1,7 @@
 package com.trading.state;
 
+import com.google.common.base.MoreObjects;
+import com.marketapi.binance.response.MarginAccountNewOrder;
 import com.marketsignal.timeseries.analysis.Analyses;
 
 import lombok.AllArgsConstructor;
@@ -27,6 +29,14 @@ public class Enter {
 
         public String orderID;
         public Result result;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ExecuteResult.class)
+                    .add("orderID", orderID)
+                    .add("result", result)
+                    .toString();
+        }
     }
 
     public ExecuteResult execute(Common.PriceSnapshot entryPriceSnapshot, Analyses analysesUponEnter) {

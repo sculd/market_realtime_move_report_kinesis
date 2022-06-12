@@ -34,7 +34,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
             case LONG:
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
-                result = BinanceUtil.client.createTrade().newOrder(parameters);
+                result = BinanceUtil.client.createTrade().getOrder(parameters);
                 QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
 
                 switch (queryOrder.status.toLowerCase()) {
@@ -51,13 +51,16 @@ public class BinanceExitInProgress  extends ExitInProgress {
             case SHORT:
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
-                result = BinanceUtil.client.createTrade().newOrder(parameters);
+                result = BinanceUtil.client.createMargin().getOrder(parameters);
                 QueryMarginAccountOrder queryMarginAccountOrder = gson.fromJson(result, QueryMarginAccountOrder.class);
 
                 switch (queryMarginAccountOrder.status.toLowerCase()) {
                     case "new":
+                        logger.info("{} buy order for exit yet new", symbol);
                         break;
                     case "success":
+                    case "filled":
+                        logger.info("{} buy order for exit is filled", symbol);
                         status = ExitInProgressStatus.Status.ORDER_COMPLETE;
                         String[] tokens = symbol.split("USD");
                         String asset = tokens[0];
@@ -66,7 +69,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
                         double borrowed = marginAccountDetail.getBorrowedAmount(asset);
                         double freeAmount = marginAccountDetail.getFreeAmount(asset);
-                        logger.info("{} is borrowed, amount: {}, freeAmount: {}", asset, borrowed, freeAmount);
+                        logger.info("{} was borrowed, amount: {} repaying with freeAmount: {}", asset, borrowed, freeAmount);
 
                         parameters.clear();
                         parameters.put("asset", asset);
@@ -76,6 +79,8 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         logger.info("{} is repaid, repay: {}", asset, repay);
                         break;
                     case "fail":
+                    case "failed":
+                        logger.info("{} buy order for exit has failed", symbol);
                         status = ExitInProgressStatus.Status.ORDER_FAILED;
                         break;
                 }

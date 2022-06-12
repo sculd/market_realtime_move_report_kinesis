@@ -4,7 +4,8 @@ import com.google.common.base.MoreObjects;
 
 public class MarginAccountNewOrder {
     public String symbol;
-    public int orderId;
+    public long orderId;
+    public String status;
     public String clientOrderId;
     public boolean isIsolated;
     public long transactTime;

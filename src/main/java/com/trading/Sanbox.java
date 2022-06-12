@@ -6,13 +6,18 @@ import com.binance.connector.client.exceptions.BinanceConnectorException;
 import com.marketapi.binance.response.QueryCrossMarginAccountDetails;
 import com.marketapi.binance.response.SystemStatus;
 import com.marketapi.binance.response.AccountSnapshot;
-import com.marketapi.binance.response.Pair;
-import com.marketapi.binance.MarginPair;
+import com.marketapi.binance.response.ExchangeInformation;
+import com.marketsignal.timeseries.analysis.Analyses;
+import com.trading.state.*;
+import com.tradingbinance.state.BinanceEnter;
+import com.tradingbinance.state.BinanceEnterInProgress;
+import com.tradingbinance.state.BinanceExit;
+import com.tradingbinance.state.BinanceExitInProgress;
+import com.tradingbinance.state.BinanceUtil;
 import com.google.gson.Gson;
+
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import com.tradingbinance.state.BinanceUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +29,72 @@ public class Sanbox {
         LinkedHashMap<String,Object> parameters;
         String result;
 
-        // test buy
+        ExchangeInformation exchangeInformation = BinanceUtil.getExchangeInfo("ADAUSDT");
+        logger.info("exchangeInformation: {}", exchangeInformation);
+
+        // binance enter and exit
+        String symbol = "ADAUSDT";
+        String market = "binance";
+        BinanceEnter binanceEnter = BinanceEnter.builder()
+                .symbol(symbol)
+                .targetVolume(20.2)
+                .positionSideType(Common.PositionSideType.SHORT)
+                .build();
+
+        Enter.ExecuteResult enterExecuteResult =  binanceEnter.execute(
+                Common.PriceSnapshot.builder().price(3.5).epochSeconds(java.time.Instant.now().getEpochSecond()).build(),
+                new Analyses());
+        logger.info("enterExecuteResult: {}", enterExecuteResult);
+
+        BinanceEnterInProgress binanceEnterInProgress = BinanceEnterInProgress.builder()
+                .market(market).symbol(symbol).orderID(enterExecuteResult.orderID)
+                .exitPlanInitParameter(ExitPlan.ExitPlanInitParameter.builder()
+                        .takeProfitPlanInitParameter(TakeProfitPlan.TakeProfitPlanInitParameter.builder().build())
+                        .stopLossPlanInitParameter(StopLossPlan.StopLossPlanInitParameter.builder().build())
+                        .timeoutPlanInitParameter(TimeoutPlan.TimeoutPlanInitParameter.builder().build())
+                        .build())
+                .build();
+        EnterInProgress.EnterInProgressStatus enterInProgressStatus = null;
+        while (true)
+        {
+            enterInProgressStatus = binanceEnterInProgress.getProgressStatus(Common.PositionSideType.SHORT, Common.PriceSnapshot.builder().build(), new Analyses());
+            logger.info("enterInProgressStatus: {}", enterInProgressStatus);
+            if (enterInProgressStatus.status == EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        BinanceExit binanceExit = BinanceExit.builder()
+                .position(enterInProgressStatus.position)
+                .targetPrice(3.5)
+                .analysesUponExit(new Analyses())
+                .build();
+
+        Exit.ExecuteResult exitExecuteResult = binanceExit.execute();
+        logger.info("exitExecuteResult: {}", exitExecuteResult);
+
+        BinanceExitInProgress binanceExitInProgress = BinanceExitInProgress.builder().market(market).symbol(symbol).orderID(exitExecuteResult.orderID).build();
+        ExitInProgress.ExitInProgressStatus exitInProgressStatus = null;
+        while (true)
+        {
+            exitInProgressStatus = binanceExitInProgress.getProgressStatus(enterInProgressStatus.position.positionSideType);
+            logger.info("exitInProgressStatus: {}", exitInProgressStatus);
+            if (exitInProgressStatus.status == ExitInProgress.ExitInProgressStatus.Status.ORDER_COMPLETE) {
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // testNewOrder
         parameters = new LinkedHashMap<String,Object>();
         parameters.put("symbol","BTCUSDT");
         parameters.put("side", "SELL");

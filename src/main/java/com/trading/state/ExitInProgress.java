@@ -73,6 +73,13 @@ public class ExitInProgress {
         }
 
         public Status status;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(ExitInProgressStatus.class)
+                    .add("status", status)
+                    .toString();
+        }
     }
 
     public ExitInProgressStatus getProgressStatus(Common.PositionSideType positionSideType) {

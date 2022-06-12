@@ -1,13 +1,11 @@
 package com.tradingbinance.state;
 
 import com.google.gson.Gson;
+import com.marketapi.binance.response.*;
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.trading.state.Common;
 import com.trading.state.Enter;
-import com.marketapi.binance.response.NewOrder;
-import com.marketapi.binance.response.MarginAccountBorrow;
-import com.marketapi.binance.response.MarginAccountNewOrder;
-import com.marketapi.binance.response.QueryCrossMarginAccountDetails;
+
 import java.util.LinkedHashMap;
 
 import lombok.Builder;
@@ -27,12 +25,14 @@ public class BinanceEnter extends Enter {
         parameters = new LinkedHashMap<String,Object>();
         parameters.put("symbol", symbol);
         String result;
+        ExchangeInformation exchangeInformation = BinanceUtil.getExchangeInfo(symbol);
+        double quantity = exchangeInformation.quantifyByStepSize(symbol, targetVolume);
         switch (positionSideType) {
             case LONG:
                 parameters.put("side", "BUY");
                 parameters.put("type", "MARKET");
                 parameters.put("timeInForce", "GTC");
-                parameters.put("quantity", targetVolume);
+                parameters.put("quantity", quantity);
                 result = BinanceUtil.client.createTrade().newOrder(parameters);
                 NewOrder newOrder = gson.fromJson(result, NewOrder.class);
 
@@ -43,23 +43,34 @@ public class BinanceEnter extends Enter {
             case SHORT:
                 String[] tokens = symbol.split("USD");
                 String asset = tokens[0];
-                parameters.put("asset", asset);
-                parameters.put("amount", targetVolume);
-                result = BinanceUtil.client.createMargin().borrow(parameters);
-                MarginAccountBorrow borrow = gson.fromJson(result, MarginAccountBorrow.class);
-                logger.info("{} is borrowed, borrow: {}", asset, borrow);
+
+                result = BinanceUtil.client.createMargin().account(parameters);
+                QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
+                double freeAmount = marginAccountDetail.getFreeAmount(asset);
+                double borrowQuantity = quantity - freeAmount;
+                logger.info("Will borrow {}, quantity: {}, freeAmount: {}, borrowQuantity: {}", asset, quantity, freeAmount, borrowQuantity);
+                if (borrowQuantity <= 0) {
+                    logger.info("skip borrowing {} as freeAmount {} is enough for quantity: {}", asset, freeAmount, quantity);
+                } else {
+                    parameters.put("asset", asset);
+                    parameters.put("amount", borrowQuantity);
+                    result = BinanceUtil.client.createMargin().borrow(parameters);
+                    MarginAccountBorrow borrow = gson.fromJson(result, MarginAccountBorrow.class);
+                    logger.info("borrow request for {}, borrowQuantity: {} is made, borrow: {}", asset, borrowQuantity, borrow);
+                }
 
                 parameters.clear();
                 result = BinanceUtil.client.createMargin().account(parameters);
-                QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
+                marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
                 double borrowed = marginAccountDetail.getBorrowedAmount(asset);
                 logger.info("{} is borrowed, amount: {}", asset, borrowed);
 
+                logger.info("selling {}, quantity: {}", symbol, quantity);
                 parameters.clear();
+                parameters.put("symbol", symbol);
                 parameters.put("side", "SELL");
                 parameters.put("type", "MARKET");
-                parameters.put("timeInForce", "GTC");
-                parameters.put("quantity", targetVolume);
+                parameters.put("quantity", quantity);
                 result = BinanceUtil.client.createMargin().newOrder(parameters);
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);
 

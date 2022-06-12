@@ -78,6 +78,15 @@ public class EnterInProgress {
         public ExitPlan exitPlan;
         public Position position;
         public Status status;
+
+        @Override
+        public String toString() {
+            return MoreObjects.toStringHelper(EnterInProgressStatus.class)
+                    .add("exitPlan", exitPlan)
+                    .add("position", position)
+                    .add("status", status)
+                    .toString();
+        }
     }
 
     public EnterInProgressStatus getProgressStatus(Common.PositionSideType positionSideType, Common.PriceSnapshot entryPriceSnapshot, Analyses analysesUponEnter) {
