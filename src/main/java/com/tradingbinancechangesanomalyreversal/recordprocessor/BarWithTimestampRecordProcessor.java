@@ -81,7 +81,7 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
             }
             processRecordsInput.records().forEach(this::processRecord);
         } catch (Throwable t) {
-            log.error("Caught throwable while processing records. Aborting.");
+            log.error("Caught throwable while processing records. Aborting.", t);
             Runtime.getRuntime().halt(1);
         } finally {
         }

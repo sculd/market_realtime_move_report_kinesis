@@ -29,7 +29,13 @@ public class OrderbookFactoryBinance implements OrderbookFactory {
         parameters.put("limit", 5);
         String result = BinanceUtil.client.createMarket().depth(parameters);
         Depth depth = gson.fromJson(result, Depth.class);
-        Orderbook orderbook = new Orderbook(market, symbol, java.time.Instant.now().getEpochSecond());
+        Orderbook orderbook = null;
+        try {
+            orderbook = new Orderbook(market, symbol, java.time.Instant.now().getEpochSecond());
+        } catch (Exception ex) {
+            log.error("error creating binance order book", ex);
+            orderbook = new OrderbookFactoryTrivial().create(market, symbol, currentPrice);
+        }
 
         for (List<String> quote : depth.asks) {
             orderbook.asks.quotes.add(

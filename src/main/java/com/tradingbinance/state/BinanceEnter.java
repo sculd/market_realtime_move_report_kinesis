@@ -5,7 +5,7 @@ import com.marketapi.binance.response.*;
 import com.marketsignal.timeseries.analysis.Analyses;
 import com.trading.state.Common;
 import com.trading.state.Enter;
-
+import com.binance.connector.client.impl.spot.Margin;
 import java.util.LinkedHashMap;
 
 import lombok.Builder;
@@ -27,13 +27,21 @@ public class BinanceEnter extends Enter {
         String result;
         ExchangeInformation exchangeInformation = BinanceUtil.getExchangeInfo(symbol);
         double quantity = exchangeInformation.quantifyByStepSize(symbol, targetVolume);
+        ExecuteResult failResult = com.trading.state.Enter.ExecuteResult.builder()
+                .result(ExecuteResult.Result.FAIL)
+                .build();
         switch (positionSideType) {
             case LONG:
                 parameters.put("side", "BUY");
                 parameters.put("type", "MARKET");
                 parameters.put("timeInForce", "GTC");
                 parameters.put("quantity", quantity);
-                result = BinanceUtil.client.createTrade().newOrder(parameters);
+                try {
+                    result = BinanceUtil.client.createTrade().newOrder(parameters);
+                } catch (Exception ex) {
+                    logger.error("error creating binance new order", ex);
+                    return failResult;
+                }
                 NewOrder newOrder = gson.fromJson(result, NewOrder.class);
 
                 return com.trading.state.Enter.ExecuteResult.builder()
@@ -44,7 +52,14 @@ public class BinanceEnter extends Enter {
                 String[] tokens = symbol.split("USD");
                 String asset = tokens[0];
 
-                result = BinanceUtil.client.createMargin().account(parameters);
+                Margin binanceMargin = BinanceUtil.client.createMargin();
+
+                try {
+                    result = binanceMargin.account(parameters);
+                } catch (Exception ex) {
+                    logger.error("error checking out binance margin account", ex);
+                    return failResult;
+                }
                 QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
                 double freeAmount = marginAccountDetail.getFreeAmount(asset);
                 double borrowQuantity = quantity - freeAmount;
@@ -54,13 +69,23 @@ public class BinanceEnter extends Enter {
                 } else {
                     parameters.put("asset", asset);
                     parameters.put("amount", borrowQuantity);
-                    result = BinanceUtil.client.createMargin().borrow(parameters);
+                    try {
+                        result = binanceMargin.borrow(parameters);
+                    } catch (Exception ex) {
+                        logger.error("error borrowing", ex);
+                        return failResult;
+                    }
                     MarginAccountBorrow borrow = gson.fromJson(result, MarginAccountBorrow.class);
                     logger.info("borrow request for {}, borrowQuantity: {} is made, borrow: {}", asset, borrowQuantity, borrow);
                 }
 
                 parameters.clear();
-                result = BinanceUtil.client.createMargin().account(parameters);
+                try {
+                    result = binanceMargin.account(parameters);
+                } catch (Exception ex) {
+                    logger.error("error checking marging account", ex);
+                    return failResult;
+                }
                 marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
                 double borrowed = marginAccountDetail.getBorrowedAmount(asset);
                 logger.info("{} is borrowed, amount: {}", asset, borrowed);
@@ -71,7 +96,12 @@ public class BinanceEnter extends Enter {
                 parameters.put("side", "SELL");
                 parameters.put("type", "MARKET");
                 parameters.put("quantity", quantity);
-                result = BinanceUtil.client.createMargin().newOrder(parameters);
+                try {
+                    result = BinanceUtil.client.createMargin().newOrder(parameters);
+                } catch (Exception ex) {
+                    logger.error("error making new margin order", ex);
+                    return failResult;
+                }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);
 
                 return com.trading.state.Enter.ExecuteResult.builder()

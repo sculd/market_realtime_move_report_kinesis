@@ -8,11 +8,14 @@ import com.trading.state.*;
 
 import lombok.Builder;
 import lombok.experimental.SuperBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 
 @SuperBuilder
 public class BinanceEnterInProgress extends EnterInProgress {
+    private static final Logger logger = LoggerFactory.getLogger(BinanceEnterInProgress.class);
     @Builder.Default
     Gson gson = new Gson();
 
@@ -22,14 +25,20 @@ public class BinanceEnterInProgress extends EnterInProgress {
         parameters = new LinkedHashMap<String,Object>();
 
         Position position = null;
-        String result;
+        String result = "";
         EnterInProgress.EnterInProgressStatus.Status status = EnterInProgress.EnterInProgressStatus.Status.ORDER_IN_PROGRESS;
 
         switch (positionSideType) {
             case LONG:
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
-                result = BinanceUtil.client.createTrade().getOrder(parameters);
+                try {
+                    result = BinanceUtil.client.createTrade().getOrder(parameters);
+                } catch (Exception ex) {
+                    logger.error("error getting an order", ex);
+                    status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
+                    break;
+                }
                 QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
 
                 position = Position.builder()
@@ -61,7 +70,13 @@ public class BinanceEnterInProgress extends EnterInProgress {
             case SHORT:
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
-                result = BinanceUtil.client.createMargin().getOrder(parameters);
+                try {
+                    result = BinanceUtil.client.createMargin().getOrder(parameters);
+                } catch (Exception ex) {
+                    logger.error("error getting a margin order", ex);
+                    status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
+                    break;
+                }
                 QueryMarginAccountOrder queryMarginAccountOrder = gson.fromJson(result, QueryMarginAccountOrder.class);
 
                 position = Position.builder()
