@@ -1,0 +1,8 @@
+target/*
+gradle/*
+.gradle/*
+k8s/secrets/*
+credential.json
+marketdata/*
+backtestdata/*
+logs/*

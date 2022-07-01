@@ -212,7 +212,6 @@ public class StateTransition {
      * tba
      */
     public StateTransitionFollowUp handleTradeClosed(States state) {
-        log.info(String.format("[handleTradeClosed] recapping a closed trade: %s", state.toString()));
         state.closedTrade = ClosedTrade.builder()
                 .market(market)
                 .symbol(symbol)
@@ -230,6 +229,7 @@ public class StateTransition {
                         .build())
                 .analysesUponEnter(state.position.analysesUponEnter)
                 .build();
+        log.info(String.format("[handleTradeClosed] recapping a closed trade: %s", state.toString()));
         state.stateType = States.StateType.IDLE;
         return StateTransitionFollowUp.HALT_TRANSITION;
     }

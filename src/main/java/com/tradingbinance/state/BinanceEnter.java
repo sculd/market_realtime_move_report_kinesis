@@ -39,7 +39,7 @@ public class BinanceEnter extends Enter {
                 try {
                     result = BinanceUtil.client.createTrade().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("error creating binance new order", ex);
+                    logger.error("binance error creating binance new order", ex);
                     return failResult;
                 }
                 NewOrder newOrder = gson.fromJson(result, NewOrder.class);
@@ -57,7 +57,7 @@ public class BinanceEnter extends Enter {
                 try {
                     result = binanceMargin.account(parameters);
                 } catch (Exception ex) {
-                    logger.error("error checking out binance margin account", ex);
+                    logger.error("binance error checking out binance margin account", ex);
                     return failResult;
                 }
                 QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -83,7 +83,7 @@ public class BinanceEnter extends Enter {
                 try {
                     result = binanceMargin.account(parameters);
                 } catch (Exception ex) {
-                    logger.error("error checking marging account", ex);
+                    logger.error("binance error checking margin account", ex);
                     return failResult;
                 }
                 marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -99,7 +99,7 @@ public class BinanceEnter extends Enter {
                 try {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("error making new margin order", ex);
+                    logger.error("binance error making new margin order", ex);
                     return failResult;
                 }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);

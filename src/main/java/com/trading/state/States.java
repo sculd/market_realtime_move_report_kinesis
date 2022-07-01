@@ -114,6 +114,13 @@ public class States {
                 .add("market", market)
                 .add("symbol", symbol)
                 .add("stateType", stateType)
+                .add("enter", enter)
+                .add("enterInProgress", enterInProgress)
+                .add("position", position)
+                .add("exitPlan", exitPlan)
+                .add("exit", exit)
+                .add("exitInProgress", exitInProgress)
+                .add("closedTrade", closedTrade)
                 .toString();
     }
 }

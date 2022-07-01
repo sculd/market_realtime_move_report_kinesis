@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: market-trade-binance
+  labels:
+    app: market-trade-binance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: market-trade-binance
+  template:
+    metadata:
+      labels:
+        app: market-trade-binance
+    spec:
+      containers:
+      - name: market-trade-binance
+        image: "gcr.io/trading-290017/market-realtime-trading-binance-kinesis"
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args: [
+            "java -jar market_realtime_move_report_kinesis-1.0-SNAPSHOT.jar --shardid=0 --envfile /etc/envvar/envvar.env --apptype=changes_anomaly_trading_binance"
+        ]
+        resources:
+          requests:
+            memory: "2.0Gi"
+            cpu: "100m"
+          limits:
+            memory: "2.0Gi"
+            cpu: "1"
+        ports:
+          - containerPort: 80
+        env:
+          - name: TRADING_PARAM_JSON
+            value: "/etc/tradingparam/tradingparam.json"
+        volumeMounts:
+          - name: volume-trading-binance-env-vars
+            readOnly: true
+            mountPath: /etc/envvar
+          - name: volume-trading-binance-trading-param-json
+            readOnly: true
+            mountPath: /etc/tradingparam
+      volumes:
+        - name: volume-trading-binance-env-vars
+          secret:
+            secretName: secret-trading-binance-env-vars
+        - name: volume-trading-binance-trading-param-json
+          secret:
+            secretName: secret-trading-binance-trading-param-json
+      restartPolicy: Always
