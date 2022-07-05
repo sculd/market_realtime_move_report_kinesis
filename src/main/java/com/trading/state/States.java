@@ -51,7 +51,7 @@ public class States {
         }
 
         static public String toCsvHeader() {
-            return String.format("%s,%s",
+            return String.format("%s,%s,%s,%s",
                     EnterPlan.EnterPlanInitParameter.toCsvHeader(),
                     EnterInProgress.EnterInProgressInitParameter.toCsvHeader(),
                     ExitPlan.ExitPlanInitParameter.toCsvHeader(),
@@ -59,7 +59,7 @@ public class States {
         }
 
         public String toCsvLine() {
-            return String.format("%s,%s",
+            return String.format("%s,%s,%s,%s",
                     enterPlanInitParameter.toCsvLine(),
                     enterInProgressInitParameter.toCsvLine(),
                     exitPlanInitParameter.toCsvLine(),

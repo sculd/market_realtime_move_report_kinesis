@@ -20,6 +20,19 @@ public class Enter {
     public Common.PriceSnapshot entryPriceSnapshot;
     public Analyses analysesUponEnter;
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(Enter.class)
+                .add("market", market)
+                .add("symbol", symbol)
+                .add("positionSideType", positionSideType)
+                .add("targetPrice", targetPrice)
+                .add("targetVolume", targetVolume)
+                .add("entryPriceSnapshot", entryPriceSnapshot)
+                .add("analysesUponEnter", analysesUponEnter)
+                .toString();
+    }
+
     @Builder
     public static class ExecuteResult {
         public enum Result {

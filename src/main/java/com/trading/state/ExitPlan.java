@@ -73,4 +73,16 @@ public class ExitPlan {
         stopLossPlan.init(position, exitPlanInitParameter.stopLossPlanInitParameter);
         timeoutPlan.init(position.entryPriceSnapshot, exitPlanInitParameter.timeoutPlanInitParameter);
     }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(ExitPlan.class)
+                .add("market", market)
+                .add("symbol", symbol)
+                .add("position", position)
+                .add("takeProfitPlan", takeProfitPlan)
+                .add("stopLossPlan", stopLossPlan)
+                .add("timeoutPlan", timeoutPlan)
+                .toString();
+    }
 }

@@ -66,6 +66,21 @@ public class EnterInProgress {
         timeoutPlan.init(entryPriceSnapShot, orderInProgressPlanInitParameter.timeoutPlanInitParameter);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(EnterInProgress.class)
+                .add("market", market)
+                .add("symbol", symbol)
+                .add("orderID", orderID)
+                .add("entryPriceSnapShot", entryPriceSnapShot)
+                .add("positionSideType", positionSideType)
+                .add("targetPrice", targetPrice)
+                .add("targetVolume", targetVolume)
+                .add("timeoutPlan", timeoutPlan)
+                .add("exitPlanInitParameter", exitPlanInitParameter)
+                .toString();
+    }
+
     @Builder
     public static class EnterInProgressStatus {
         public enum Status {

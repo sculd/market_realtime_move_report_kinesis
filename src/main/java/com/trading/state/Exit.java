@@ -38,6 +38,16 @@ public class Exit {
         this.targetPrice = targetPrice;
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(Exit.class)
+                .add("position", position)
+                .add("targetPrice", targetPrice)
+                .add("exitPriceSnapshot", exitPriceSnapshot)
+                .add("analysesUponExit", analysesUponExit)
+                .toString();
+    }
+
     public ExecuteResult execute(Common.PriceSnapshot priceSnapshot, Analyses analyses) {
         exitPriceSnapshot = priceSnapshot;
         analysesUponExit = analyses;

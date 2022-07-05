@@ -63,6 +63,19 @@ public class ExitInProgress {
         timeoutPlan.init(entryPriceSnapShot, orderInProgressPlanInitParameter.timeoutPlanInitParameter);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(ExitInProgress.class)
+                .add("market", market)
+                .add("symbol", symbol)
+                .add("orderID", orderID)
+                .add("entryPriceSnapShot", entryPriceSnapShot)
+                .add("positionSideType", positionSideType)
+                .add("targetPrice", targetPrice)
+                .add("targetVolume", targetVolume)
+                .toString();
+    }
+
     @Builder
     public static class ExitInProgressStatus {
         public enum Status {

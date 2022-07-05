@@ -31,7 +31,7 @@ public class ClosedTrade {
                 .add("market", market)
                 .add("symbol", symbol)
                 .add("positionSideType", positionSideType)
-                .add("PnL", getPnL())
+                .add("PnL", String.format("%.3f", getPnL()))
                 .add("GainLossFiat", getGainLossFiat())
                 .add("entryTargetPrice", entryTargetPrice)
                 .add("entryPriceSnapshot", entryPriceSnapshot.toString())

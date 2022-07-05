@@ -74,6 +74,17 @@ public class EnterPlan {
         seekSpread.init(SeekSpread.SpreadSeekType.SMALLER, enterPlanInitParameter.seekSpreadToMidRatio);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(EnterPlan.class)
+                .add("precisionDecimals", precisionDecimals)
+                .add("targetVolume", targetVolume)
+                .add("positionSideType", positionSideType)
+                .add("seekPrice", seekPrice)
+                .add("seekSpread", seekSpread)
+                .toString();
+    }
+
     public void onPriceUpdate(double price) {
         switch (seekPrice.changeType) {
             case DROP:
