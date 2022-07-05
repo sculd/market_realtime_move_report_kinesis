@@ -39,7 +39,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                 try {
                     result = BinanceUtil.client.createTrade().getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("binance error getting a margin order", ex);
+                    logger.error("{} binance error getting a margin order", symbol, ex);
                     status = ExitInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
@@ -65,7 +65,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                 try {
                     result = binanceMargin.getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("binance error getting a margin order", ex);
+                    logger.error("{} binance error getting a margin order", symbol, ex);
                     status = ExitInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
@@ -85,7 +85,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         try {
                             result = BinanceUtil.client.createMargin().account(new LinkedHashMap<String,Object>());
                         } catch (Exception ex) {
-                            logger.error("binance error checking a margin account", ex);
+                            logger.error("{} binance error checking a margin account", symbol, ex);
                             status = ExitInProgressStatus.Status.ORDER_FAILED;
                             break;
                         }
@@ -100,7 +100,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         try {
                             result = BinanceUtil.client.createMargin().repay(parameters);
                         } catch (Exception ex) {
-                            logger.error("binance error repaying", ex);
+                            logger.error("{} binance error repaying", symbol, ex);
                             status = ExitInProgressStatus.Status.ORDER_FAILED;
                             break;
                         }

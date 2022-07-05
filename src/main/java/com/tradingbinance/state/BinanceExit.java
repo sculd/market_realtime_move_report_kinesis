@@ -41,7 +41,7 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createTrade().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("binance error creating binance new order", ex);
+                    logger.error("{} binance error creating binance new order", position.symbol, ex);
                     return failResult;
                 }
                 NewOrder newOrder = gson.fromJson(result, NewOrder.class);
@@ -53,7 +53,7 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createMargin().account(parameters);
                 } catch (Exception ex) {
-                    logger.error("binance error checking binance account", ex);
+                    logger.error("{} binance error checking binance account", position.symbol, ex);
                     return failResult;
                 }
                 QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -72,14 +72,14 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("binance error creating binance margin new order", ex);
+                    logger.error("{} binance error creating binance margin new order", position.symbol, ex);
                     return failResult;
                 }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);
                 orderId = String.valueOf(marginAccountNewOrder.orderId);
                 break;
             default:
-                logger.warn("Invalid position type for binance enter: {}", position.positionSideType);
+                logger.warn("{} binance error Invalid position type for binance enter: {}", position.symbol, position.positionSideType);
                 return failResult;
         }
         exitPriceSnapshot.price = targetPrice;
