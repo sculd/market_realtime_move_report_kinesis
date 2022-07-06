@@ -48,7 +48,7 @@ public class ChangesAnomalyReversalTradingStream {
     States getState(BarWithTime bwt) {
         String key = BarWithTimeStream.bwtToKeyString(bwt);
         if (!keyedStates.containsKey(key)) {
-            keyedStates.put(key, new States(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.statesInitParameter));
+            keyedStates.put(key, createNewStates(bwt.bar.market, bwt.bar.symbol, changesAnomalyTradingStreamInitParameter.statesInitParameter));
         }
         return keyedStates.get(key);
     }

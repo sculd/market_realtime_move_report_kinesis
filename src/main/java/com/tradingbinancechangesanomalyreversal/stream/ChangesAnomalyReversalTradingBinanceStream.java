@@ -17,6 +17,7 @@ public class ChangesAnomalyReversalTradingBinanceStream extends ChangesAnomalyRe
         super(barWithTimeStream, new OrderbookFactoryBinance(), new MarginAssetBinance());
     }
 
+    @Override
     protected States createNewStates(String market, String symbol, States.StatesInitParameter statesInitParameter) {
         return new BinanceStates(market, symbol, statesInitParameter);
     }

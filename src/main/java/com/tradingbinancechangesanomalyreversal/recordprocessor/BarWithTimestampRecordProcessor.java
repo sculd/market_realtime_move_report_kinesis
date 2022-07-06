@@ -1,5 +1,6 @@
 package com.tradingbinancechangesanomalyreversal.recordprocessor;
 
+import com.main.AppOption;
 import com.tradingbinancechangesanomalyreversal.stream.ChangesAnomalyReversalTradingBinanceStream;
 
 import com.marketsignal.stream.BarWithTimeStream;
@@ -18,6 +19,9 @@ import software.amazon.kinesis.processor.RecordProcessorCheckpointer;
 import software.amazon.kinesis.processor.ShardRecordProcessor;
 import software.amazon.kinesis.retrieval.KinesisClientRecord;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 
 /**
@@ -54,8 +58,22 @@ public class BarWithTimestampRecordProcessor implements ShardRecordProcessor {
             log.info("Initializing @ Sequence: {}", initializationInput.extendedSequenceNumber());
             nextCheckpointTimeInMillis = System.currentTimeMillis() + CHECKPOINT_INTERVAL_MILLIS;
 
-            log.info("[initialize]");
-            String tradingParamJson = System.getenv("TRADING_PARAM_JSON");
+            log.info("[BarWithTimestampRecordProcessor.initialize]");
+            String tradingParamFile = System.getenv("TRADING_PARAM_JSON");
+            String tradingParamJson = "{}";
+
+            if (tradingParamFile == null || tradingParamFile.isEmpty()) {
+                log.warn("the option tradingParamFile is null (or empty string)");
+            } else {
+                log.info("processing the tradingParamFile: {}", tradingParamFile);
+                try {
+                    tradingParamJson = String.join(" ", Files.readAllLines(Paths.get(tradingParamFile)));
+                } catch (IOException ex) {
+                    log.error("an exception occurred processing tradingparamfile: {}", ex.toString());
+                }
+            }
+
+            log.info("[BarWithTimestampRecordProcessor.initialize] tradingParamJson: {}", tradingParamJson);
             ChangesAnomalyTradingInitParameter changesAnomalyTradingInitParameter = ChangesAnomalyTradingInitParameter.builder().build();
             changesAnomalyTradingInitParameter.initFromJson(tradingParamJson);
             log.info("changesAnomalyTradingInitParameter: {}", changesAnomalyTradingInitParameter);
