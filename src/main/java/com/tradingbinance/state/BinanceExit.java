@@ -36,12 +36,11 @@ public class BinanceExit extends Exit {
                 parameters.put("symbol", position.symbol);
                 parameters.put("side", "SELL");
                 parameters.put("type", "MARKET");
-                parameters.put("timeInForce", "GTC");
                 parameters.put("quantity", position.quantity);
                 try {
                     result = BinanceUtil.client.createTrade().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error creating binance new order", position.symbol, ex);
+                    logger.error("{} binance error creating binance new order: {}", position.symbol, ex);
                     return failResult;
                 }
                 NewOrder newOrder = gson.fromJson(result, NewOrder.class);
@@ -53,7 +52,7 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createMargin().account(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error checking binance account", position.symbol, ex);
+                    logger.error("{} binance error checking binance account: {}", position.symbol, ex);
                     return failResult;
                 }
                 QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -72,7 +71,7 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error creating binance margin new order", position.symbol, ex);
+                    logger.error("{} binance error creating binance margin new order: {}", position.symbol, ex);
                     return failResult;
                 }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);

@@ -34,7 +34,6 @@ public class BinanceEnter extends Enter {
             case LONG:
                 parameters.put("side", "BUY");
                 parameters.put("type", "MARKET");
-                parameters.put("timeInForce", "GTC");
                 parameters.put("quantity", quantity);
                 try {
                     result = BinanceUtil.client.createTrade().newOrder(parameters);
@@ -59,7 +58,7 @@ public class BinanceEnter extends Enter {
                     result = binanceMargin.account(parameters);
                     logger.error("{} short position new account result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error checking out binance margin account", symbol, ex);
+                    logger.error("{} binance error checking out binance margin account: {}", symbol, ex);
                     return failResult;
                 }
                 QueryCrossMarginAccountDetails marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -75,7 +74,7 @@ public class BinanceEnter extends Enter {
                         result = binanceMargin.borrow(parameters);
                         logger.error("{} short position borrow result: {}", symbol, result);
                     } catch (Exception ex) {
-                        logger.error("{} binance error borrowing", symbol, ex);
+                        logger.error("{} binance error borrowing: {}", symbol, ex);
                         return failResult;
                     }
                     MarginAccountBorrow borrow = gson.fromJson(result, MarginAccountBorrow.class);
@@ -87,7 +86,7 @@ public class BinanceEnter extends Enter {
                     result = binanceMargin.account(parameters);
                     logger.error("{} short position new account result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error checking margin account", symbol, ex);
+                    logger.error("{} binance error checking margin account: {}", symbol, ex);
                     return failResult;
                 }
                 marginAccountDetail = gson.fromJson(result, QueryCrossMarginAccountDetails.class);
@@ -104,7 +103,7 @@ public class BinanceEnter extends Enter {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                     logger.error("{} short position new margin order result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error making new margin order", symbol, ex);
+                    logger.error("{} binance error making new margin order: {}", symbol, ex);
                     return failResult;
                 }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);

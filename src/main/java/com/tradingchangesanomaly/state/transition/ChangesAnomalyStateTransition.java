@@ -175,7 +175,7 @@ public class ChangesAnomalyStateTransition extends StateTransition {
             case IDLE:
                 break;
             default:
-                log.info("non idle state: {}, stateTransitionFollowUp: {}, handleStateResult: {}", state.toString(), stateTransitionFollowUp, handleStateResult);
+                log.info("non idle before state: {}, after state: {}, stateTransitionFollowUp: {}, handleStateResult: {}", initStateType.toString(), state.toString(), stateTransitionFollowUp, handleStateResult);
         }
         return handleStateResult;
     }
