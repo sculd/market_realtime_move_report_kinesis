@@ -37,8 +37,8 @@ public class Sanbox {
         String market = "binance";
         BinanceEnter binanceEnter = BinanceEnter.builder()
                 .symbol(symbol)
-                .targetVolume(20.2)
-                .positionSideType(Common.PositionSideType.SHORT)
+                .targetVolume(30)
+                .positionSideType(Common.PositionSideType.LONG)
                 .build();
 
         Enter.ExecuteResult enterExecuteResult =  binanceEnter.execute(
@@ -57,7 +57,7 @@ public class Sanbox {
         EnterInProgress.EnterInProgressStatus enterInProgressStatus = null;
         while (true)
         {
-            enterInProgressStatus = binanceEnterInProgress.getProgressStatus(Common.PositionSideType.SHORT, Common.PriceSnapshot.builder().build(), new Analyses());
+            enterInProgressStatus = binanceEnterInProgress.getProgressStatus(Common.PositionSideType.LONG, Common.PriceSnapshot.builder().build(), new Analyses());
             logger.info("enterInProgressStatus: {}", enterInProgressStatus);
             if (enterInProgressStatus.status == EnterInProgress.EnterInProgressStatus.Status.ORDER_COMPLETE) {
                 break;

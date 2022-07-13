@@ -38,12 +38,12 @@ public class BinanceExit extends Exit {
                 parameters.put("type", "MARKET");
                 parameters.put("quantity", position.quantity);
                 try {
-                    result = BinanceUtil.client.createTrade().newOrder(parameters);
+                    result = BinanceUtil.client.createMargin().newOrder(parameters);
                 } catch (Exception ex) {
                     logger.error("{} binance error creating binance new order: {}", position.symbol, ex);
                     return failResult;
                 }
-                NewOrder newOrder = gson.fromJson(result, NewOrder.class);
+                MarginAccountNewOrder newOrder = gson.fromJson(result, MarginAccountNewOrder.class);
                 orderId = String.valueOf(newOrder.orderId);
                 break;
             case SHORT:

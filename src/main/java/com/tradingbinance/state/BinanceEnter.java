@@ -36,13 +36,14 @@ public class BinanceEnter extends Enter {
                 parameters.put("type", "MARKET");
                 parameters.put("quantity", quantity);
                 try {
-                    result = BinanceUtil.client.createTrade().newOrder(parameters);
+
+                    result = BinanceUtil.client.createMargin().newOrder(parameters);
                     logger.error("{} long position new order result: {}", symbol, result);
                 } catch (Exception ex) {
                     logger.error("{} binance error creating binance new order", symbol, ex);
                     return failResult;
                 }
-                NewOrder newOrder = gson.fromJson(result, NewOrder.class);
+                MarginAccountNewOrder newOrder = gson.fromJson(result, MarginAccountNewOrder.class);
 
                 return com.trading.state.Enter.ExecuteResult.builder()
                         .orderID(String.valueOf(newOrder.orderId))

@@ -37,21 +37,23 @@ public class BinanceExitInProgress  extends ExitInProgress {
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
                 try {
-                    result = BinanceUtil.client.createTrade().getOrder(parameters);
+                    result = BinanceUtil.client.createMargin().getOrder(parameters);
                 } catch (Exception ex) {
                     logger.error("{} binance error getting a margin order: {}", symbol, ex);
                     status = ExitInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
-                QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
+                QueryMarginAccountOrder queryOrder = gson.fromJson(result, QueryMarginAccountOrder.class);
 
                 switch (queryOrder.status.toLowerCase()) {
                     case "new":
                         break;
                     case "success":
+                    case "filled":
                         status = ExitInProgressStatus.Status.ORDER_COMPLETE;
                         break;
                     case "fail":
+                    case "failed":
                         status = ExitInProgressStatus.Status.ORDER_FAILED;
                         break;
                 }
