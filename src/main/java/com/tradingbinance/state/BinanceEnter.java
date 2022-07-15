@@ -40,7 +40,7 @@ public class BinanceEnter extends Enter {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                     logger.error("{} long position new order result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error creating binance new order", symbol, ex);
+                    logger.error("{} binance error creating binance new order: {}", symbol, ex);
                     return failResult;
                 }
                 MarginAccountNewOrder newOrder = gson.fromJson(result, MarginAccountNewOrder.class);
