@@ -40,7 +40,7 @@ public class BinanceExit extends Exit {
                 try {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error creating binance new order: {}", position.symbol, ex);
+                    logger.error("{} binance error creating binance margin new order: {}", position.symbol, ex);
                     return failResult;
                 }
                 MarginAccountNewOrder newOrder = gson.fromJson(result, MarginAccountNewOrder.class);
