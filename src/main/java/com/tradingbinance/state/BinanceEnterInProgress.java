@@ -35,7 +35,7 @@ public class BinanceEnterInProgress extends EnterInProgress {
                 try {
                     result = BinanceUtil.client.createMargin().getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error getting an order: {}", symbol, ex);
+                    logger.error("{} binance error getting an order: {}", symbol, ex.toString());
                     status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
@@ -73,7 +73,7 @@ public class BinanceEnterInProgress extends EnterInProgress {
                 try {
                     result = BinanceUtil.client.createMargin().getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error getting a margin order: {}", symbol, ex);
+                    logger.error("{} binance error getting a margin order: {}", symbol, ex.toString());
                     status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }

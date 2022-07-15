@@ -39,7 +39,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                 try {
                     result = BinanceUtil.client.createMargin().getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error getting a margin order: {}", symbol, ex);
+                    logger.error("{} binance error getting a margin order: {}", symbol, ex.toString());
                     status = ExitInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
@@ -67,7 +67,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                 try {
                     result = binanceMargin.getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error getting a margin order: {}", symbol, ex);
+                    logger.error("{} binance error getting a margin order: {}", symbol, ex.toString());
                     status = ExitInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
@@ -87,7 +87,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         try {
                             result = BinanceUtil.client.createMargin().account(new LinkedHashMap<String,Object>());
                         } catch (Exception ex) {
-                            logger.error("{} binance error checking a margin account: {}", symbol, ex);
+                            logger.error("{} binance error checking a margin account: {}", symbol, ex.toString());
                             status = ExitInProgressStatus.Status.ORDER_FAILED;
                             break;
                         }
@@ -102,7 +102,7 @@ public class BinanceExitInProgress  extends ExitInProgress {
                         try {
                             result = BinanceUtil.client.createMargin().repay(parameters);
                         } catch (Exception ex) {
-                            logger.error("{} binance error repaying: {}", symbol, ex);
+                            logger.error("{} binance error repaying: {}", symbol, ex.toString());
                             status = ExitInProgressStatus.Status.ORDER_FAILED;
                             break;
                         }
