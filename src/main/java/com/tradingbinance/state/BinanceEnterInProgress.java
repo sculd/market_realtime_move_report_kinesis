@@ -33,13 +33,13 @@ public class BinanceEnterInProgress extends EnterInProgress {
                 parameters.put("symbol", symbol);
                 parameters.put("orderId", Long.valueOf(orderID));
                 try {
-                    result = BinanceUtil.client.createMargin().getOrder(parameters);
+                    result = BinanceUtil.client.createTrade().getOrder(parameters);
                 } catch (Exception ex) {
-                    logger.error("{} binance error getting an order: {}", symbol, ex.toString());
+                    logger.error("{} binance error creating binance new order: {}", symbol, ex.toString());
                     status = EnterInProgress.EnterInProgressStatus.Status.ORDER_FAILED;
                     break;
                 }
-                QueryMarginAccountOrder queryOrder = gson.fromJson(result, QueryMarginAccountOrder.class);
+                QueryOrder queryOrder = gson.fromJson(result, QueryOrder.class);
 
                 position = Position.builder()
                         .market(market)

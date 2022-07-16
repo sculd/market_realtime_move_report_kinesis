@@ -37,13 +37,13 @@ public class BinanceEnter extends Enter {
                 parameters.put("quantity", quantity);
                 try {
 
-                    result = BinanceUtil.client.createMargin().newOrder(parameters);
+                    result = BinanceUtil.client.createTrade().newOrder(parameters);
                     logger.error("{} long position new order result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error creating binance margin new order: {}", symbol, ex.toString());
+                    logger.error("{} binance error creating binance new order: {}", symbol, ex.toString());
                     return failResult;
                 }
-                MarginAccountNewOrder newOrder = gson.fromJson(result, MarginAccountNewOrder.class);
+                NewOrder newOrder = gson.fromJson(result, NewOrder.class);
 
                 return com.trading.state.Enter.ExecuteResult.builder()
                         .orderID(String.valueOf(newOrder.orderId))
@@ -104,7 +104,7 @@ public class BinanceEnter extends Enter {
                     result = BinanceUtil.client.createMargin().newOrder(parameters);
                     logger.error("{} short position new margin order result: {}", symbol, result);
                 } catch (Exception ex) {
-                    logger.error("{} binance error making new margin order: {}", symbol, ex.toString());
+                    logger.error("{} binance error creating new margin order: {}", symbol, ex.toString());
                     return failResult;
                 }
                 MarginAccountNewOrder marginAccountNewOrder = gson.fromJson(result, MarginAccountNewOrder.class);

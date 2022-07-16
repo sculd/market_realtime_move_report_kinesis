@@ -8,5 +8,7 @@ public class Sandbox {
         System.out.println(String.format("%s: %b", "BTCUSDT", ma.isMarginAsset("BTCUSDT")));
         System.out.println(String.format("%s: %b", "BTCUSDT", ma.isMarginAsset("BTCUSDT")));
         System.out.println(String.format("%s: %b", "DUMMYUSDT", ma.isMarginAsset("DUMMYUSDT")));
+        System.out.println(String.format("%s: %b", "AKROUSDT", ma.isMarginAsset("AKROUSDT")));
+        System.out.println("done");
     }
 }
